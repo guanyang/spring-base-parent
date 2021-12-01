@@ -18,6 +18,7 @@
     <module>spring-base-sign</module>
     <module>spring-base-xss</module>
     <module>spring-base-lock</module>
+    <module>spring-base-log</module>
   </modules>
   <properties>
     <current.version>1.0.0-SNAPSHOT</current.version>
@@ -56,6 +57,11 @@
       <dependency>
         <groupId>org.gy.framework</groupId>
         <artifactId>spring-base-lock</artifactId>
+        <version>${current.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gy.framework</groupId>
+        <artifactId>spring-base-log</artifactId>
         <version>${current.version}</version>
       </dependency>
 

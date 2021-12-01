@@ -42,7 +42,7 @@ public class TraceUtils {
         MDC.remove(LOG_TRACE_ID);
     }
 
-    private static String uuid() {
+    public static String uuid() {
         return UUID.randomUUID().toString().replaceAll("-", "");
     }
 
