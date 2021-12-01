@@ -22,6 +22,7 @@ spring-base-csrf | csrf组件 |
 spring-base-sign | 接口签名组件 | 
 spring-base-xss | 接口参数xss校验组件| 
 spring-base-lock | 分布式锁组件 | 
+spring-base-log | 日志组件 | 支持traceid和日志切面
 
 #### Change Log
 ##### 1.0.0-SNAPSHOT
