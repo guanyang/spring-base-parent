@@ -88,7 +88,7 @@ public class LogTraceUtil {
 
     private static void logMessage(Map<String, Object> detail) {
         detail.put("logEndTime", System.currentTimeMillis());
-        log.info("[LogTraceUtil]" + JsonUtils.toJson(detail));
+        log.info(JsonUtils.toJson(detail));
     }
 
     private static void wrapCostTime(Map<String, Object> detail) {
