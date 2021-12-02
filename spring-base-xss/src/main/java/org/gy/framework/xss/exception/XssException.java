@@ -8,6 +8,8 @@ package org.gy.framework.xss.exception;
  */
 public class XssException extends RuntimeException{
 
+    private static final long serialVersionUID = -5071736632389942822L;
+
     public XssException() {
         super();
     }
