@@ -32,37 +32,37 @@
       <dependency>
         <groupId>org.gy.framework</groupId>
         <artifactId>spring-base-core</artifactId>
-        <version>${current.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.gy.framework</groupId>
         <artifactId>spring-base-util</artifactId>
-        <version>${current.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.gy.framework</groupId>
         <artifactId>spring-base-csrf</artifactId>
-        <version>${current.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.gy.framework</groupId>
         <artifactId>spring-base-sign</artifactId>
-        <version>${current.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.gy.framework</groupId>
         <artifactId>spring-base-xss</artifactId>
-        <version>${current.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.gy.framework</groupId>
         <artifactId>spring-base-lock</artifactId>
-        <version>${current.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.gy.framework</groupId>
         <artifactId>spring-base-log</artifactId>
-        <version>${current.version}</version>
+        <version>${project.version}</version>
       </dependency>
 
       <dependency>
