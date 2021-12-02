@@ -3,13 +3,13 @@ package org.gy.framework.log.aspect;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -110,6 +110,10 @@ public class LogTraceAspect {
         try {
             String[] paramNames = signature.getParameterNames();
             for (int i = 0; i < paramNames.length; i++) {
+                if (args[i] instanceof HttpServletRequest || args[i] instanceof HttpServletResponse) {
+                    //HttpServletRequest、HttpServletResponse 序列化报错，暂不处理
+                    continue;
+                }
                 if (!fieldFlag) {
                     //如果没有指定参数，则获取所有参数
                     paramNameAndValue.put(paramNames[i], args[i]);

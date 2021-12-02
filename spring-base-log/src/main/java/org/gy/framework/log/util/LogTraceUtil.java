@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.gy.framework.core.trace.TraceUtils;
 import org.gy.framework.util.http.ClientIpUtils;
 import org.gy.framework.util.json.JsonUtils;
 import org.gy.framework.util.net.NetUtils;
@@ -120,6 +121,7 @@ public class LogTraceUtil {
     private static Map<String, Object> initLogDetail() {
         Map<String, Object> logDetail = new HashMap<>();
         logDetail.put("logStartTime", System.currentTimeMillis());
+        logDetail.put("requestId", TraceUtils.computeIfAbsent());
         logDetail.put("serverIp", HOST_IP);
         logDetail.put("clientIp", getClientIp());
         logDetail.put("version", LOG_VERSION);

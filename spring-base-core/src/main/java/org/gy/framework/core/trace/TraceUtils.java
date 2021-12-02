@@ -11,6 +11,8 @@ import org.slf4j.MDC;
  */
 public class TraceUtils {
 
+    public static final String HTTP_HEADER_TRACE_ID = "X-Request-Id";
+
     public static final String LOG_TRACE_ID = "x-trace-id";
 
 
