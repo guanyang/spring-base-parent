@@ -2,11 +2,13 @@ package org.gy.framework.log.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.gy.framework.core.trace.TraceUtils;
+import org.gy.framework.log.model.TraceRequest;
 import org.gy.framework.util.http.ClientIpUtils;
 import org.gy.framework.util.json.JsonUtils;
 import org.gy.framework.util.net.NetUtils;
@@ -36,29 +38,15 @@ public class LogTraceUtil {
     private LogTraceUtil() {
     }
 
-    public static void preTrace(Class<?> executeClazz, String executeMethodName, Object requestObj, String desc) {
-        try {
-            Map<String, Object> detail = getThreadLocalLogDetail();
-            if (executeClazz != null) {
-                detail.put("className", executeClazz.getName());
-            }
-            detail.put("methodName", executeMethodName);
-            detail.put("desc", desc);
-
-            String json = objectToJson(requestObj);
-            detail.put("requestBody", json);
-
-            detail.put("invokeStartTime", System.currentTimeMillis());
-        } catch (Throwable e) {
-            log.warn("LogTraceUtil preTrace Exception.", e);
-        }
-
-    }
-
-    public static <T, R> R postTrace(T req, Action<T, R> action) throws Throwable {
+    public static <T, U, R> R execute(T req, Function<T, TraceRequest<U>> preFunction, Action<T, R> doAction)
+        throws Throwable {
         R result = null;
         try {
-            result = action.proceed(req);
+            //前置处理
+            TraceRequest<U> traceRequest = preFunction.apply(req);
+            preTrace(traceRequest);
+            //执行业务逻辑
+            result = doAction.proceed(req);
             // 后置处理
             postTrace(result);
         } catch (Throwable e) {
@@ -69,6 +57,25 @@ public class LogTraceUtil {
             clearTrace();
         }
         return result;
+    }
+
+    private static <T> void preTrace(TraceRequest<T> request) {
+        try {
+            Map<String, Object> detail = getThreadLocalLogDetail();
+            if (request != null) {
+                if (request.getExecuteClazz() != null) {
+                    detail.put("className", request.getExecuteClazz().getName());
+                }
+                detail.put("methodName", request.getExecuteMethodName());
+                detail.put("desc", request.getDesc());
+
+                String json = objectToJson(request.getRequestObj());
+                detail.put("requestBody", json);
+            }
+            detail.put("invokeStartTime", System.currentTimeMillis());
+        } catch (Throwable e) {
+            log.warn("LogTraceUtil preTrace Exception.", e);
+        }
     }
 
     public static interface Action<T, R> {

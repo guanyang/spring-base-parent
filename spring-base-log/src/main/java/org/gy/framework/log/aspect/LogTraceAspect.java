@@ -16,6 +16,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.gy.framework.log.annotation.LogTrace;
+import org.gy.framework.log.model.TraceRequest;
 import org.gy.framework.log.util.LogTraceUtil;
 import org.springframework.stereotype.Component;
 
@@ -37,16 +38,11 @@ public class LogTraceAspect {
 
     @Around("pointcutName()")
     public Object log(ProceedingJoinPoint point) throws Throwable {
-        // 前置处理
-        preHandle(point);
-        return postHandle(point);
+        return LogTraceUtil.execute(point, this::preHandle, ProceedingJoinPoint::proceed);
     }
 
-    private Object postHandle(ProceedingJoinPoint point) throws Throwable {
-        return LogTraceUtil.postTrace(point, ProceedingJoinPoint::proceed);
-    }
-
-    private void preHandle(ProceedingJoinPoint point) {
+    private TraceRequest<Object> preHandle(ProceedingJoinPoint point) {
+        TraceRequest<Object> traceRequest = new TraceRequest<>();
         try {
             // 拦截的实体类
             Object target = point.getTarget();
@@ -64,10 +60,14 @@ public class LogTraceAspect {
 
             Object requestObj = wrapRequestBody(point, signature, annotation);
 
-            LogTraceUtil.preTrace(target.getClass(), methodName, requestObj, desc);
+            traceRequest.setExecuteClazz(target.getClass());
+            traceRequest.setExecuteMethodName(methodName);
+            traceRequest.setRequestObj(requestObj);
+            traceRequest.setDesc(desc);
         } catch (Exception e) {
             log.warn("[LogTraceAspect]preHandle Exception.", e);
         }
+        return traceRequest;
 
     }
 
