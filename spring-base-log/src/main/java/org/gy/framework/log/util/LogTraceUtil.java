@@ -49,13 +49,34 @@ public class LogTraceUtil {
             detail.put("requestBody", json);
 
             detail.put("invokeStartTime", System.currentTimeMillis());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.warn("LogTraceUtil preTrace Exception.", e);
         }
 
     }
 
-    public static void postTrace(Object responseObj) {
+    public static <T, R> R postTrace(T req, Action<T, R> action) throws Throwable {
+        R result = null;
+        try {
+            result = action.proceed(req);
+            // 后置处理
+            postTrace(result);
+        } catch (Throwable e) {
+            log.error("LogTraceUtil proceed exception.", e);
+            postTraceWithException(e);
+            throw e;
+        } finally {
+            clearTrace();
+        }
+        return result;
+    }
+
+    public static interface Action<T, R> {
+
+        R proceed(T t) throws Throwable;
+    }
+
+    private static <R> void postTrace(R responseObj) {
         try {
             Map<String, Object> detail = getThreadLocalLogDetail();
             wrapCostTime(detail);
@@ -64,14 +85,12 @@ public class LogTraceUtil {
             detail.put("responseBody", json);
 
             logMessage(detail);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.warn("LogTraceUtil postTrace Exception.", e);
-        } finally {
-            clear();
         }
     }
 
-    public static void postTrace(Exception e) {
+    private static void postTraceWithException(Throwable e) {
         try {
             Map<String, Object> detail = getThreadLocalLogDetail();
             wrapCostTime(detail);
@@ -80,10 +99,16 @@ public class LogTraceUtil {
             detail.put("exceptionMsg", e.toString());
 
             logMessage(detail);
-        } catch (Exception exp) {
+        } catch (Throwable exp) {
             log.warn("LogTraceUtil postTrace Exception.", exp);
-        } finally {
-            clear();
+        }
+    }
+
+    private static void clearTrace() {
+        try {
+            logDetailLocal.remove();
+        } catch (Throwable e) {
+            log.warn("LogTraceUtil clear Exception.", e);
         }
     }
 
@@ -110,14 +135,6 @@ public class LogTraceUtil {
         return logDetail;
     }
 
-    private static void clear() {
-        try {
-            logDetailLocal.remove();
-        } catch (Exception e) {
-            log.warn("LogTraceUtil clear Exception.", e);
-        }
-    }
-
     private static Map<String, Object> initLogDetail() {
         Map<String, Object> logDetail = new HashMap<>();
         logDetail.put("logStartTime", System.currentTimeMillis());
@@ -132,7 +149,7 @@ public class LogTraceUtil {
         return "{\"errorMessage\":\"" + message + "\"}";
     }
 
-    private static String objectToJson(Object obj) {
+    private static <R> String objectToJson(R obj) {
         if (obj != null) {
             String result;
             try {

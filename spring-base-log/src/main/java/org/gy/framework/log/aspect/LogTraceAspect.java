@@ -37,20 +37,13 @@ public class LogTraceAspect {
 
     @Around("pointcutName()")
     public Object log(ProceedingJoinPoint point) throws Throwable {
-        Object result = null;
-        try {
-            // 前置处理
-            preHandle(point);
-            result = point.proceed();
-            // 后置处理
-            postHandle(result);
-        } catch (Exception e) {
-            log.error("[LogTraceAspect]proceed exception.", e);
-            postHandle(e);
-            throw e;
-        }
-        return result;
+        // 前置处理
+        preHandle(point);
+        return postHandle(point);
+    }
 
+    private Object postHandle(ProceedingJoinPoint point) throws Throwable {
+        return LogTraceUtil.postTrace(point, ProceedingJoinPoint::proceed);
     }
 
     private void preHandle(ProceedingJoinPoint point) {
@@ -76,14 +69,6 @@ public class LogTraceAspect {
             log.warn("[LogTraceAspect]preHandle Exception.", e);
         }
 
-    }
-
-    private void postHandle(Object responseObj) {
-        LogTraceUtil.postTrace(responseObj);
-    }
-
-    private void postHandle(Exception e) {
-        LogTraceUtil.postTrace(e);
     }
 
     /**
