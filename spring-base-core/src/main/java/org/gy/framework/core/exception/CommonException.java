@@ -9,7 +9,7 @@ import lombok.Getter;
  * @version 1.0.0
  */
 @Getter
-public class CommonException extends RuntimeException{
+public class CommonException extends RuntimeException {
 
     private static final long serialVersionUID = -6529876068824192516L;
     /**
@@ -47,6 +47,12 @@ public class CommonException extends RuntimeException{
 
     public CommonException(int error, String msg) {
         super(msg);
+        this.error = error;
+        this.msg = msg;
+    }
+
+    public CommonException(int error, String msg, Throwable e) {
+        super(msg, e);
         this.error = error;
         this.msg = msg;
     }

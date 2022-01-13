@@ -4,7 +4,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
-import org.gy.framework.util.json.JsonUtils;
+import org.gy.framework.core.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -2,7 +2,8 @@ package org.gy.framework.core.dto;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 功能描述：
@@ -10,7 +11,8 @@ import lombok.Data;
  * @author gy
  * @version 1.0.0
  */
-@Data
+@Getter
+@Setter
 public class PageQuery extends Query {
 
     private static final long serialVersionUID = -1828037735162653632L;

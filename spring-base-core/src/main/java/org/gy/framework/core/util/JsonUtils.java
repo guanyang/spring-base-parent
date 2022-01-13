@@ -1,6 +1,7 @@
-package org.gy.framework.util.json;
+package org.gy.framework.core.util;
 
-import com.google.common.base.Strings;
+import static org.gy.framework.core.exception.Assert.hasContent;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.Reader;
@@ -17,8 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 public class JsonUtils {
 
     private static final Gson GSON = new GsonBuilder()
-        .setDateFormat("yyyy-MM-dd HH:mm:ss")     //Date日期格式
-        .serializeNulls()                           //输出值为null的属性
         .disableInnerClassSerialization()           //禁此序列化内部类
         .disableHtmlEscaping()                      //禁止转义html标签
         .create();
@@ -28,7 +27,7 @@ public class JsonUtils {
     }
 
     public static <T> T toObject(String json, Class<T> clazz) {
-        if (!Strings.isNullOrEmpty(json)) {
+        if (hasContent(json)) {
             try {
                 return GSON.fromJson(json, clazz);
             } catch (Throwable e) {
@@ -54,7 +53,7 @@ public class JsonUtils {
     }
 
     public static <T> T toObject(String json, Type type) {
-        if (!Strings.isNullOrEmpty(json)) {
+        if (hasContent(json)) {
             try {
                 return GSON.fromJson(json, type);
             } catch (Throwable e) {

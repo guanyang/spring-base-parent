@@ -1,6 +1,7 @@
 package org.gy.framework.core.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 功能描述：
@@ -8,7 +9,8 @@ import lombok.Data;
  * @author gy
  * @version 1.0.0
  */
-@Data
+@Getter
+@Setter
 public abstract class BaseResponse extends DTO {
 
     private static final long serialVersionUID = 6761677008678901732L;

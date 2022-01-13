@@ -1,9 +1,7 @@
 package org.gy.framework.core.dto;
 
-import java.io.Serializable;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.gy.framework.core.exception.CommonErrorCode;
 import org.gy.framework.core.exception.CommonException;
 
@@ -13,7 +11,8 @@ import org.gy.framework.core.exception.CommonException;
  * @author gy
  * @version 1.0.0
  */
-@Data
+@Getter
+@Setter
 public class Response<T> extends BaseResponse {
 
     private static final long serialVersionUID = 406754594494048189L;
@@ -61,6 +60,5 @@ public class Response<T> extends BaseResponse {
     public static Response asError() {
         return asError(ERROR_CODE, ERROR_MSG, null);
     }
-
 
 }

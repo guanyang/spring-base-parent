@@ -2,7 +2,8 @@ package org.gy.framework.core.dto;
 
 import java.util.Collection;
 import java.util.Collections;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.gy.framework.core.exception.CommonErrorCode;
 import org.gy.framework.core.exception.CommonException;
 
@@ -12,7 +13,8 @@ import org.gy.framework.core.exception.CommonException;
  * @author gy
  * @version 1.0.0
  */
-@Data
+@Getter
+@Setter
 public class PageResponse<T> extends BaseResponse {
 
     private static final long serialVersionUID = -3414014589767966265L;
