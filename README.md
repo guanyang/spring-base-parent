@@ -30,7 +30,7 @@ spring-base-log | 日志组件 | 支持traceid和日志切面
 初试版本
 ```
 
-#### 1.0.0-SNAPSHOT
+#### 1.0.1-SNAPSHOT
 ```
 1. 添加Filter和FilterChain支持
 2. 完善Exception类型及ExceptionHandlerI处理
