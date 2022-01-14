@@ -11,16 +11,20 @@ import java.util.List;
  */
 public class DefaultFilterChain implements FilterChain {
 
-    private final List<Filter> filters = new ArrayList<>();
+    private List<Filter> filters;
 
     private int currentPosition = 0;
+
+    public DefaultFilterChain(List<Filter> filters) {
+        this.filters = filters == null ? new ArrayList<>() : filters;
+    }
 
     public DefaultFilterChain addFilter(Filter filter) {
         filters.add(filter);
         return this;
     }
 
-    public DefaultFilterChain addFilter(List<? extends Filter> filterList) {
+    public DefaultFilterChain addFilter(List<Filter> filterList) {
         filters.addAll(filterList);
         return this;
     }
