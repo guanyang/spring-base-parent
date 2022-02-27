@@ -34,4 +34,7 @@ spring-base-log | 日志组件 | 支持traceid和日志切面
 ```
 1. 添加Filter和FilterChain支持
 2. 完善Exception类型及ExceptionHandlerI处理
+3. 模块【spring-base-util】添加FileFilter过滤清洗，防止文件上传违规内容
+  - 支持常见图片文件头尾字节码检查，防止恶意篡改文件扩展名上传，例如：jpg、png、gif、bmp
+  - 支持图片文件字节码流内容清洗，剔除夹带恶意代码
 ```
