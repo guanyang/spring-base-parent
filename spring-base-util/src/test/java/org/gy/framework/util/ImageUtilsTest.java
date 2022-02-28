@@ -2,13 +2,17 @@ package org.gy.framework.util;
 
 import com.google.common.collect.Lists;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.List;
 import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.io.IOUtils;
 import org.gy.framework.util.file.ImageUtils;
 import org.gy.framework.util.file.ImageUtils.ImageParam;
 import org.junit.jupiter.api.Test;
@@ -38,6 +42,14 @@ public class ImageUtilsTest {
         List<String> list = buildTestList();
         for (String image : list) {
             imageFilterExe(image);
+        }
+    }
+
+    @Test
+    public void imageFilterErrExeTest() throws IOException {
+        List<String> list = buildTestList();
+        for (String image : list) {
+            imageFilterErrExe(image,"test msg");
         }
     }
 
@@ -98,6 +110,19 @@ public class ImageUtilsTest {
 
         log.info("文件地址：{}", targetImage);
 
+
+    }
+
+    private static void imageFilterErrExe(String srcImage,String errmsg) throws IOException {
+        String format = srcImage.substring(srcImage.lastIndexOf(".") + 1);
+        String fileName = srcImage.substring(srcImage.lastIndexOf("/") + 1, srcImage.lastIndexOf("."));
+        String targetImage = "/Users/gy/Downloads/test/imageFilterErr_" + fileName + "_" + System.currentTimeMillis() + "." + format;
+
+        OutputStream os = new FileOutputStream(targetImage);
+        IOUtils.copy(new FileInputStream(srcImage),os);
+        os.write(errmsg.getBytes());
+
+        log.info("文件地址：{}", targetImage);
 
     }
 
