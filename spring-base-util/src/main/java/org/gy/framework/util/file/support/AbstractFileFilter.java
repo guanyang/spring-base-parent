@@ -39,12 +39,13 @@ public abstract class AbstractFileFilter implements FileFilter {
         if (!fileTypeFlag) {
             throw new IllegalArgumentException("上传文件格式不合法:" + context.getFormat());
         }
+        //原字节码回写输入流
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(byteSrc);
+        context.setInputStream(inputStream);
         if (!fileTypeEnum.isFilterSupport()) {
             logger.debug("[FileFilter.doFilter]文件类型暂不支持过滤清洗:fileTypeEnum={}", fileTypeEnum);
             return;
         }
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(byteSrc);
-        context.setInputStream(inputStream);
         doFileFilter(context);
     }
 
