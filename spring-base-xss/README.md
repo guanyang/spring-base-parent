@@ -14,6 +14,7 @@
   </dependency>
 ```
 
+- 应用入口类添加`@EnableXss`注解，启动Xss检查
 - 当前组件只针对`RestController`或者`Controller`标注的类进行xss校验
 - 请求对象需要添加`@Valid`或者`@Validated`注解才会进行校验
 

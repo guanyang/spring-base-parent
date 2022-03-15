@@ -19,6 +19,7 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.gy.framework.xss.exception.XssException;
+import org.gy.framework.xss.util.ClassCheckUtils;
 import org.gy.framework.xss.util.XssTool;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
@@ -55,6 +56,11 @@ public class XssCheckAspect {
     }
 
     private void preHandle(Object requestDataObj) throws XssException {
+        //检查参数类型，true继续执行，false终止执行
+        boolean checkType = checkType(requestDataObj);
+        if (!checkType) {
+            return;
+        }
         Class clazz = requestDataObj.getClass();
         List<Field> fields = this.getFields(clazz);
 
@@ -121,6 +127,26 @@ public class XssCheckAspect {
             if (annotation.annotationType() == Valid.class || annotation.annotationType() == Validated.class) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    /**
+     * 检查参数类型，true继续执行，false终止执行
+     */
+    private static boolean checkType(Object requestObj) {
+        if (requestObj == null) {
+            return false;
+        }
+        Class clazz = requestObj.getClass();
+        //不是指定的类型，则继续执行
+        boolean basicType = ClassCheckUtils.checkBasicType(clazz);
+        if (!basicType) {
+            return true;
+        }
+        //如果是字符串类型，检查是否包含恶意数据
+        if (requestObj instanceof String && XssTool.matchXSS((String) requestObj)) {
+            throw new XssException("参数不符合XSS校验");
         }
         return false;
     }
