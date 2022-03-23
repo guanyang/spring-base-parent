@@ -9,22 +9,22 @@ import java.util.List;
  * @author gy
  * @version 1.0.0
  */
-public class DefaultFilterChain implements FilterChain {
+public class DefaultFilterChain<F extends Filter> implements FilterChain {
 
-    private List<Filter> filters;
+    private List<F> filters;
 
     private int currentPosition = 0;
 
-    public DefaultFilterChain(List<Filter> filters) {
+    public DefaultFilterChain(List<F> filters) {
         this.filters = filters == null ? new ArrayList<>() : filters;
     }
 
-    public DefaultFilterChain addFilter(Filter filter) {
+    public DefaultFilterChain addFilter(F filter) {
         filters.add(filter);
         return this;
     }
 
-    public DefaultFilterChain addFilter(List<Filter> filterList) {
+    public DefaultFilterChain addFilter(List<F> filterList) {
         filters.addAll(filterList);
         return this;
     }

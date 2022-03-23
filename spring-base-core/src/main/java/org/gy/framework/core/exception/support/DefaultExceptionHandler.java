@@ -17,7 +17,7 @@ import org.gy.framework.core.exception.ExceptionHandlerI;
 @Slf4j
 public class DefaultExceptionHandler implements ExceptionHandlerI {
 
-    private static final String DEFAULT_MSG_FORMAT = "Process [{0}] failed, errorCode: {1}, errorMsg: {2}";
+    private static final String DEFAULT_MSG_FORMAT = "Process failed: [{0}] , errorCode: {1}, errorMsg: {2}";
 
     private static DefaultExceptionHandler singleton = new DefaultExceptionHandler();
 
