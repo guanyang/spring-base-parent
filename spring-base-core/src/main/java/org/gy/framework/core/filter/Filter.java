@@ -17,6 +17,6 @@ public interface Filter<T, R> {
      * @author gy
      * @version 1.0.0
      */
-    void doFilter(FilterRequest<T> request, FilterResponse<R> response, FilterChain chain);
+    void doFilter(FilterRequest<T> request, FilterResponse<R> response, FilterChain<T, R> chain);
 
 }

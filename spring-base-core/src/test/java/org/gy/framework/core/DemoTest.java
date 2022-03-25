@@ -40,7 +40,7 @@ public class DemoTest {
     public static class TestFilter1 implements Filter<String, String> {
 
         @Override
-        public void doFilter(FilterRequest<String> request, FilterResponse<String> response, FilterChain chain) {
+        public void doFilter(FilterRequest<String> request, FilterResponse<String> response, FilterChain<String,String> chain) {
             request.setAttachment("requestKey1", UUID.randomUUID().toString());
             response.setAttachment("responseKey1", UUID.randomUUID().toString());
             chain.doFilter(request, response);
@@ -50,7 +50,7 @@ public class DemoTest {
     public static class TestFilter2 implements Filter<String, String> {
 
         @Override
-        public void doFilter(FilterRequest<String> request, FilterResponse<String> response, FilterChain chain) {
+        public void doFilter(FilterRequest<String> request, FilterResponse<String> response, FilterChain<String,String> chain) {
             request.setAttachment("requestKey2", UUID.randomUUID().toString());
             response.setAttachment("responseKey2", UUID.randomUUID().toString());
             chain.doFilter(request, response);
