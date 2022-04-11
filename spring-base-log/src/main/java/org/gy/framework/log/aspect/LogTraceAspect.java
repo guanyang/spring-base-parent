@@ -58,11 +58,16 @@ public class LogTraceAspect {
             // 获取描述
             String desc = Optional.ofNullable(annotation).map(LogTrace::desc).orElse("default");
 
-            Object requestObj = wrapRequestBody(point, signature, annotation);
+            boolean requestBodyTrace = annotation.requestBodyTrace();
+            traceRequest.setRequestBodyTrace(requestBodyTrace);
+            if (requestBodyTrace){
+                Object requestObj = wrapRequestBody(point, signature, annotation);
+                traceRequest.setRequestObj(requestObj);
+            }
+            traceRequest.setResponseBodyTrace(annotation.responseBodyTrace());
 
             traceRequest.setExecuteClazz(target.getClass());
             traceRequest.setExecuteMethodName(methodName);
-            traceRequest.setRequestObj(requestObj);
             traceRequest.setDesc(desc);
         } catch (Exception e) {
             log.warn("[LogTraceAspect]preHandle Exception.", e);
@@ -76,8 +81,7 @@ public class LogTraceAspect {
      *
      * @author gy
      */
-    private Object wrapRequestBody(ProceedingJoinPoint point,
-        MethodSignature signature, LogTrace annotation) {
+    private Object wrapRequestBody(ProceedingJoinPoint point, MethodSignature signature, LogTrace annotation) {
         Map<String, Object> paramNameAndValue = Maps.newHashMap();
         // 参数值
         Object[] args = point.getArgs();

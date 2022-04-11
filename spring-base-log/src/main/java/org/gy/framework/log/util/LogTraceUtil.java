@@ -48,7 +48,7 @@ public class LogTraceUtil {
             //执行业务逻辑
             result = doAction.proceed(req);
             // 后置处理
-            postTrace(result);
+            postTrace(result, traceRequest);
         } catch (Throwable e) {
             log.error("LogTraceUtil proceed exception.", e);
             postTraceWithException(e);
@@ -69,8 +69,11 @@ public class LogTraceUtil {
                 detail.put("methodName", request.getExecuteMethodName());
                 detail.put("desc", request.getDesc());
 
-                String json = objectToJson(request.getRequestObj());
-                detail.put("requestBody", json);
+                boolean requestBodyTrace = request.isRequestBodyTrace();
+                if (requestBodyTrace) {
+                    String json = objectToJson(request.getRequestObj());
+                    detail.put("requestBody", json);
+                }
             }
             detail.put("invokeStartTime", System.currentTimeMillis());
         } catch (Throwable e) {
@@ -83,13 +86,16 @@ public class LogTraceUtil {
         R proceed(T t) throws Throwable;
     }
 
-    private static <R> void postTrace(R responseObj) {
+    private static <U, R> void postTrace(R responseObj, TraceRequest<U> traceRequest) {
         try {
             Map<String, Object> detail = getThreadLocalLogDetail();
             wrapCostTime(detail);
 
-            String json = objectToJson(responseObj);
-            detail.put("responseBody", json);
+            boolean responseBodyTrace = traceRequest.isResponseBodyTrace();
+            if (responseBodyTrace) {
+                String json = objectToJson(responseObj);
+                detail.put("responseBody", json);
+            }
 
             logMessage(detail);
         } catch (Throwable e) {

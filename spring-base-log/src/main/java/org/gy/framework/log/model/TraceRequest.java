@@ -33,5 +33,13 @@ public class TraceRequest<T> {
      * 操作描述
      */
     private String desc;
+    /**
+     * 是否捕获请求参数，默认true
+     */
+    private boolean requestBodyTrace = true;
+    /**
+     * 是否捕获返回参数，默认true
+     */
+    private boolean responseBodyTrace = true;
 
 }
