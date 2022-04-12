@@ -1,13 +1,13 @@
-package org.gy.framework.util.data;
+package org.gy.framework.core.support;
 
-import com.google.common.collect.Maps;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
 /**
- * 功能描述：
+ * 枚举标准定义，统一格式
  *
  * @author gy
  * @version 1.0.0
@@ -65,7 +65,7 @@ public interface IStdEnum<T> {
 
     public static class StdEnumFactory {
 
-        private static final Map<Class<?>, Map<?, IStdEnum<?>>> cacheMap = Maps.newHashMap();
+        private static final Map<Class<?>, Map<?, IStdEnum<?>>> cacheMap = new HashMap<>();
 
         public static <E extends Enum<E>> Map<?, IStdEnum<?>> findFromCache(Class<E> enumClass,
             Function<IStdEnum, ?> keyFunction) {
@@ -86,7 +86,7 @@ public interface IStdEnum<T> {
 
         public static <E extends Enum<E>> Map<?, IStdEnum<?>> loadEnumMap(Class<E> enumClass,
             Function<IStdEnum, ?> keyFunction) {
-            Map result = Maps.newHashMap();
+            Map result = new HashMap<>();
             EnumSet.allOf(enumClass).stream().forEach(item -> {
                 if (item instanceof IStdEnum) {
                     IStdEnum stdEnum = (IStdEnum) item;

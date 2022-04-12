@@ -3,7 +3,7 @@ package org.gy.framework.util.data.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.gy.framework.core.exception.Assert;
-import org.gy.framework.util.data.IStdEnum;
+import org.gy.framework.core.support.IStdEnum;
 
 /**
  * 删除枚举定义
