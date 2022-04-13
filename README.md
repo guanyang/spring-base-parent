@@ -16,7 +16,7 @@
 #### 内容介绍
 模块(artifactId) | 说明 | 备注
 --- | --- | ---
-spring-base-core | 基础核心定义 | 
+spring-base-core | 基础核心定义 | 常用dto、exception、filter抽象
 spring-base-util | 常用工具类合集 | 
 spring-base-csrf | csrf组件 | 
 spring-base-sign | 接口签名组件 | 
