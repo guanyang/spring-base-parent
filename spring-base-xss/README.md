@@ -17,5 +17,11 @@
 - 应用入口类添加`@EnableXss`注解，启动Xss检查
 - 当前组件只针对`RestController`或者`Controller`标注的类进行xss校验
 - 请求对象需要添加`@Valid`或者`@Validated`注解才会进行校验
+- 如果某些特殊场景需要跳过Xss检查，可以在对应字段上添加如下注解
+```
+//check设置false，跳过xss检查，trim设置true，进行去空格处理
+@XssCheck(check = false, trim = true)
+private String name;
+```
 
 

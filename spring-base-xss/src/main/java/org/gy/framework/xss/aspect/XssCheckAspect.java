@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +19,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.gy.framework.xss.annotation.XssCheck;
 import org.gy.framework.xss.exception.XssException;
 import org.gy.framework.xss.util.ClassCheckUtils;
 import org.gy.framework.xss.util.XssTool;
@@ -69,20 +71,12 @@ public class XssCheckAspect {
             field.setAccessible(true);
 
             try {
-                String fieldName = field.getName();
                 fieldValue = field.get(requestDataObj);
                 if (Objects.isNull(fieldValue)) {
                     continue;
                 }
                 // 处理字符串字段
-                if (String.class.isAssignableFrom(field.getType())) {
-                    String strValue = StringUtils.trim((String) fieldValue);
-                    field.set(requestDataObj, strValue);
-                    if (XssTool.matchXSS(strValue)) {
-                        StringBuilder buf = new StringBuilder("参数：").append(fieldName).append("不符合XSS校验");
-                        throw new XssException(buf.toString());
-                    }
-                }
+                checkXss(requestDataObj, field);
                 // 处理集合字段
                 if (Collection.class.isAssignableFrom(field.getType())) {
                     Collection listValue = (Collection) fieldValue;
@@ -104,6 +98,25 @@ public class XssCheckAspect {
             }
         }
 
+    }
+
+    private static void checkXss(Object requestDataObj, Field field) throws IllegalAccessException {
+        // 处理字符串字段
+        if (String.class.isAssignableFrom(field.getType())) {
+            //为了安全起见，默认不配置XssCheck，也当做全部开启检查
+            XssCheck annotation = field.getAnnotation(XssCheck.class);
+            boolean trimFlag = Optional.ofNullable(annotation).map(XssCheck::trim).orElse(true);
+            boolean checkFlag = Optional.ofNullable(annotation).map(XssCheck::check).orElse(true);
+            String fieldValue = (String) field.get(requestDataObj);
+            if (trimFlag) {
+                fieldValue = StringUtils.trim(fieldValue);
+                field.set(requestDataObj, fieldValue);
+            }
+            if (checkFlag && XssTool.matchXSS(fieldValue)) {
+                StringBuilder buf = new StringBuilder("参数：").append(field.getName()).append("不符合XSS校验");
+                throw new XssException(buf.toString());
+            }
+        }
     }
 
     private List<Field> getFields(Class clazz) {
