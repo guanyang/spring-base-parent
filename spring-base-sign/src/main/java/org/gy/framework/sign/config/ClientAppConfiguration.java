@@ -1,12 +1,14 @@
 package org.gy.framework.sign.config;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.gy.framework.sign.SignCommon;
+import org.gy.framework.sign.config.ClientAppProperties.AppItem;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
@@ -37,7 +39,7 @@ public class ClientAppConfiguration {
     }
 
     public String getAppKey(int appId) {
-        return checkAppId(appId) ? appItemMap.get(appId).getAppKey() : StringUtils.EMPTY;
+        return Optional.ofNullable(appItemMap.get(appId)).map(AppItem::getAppKey).orElse(StringUtils.EMPTY);
     }
 
 }
