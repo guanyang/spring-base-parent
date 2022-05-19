@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.lock.core.AbstractDistributedLock;
 import org.gy.framework.lock.core.DistributedLock;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 
 /**
@@ -18,6 +17,13 @@ import org.springframework.data.redis.core.script.RedisScript;
 public class RedisDistributedLock extends AbstractDistributedLock implements DistributedLock {
 
     private static final Long SUCCESS = 1L;
+
+    private static final String LOCK_SCRIPT_STRING = "if redis.call('setNx',KEYS[1],ARGV[1]) == 1 then return redis.call('expire',KEYS[1],ARGV[2]) else return 0 end";
+    private static final RedisScript<Long> LOCK_SCRIPT = RedisScript.of(LOCK_SCRIPT_STRING, Long.class);
+
+    private static final String UNLOCK_SCRIPT_STRING = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+    private static final RedisScript<Long> UNLOCK_SCRIPT = RedisScript.of(UNLOCK_SCRIPT_STRING, Long.class);
+
     /**
      * redis客户端
      */
@@ -31,16 +37,9 @@ public class RedisDistributedLock extends AbstractDistributedLock implements Dis
     @Override
     public boolean innerLock(String lockKey, String requestId, int expireTime) {
         try {
-            String script = "if redis.call('setNx',KEYS[1],ARGV[1]) == 1 then return redis.call('expire',KEYS[1],ARGV[2]) else return 0 end";
-
-            RedisScript<Long> redisScript = new DefaultRedisScript<>(script, Long.class);
-
-            Object result = redisTemplate
-                .execute(redisScript, Collections.singletonList(lockKey), requestId, String.valueOf(expireTime));
-
-            if (SUCCESS.equals(result)) {
-                return true;
-            }
+            Long result = redisTemplate.execute(LOCK_SCRIPT, Collections.singletonList(lockKey), requestId,
+                String.valueOf(expireTime));
+            return SUCCESS.equals(result);
         } catch (Exception e) {
             log.error("[RedisDistributedLock]lock error:lockKey={},value={},expireTime={}.", lockKey, requestId,
                 expireTime, e);
@@ -51,15 +50,8 @@ public class RedisDistributedLock extends AbstractDistributedLock implements Dis
     @Override
     public boolean innerUnLock(String lockKey, String requestId) {
         try {
-            String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-
-            RedisScript<Long> redisScript = new DefaultRedisScript<>(script, Long.class);
-
-            Object result = redisTemplate.execute(redisScript, Collections.singletonList(lockKey), requestId);
-
-            if (SUCCESS.equals(result)) {
-                return true;
-            }
+            Long result = redisTemplate.execute(UNLOCK_SCRIPT, Collections.singletonList(lockKey), requestId);
+            return SUCCESS.equals(result);
         } catch (Exception e) {
             log.error("[RedisDistributedLock]release error:lockKey={},value={}.", lockKey, requestId, e);
         }
