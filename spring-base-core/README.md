@@ -5,3 +5,4 @@
 - 定义错误码、异常，参考`CommonException`
 - 定义事件接口契约，参考`EventI`
 - 定义TraceId生成工具，参考`TraceUtils`
+- 添加statemachine状态机，支持Fluent API调用

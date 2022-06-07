@@ -14,15 +14,16 @@
 ```
 
 #### 内容介绍
-模块(artifactId) | 说明 | 备注
---- | --- | ---
-spring-base-core | 基础核心定义 | 常用dto、exception、filter抽象
-spring-base-util | 常用工具类合集 | 
-spring-base-csrf | csrf组件 | 
-spring-base-sign | 接口签名组件 | 
-spring-base-xss | 接口参数xss校验组件| 
-spring-base-lock | 分布式锁组件 | 
-spring-base-log | 日志组件 | 支持traceid和日志切面
+| 模块(artifactId)    | 说明          | 备注                                  |
+|-------------------|-------------|-------------------------------------|
+| spring-base-core  | 基础核心定义      | [参考文档](spring-base-core/README.md)  |
+| spring-base-util  | 常用工具类合集     | [参考文档](spring-base-util/README.md)  |
+| spring-base-csrf  | csrf组件      | [参考文档](spring-base-csrf/README.md)  |
+| spring-base-sign  | 接口签名组件      | [参考文档](spring-base-sign/README.md)  |
+| spring-base-xss   | 接口参数xss校验组件 | [参考文档](spring-base-xss/README.md)   |
+| spring-base-lock  | 分布式锁组件      | [参考文档](spring-base-lock/README.md)  |
+| spring-base-log   | 日志组件        | [参考文档](spring-base-log/README.md)   |
+| spring-base-limit | 限流组件        | [参考文档](spring-base-limit/README.md) |
 
 #### Change Log
 ##### 1.0.0-SNAPSHOT
