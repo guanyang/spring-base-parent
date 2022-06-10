@@ -9,17 +9,13 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.gy.framework.lock.aop.support.CustomCachedExpressionEvaluator;
 import org.gy.framework.lock.core.DistributedLock;
 import org.gy.framework.lock.core.support.RedisDistributedLock;
 import org.gy.framework.lock.exception.DistributedLockException;
 import org.gy.framework.lock.exception.LockCodeEnum;
 import org.gy.framework.lock.model.LockResult;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 /**
  * 分布式锁切面
@@ -31,8 +27,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 @Aspect
 public class DistributedLockAspect {
 
-    private ExpressionParser parser = new SpelExpressionParser();
-    private LocalVariableTableParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
+    private final CustomCachedExpressionEvaluator evaluator = new CustomCachedExpressionEvaluator();
 
     private StringRedisTemplate stringRedisTemplate;
 
@@ -49,10 +44,9 @@ public class DistributedLockAspect {
         //获取方法
         Method method = ((MethodSignature) jp.getSignature()).getMethod();
         String methodName = method.getName();
-        EvaluationContext context = this.bindParam(method, jp.getArgs());
         // 获取AspectAnnotation注解
         Lock lock = method.getAnnotation(Lock.class);
-        String key = this.getValue(context, lock.key());
+        String key = this.getValue(jp.getTarget(), method, jp.getArgs(), lock.key());
         int expireTime = lock.expireTime();
         long waitTimeMillis = lock.waitTimeMillis();
         long sleepTimeMillis = lock.sleepTimeMillis();
@@ -67,7 +61,7 @@ public class DistributedLockAspect {
                 return jp.proceed();
             } catch (Throwable e) {
                 log.error("[DistributedLockAspect]{}内部处理异常，key={},expireTime={}s,waitTime={}ms,sleepTime={}ms.",
-                    methodName, key, expireTime, waitTimeMillis, sleepTimeMillis);
+                    methodName, key, expireTime, waitTimeMillis, sleepTimeMillis, e);
                 if (e instanceof RuntimeException) {
                     throw (RuntimeException) e;
                 }
@@ -83,22 +77,9 @@ public class DistributedLockAspect {
         return result.getData();
     }
 
-
-    private EvaluationContext bindParam(Method method, Object[] args) {
-        //获取方法的参数名
-        String[] params = discoverer.getParameterNames(method);
-        //将参数名与参数值对应起来
-        EvaluationContext context = new StandardEvaluationContext();
-        for (int len = 0; len < params.length; len++) {
-            context.setVariable(params[len], args[len]);
-        }
-        return context;
-    }
-
-    private String getValue(EvaluationContext context, String spel) {
+    private String getValue(Object target, Method method, Object[] args, String expression) {
         try {
-            Object value = parser.parseExpression(spel).getValue(context);
-            return String.valueOf(value);
+            return evaluator.getValue(target, method, args, expression, String.class);
         } catch (Exception e) {
             log.error("[DistributedLockAspect]SPEL analysis error", e);
             throw new DistributedLockException(LockCodeEnum.PARAM_SPEL_ERROR);

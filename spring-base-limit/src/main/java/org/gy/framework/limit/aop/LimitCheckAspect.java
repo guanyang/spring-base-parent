@@ -9,17 +9,13 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.gy.framework.limit.annotation.LimitCheck;
+import org.gy.framework.limit.aop.support.CustomCachedExpressionEvaluator;
 import org.gy.framework.limit.core.ILimitCheckService;
 import org.gy.framework.limit.core.ILimitCheckServiceDispatch;
 import org.gy.framework.limit.core.support.LimitCheckContext;
 import org.gy.framework.limit.enums.LimitTypeEnum;
 import org.gy.framework.limit.exception.LimitCodeEnum;
 import org.gy.framework.limit.exception.LimitException;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
 /**
@@ -32,8 +28,7 @@ import org.springframework.util.StringUtils;
 @Aspect
 public class LimitCheckAspect {
 
-    private ExpressionParser parser = new SpelExpressionParser();
-    private LocalVariableTableParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
+    private final CustomCachedExpressionEvaluator evaluator = new CustomCachedExpressionEvaluator();
 
     private ILimitCheckServiceDispatch dispatch;
 
@@ -59,9 +54,7 @@ public class LimitCheckAspect {
             log.error("[LimitCheckAspect]{}频率检查类型不支持：type={}.", methodName, type);
             throw new LimitException(LimitCodeEnum.INNER_ERROR);
         }
-
-        EvaluationContext context = this.bindParam(method, jp.getArgs());
-        String key = this.getValue(context, check.key());
+        String key = this.getValue(jp.getTarget(), method, jp.getArgs(), check.key());
         int time = check.time();
         int limit = check.limit();
         log.debug("[LimitCheckAspect]{}方法频率检查：key={},time={}S,limit={},type={}", methodName, key, time, limit, type);
@@ -73,21 +66,9 @@ public class LimitCheckAspect {
         return jp.proceed();
     }
 
-    private EvaluationContext bindParam(Method method, Object[] args) {
-        //获取方法的参数名
-        String[] params = discoverer.getParameterNames(method);
-        //将参数名与参数值对应起来
-        EvaluationContext context = new StandardEvaluationContext();
-        for (int len = 0; len < params.length; len++) {
-            context.setVariable(params[len], args[len]);
-        }
-        return context;
-    }
-
-    private String getValue(EvaluationContext context, String spel) {
+    private String getValue(Object target, Method method, Object[] args, String expression) {
         try {
-            Object value = parser.parseExpression(spel).getValue(context);
-            return String.valueOf(value);
+            return evaluator.getValue(target, method, args, expression, String.class);
         } catch (Exception e) {
             log.error("[LimitCheckAspect]SPEL analysis error", e);
             throw new LimitException(LimitCodeEnum.PARAM_SPEL_ERROR, e);

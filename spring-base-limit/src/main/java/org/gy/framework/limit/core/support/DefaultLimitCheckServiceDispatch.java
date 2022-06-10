@@ -24,8 +24,7 @@ public class DefaultLimitCheckServiceDispatch implements ILimitCheckServiceDispa
     static {
         Iterator<ILimitCheckService> providers = ServiceRegistry.lookupProviders(ILimitCheckService.class);
         while (providers.hasNext()) {
-            ILimitCheckService service = providers.next();
-            limitCheckServiceConsumer(service, CHECK_SERVICE_MAP::put);
+            addLimitCheck(providers.next());
         }
     }
 
