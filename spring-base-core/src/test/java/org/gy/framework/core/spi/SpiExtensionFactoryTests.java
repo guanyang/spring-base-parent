@@ -14,21 +14,12 @@ import org.junit.jupiter.api.Test;
 public class SpiExtensionFactoryTests {
 
     @Test
-    public void getCachedInstancesTest1() {
-        Map<String, Object> cachedInstances = SpiExtensionFactory.getCachedInstances(SpiTest.class);
-        assertEquals(2, cachedInstances.size());
-    }
-
-    @Test
     public void getExtensionTest1() {
         SpiTest spiTest = SpiExtensionFactory.getExtension("test1", SpiTest.class);
         assertEquals("test1 hello", spiTest.hello());
-    }
 
-    @Test
-    public void getCachedInstancesTest2() {
-        Map<String, Object> cachedInstances = SpiExtensionFactory.getCachedInstances(SpiCustom.class);
-        assertEquals(2, cachedInstances.size());
+        spiTest = SpiExtensionFactory.getExtension("test2", SpiTest.class);
+        assertEquals("test2 hello", spiTest.hello());
     }
 
     @Test

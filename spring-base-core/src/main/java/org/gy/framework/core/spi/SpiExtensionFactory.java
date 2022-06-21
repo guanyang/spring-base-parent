@@ -29,7 +29,17 @@ public final class SpiExtensionFactory {
         return (T) instances.get(key);
     }
 
-    public static <T extends SpiIdentity> Map<String, Object> getCachedInstances(final Class<T> clazz) {
+    public static <T extends SpiIdentity> void addExtension(Class<T> clazz, T service) {
+        Map<String, Object> instances = getCachedInstances(clazz);
+        serviceConsumer(clazz, service, instances::put);
+    }
+
+    public static <T extends SpiIdentity> void addExtensionIfAbsent(Class<T> clazz, T service) {
+        Map<String, Object> instances = getCachedInstances(clazz);
+        serviceConsumer(clazz, service, instances::putIfAbsent);
+    }
+
+    private static <T extends SpiIdentity> Map<String, Object> getCachedInstances(final Class<T> clazz) {
         Objects.requireNonNull(clazz, "extension clazz is null");
         Map<String, Object> holderMap = CACHED_INSTANCES.get(clazz);
         if (isEmpty(holderMap)) {

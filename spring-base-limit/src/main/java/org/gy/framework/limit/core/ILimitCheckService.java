@@ -1,5 +1,6 @@
 package org.gy.framework.limit.core;
 
+import org.gy.framework.core.spi.SpiIdentity;
 import org.gy.framework.limit.core.support.LimitCheckContext;
 
 /**
@@ -8,13 +9,8 @@ import org.gy.framework.limit.core.support.LimitCheckContext;
  * @author gy
  * @version 1.0.0
  */
-public interface ILimitCheckService {
-
-
-    /**
-     * 频率限制类型
-     */
-    String type();
+public interface ILimitCheckService extends SpiIdentity {
+    
 
     /**
      * 检查频率是否超过阈值，true是，false否
