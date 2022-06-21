@@ -1,8 +1,19 @@
-package org.gy.framework.core.spi;/**
- * 功能描述：
+package org.gy.framework.core.spi;
+
+/**
+ * 服务扩展类型契约
  *
  * @author gy
  * @version 1.0.0
- * @date 2022/6/21 15:08
- */public interface SpiIdentity {
+ */
+public interface SpiIdentity {
+
+    /**
+     * 服务扩展类型定义
+     *
+     * @author gy
+     * @version 1.0.0
+     */
+    String type();
+
 }

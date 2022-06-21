@@ -1,10 +1,8 @@
-package org.gy.framework.core;
+package org.gy.framework.core.spi;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
-import org.gy.framework.core.spi.SpiExtensionFactory;
-import org.gy.framework.core.spi.SpiIdentity;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -16,40 +14,30 @@ import org.junit.jupiter.api.Test;
 public class SpiExtensionFactoryTests {
 
     @Test
-    public void getCachedInstancesTest() {
+    public void getCachedInstancesTest1() {
         Map<String, Object> cachedInstances = SpiExtensionFactory.getCachedInstances(SpiTest.class);
         assertEquals(2, cachedInstances.size());
     }
 
-    interface SpiTest extends SpiIdentity {
-
-        void hello(String msg);
+    @Test
+    public void getExtensionTest1() {
+        SpiTest spiTest = SpiExtensionFactory.getExtension("test1", SpiTest.class);
+        assertEquals("test1 hello", spiTest.hello());
     }
 
-    public static class MyTest1 implements SpiTest {
-
-        @Override
-        public String type() {
-            return "test1";
-        }
-
-        @Override
-        public void hello(String msg) {
-            System.out.println("test1 msg=" + msg);
-        }
+    @Test
+    public void getCachedInstancesTest2() {
+        Map<String, Object> cachedInstances = SpiExtensionFactory.getCachedInstances(SpiCustom.class);
+        assertEquals(2, cachedInstances.size());
     }
 
-    public static class MyTest2 implements SpiTest {
+    @Test
+    public void getExtensionTest2() {
+        SpiCustom spiTest = SpiExtensionFactory.getExtension("MySpiCustom1", SpiCustom.class);
+        assertEquals("MySpiCustom1", spiTest.run());
 
-        @Override
-        public String type() {
-            return "test2";
-        }
-
-        @Override
-        public void hello(String msg) {
-            System.out.println("test2 msg=" + msg);
-        }
+        spiTest = SpiExtensionFactory.getExtension("MySpiCustom2", SpiCustom.class);
+        assertEquals(Integer.MAX_VALUE, spiTest.run());
     }
 
 }

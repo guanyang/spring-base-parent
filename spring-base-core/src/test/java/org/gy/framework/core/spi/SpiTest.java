@@ -1,8 +1,13 @@
-package org.gy.framework.core.spi;/**
+package org.gy.framework.core.spi;
+
+/**
  * 功能描述：
  *
  * @author gy
  * @version 1.0.0
- * @date 2022/6/21 16:48
- */public interface SpiTest {
+ */
+public interface SpiTest extends SpiIdentity{
+
+    String hello();
+
 }

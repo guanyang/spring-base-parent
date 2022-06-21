@@ -5,17 +5,16 @@ package org.gy.framework.core.spi;
  *
  * @author gy
  * @version 1.0.0
- * @date 2022/6/21 17:12
  */
-public class MySpiCustom implements SpiCustom<String> {
+public class MySpiCustom1 implements SpiCustom<String> {
 
     @Override
-    public java.lang.String type() {
-        return null;
+    public String type() {
+        return "MySpiCustom1";
     }
 
     @Override
     public String run() {
-        return null;
+        return "MySpiCustom1";
     }
 }
