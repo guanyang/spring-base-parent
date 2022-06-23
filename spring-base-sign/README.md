@@ -22,6 +22,7 @@ sign:
       -
         appId: 1    // 分配给客户端的appId
         appKey: test1    // 分配给客户端的appSecret
+        clockSkew: 30   // 签名允许的时间偏移，单位：秒，默认30s
       -
         appId: 2
         appKey: test2
@@ -43,5 +44,5 @@ req类上使用@SignParam注解标识参与签名的字段，@SignParam注解nam
 
 ##### 签名规则
 - 把请求参数键值对按字典序排序，然后进行拼接，例如：`key1=value1&key2=value2`
-- 再拼接上appKey键值对`key=${appKey}`，例如：`key1=value1&key2=value2&key=${appKey}`
+- 再拼接上appKey键值对`appKey=${appKey}`，例如：`key1=value1&key2=value2&appKey=${appKey}`
 - 将上述拼接之后的字符串进行md5签名即可

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.gy.framework.core.exception.CommonErrorCode;
 import org.gy.framework.core.exception.CommonException;
+import org.gy.framework.core.exception.ErrorCodeI;
 
 /**
  * 功能描述：
@@ -49,7 +50,7 @@ public class Response<T> extends BaseResponse {
         return asError(ERROR_CODE, msg, null);
     }
 
-    public static Response asError(CommonErrorCode bizCode) {
+    public static Response asError(ErrorCodeI bizCode) {
         return asError(bizCode.getError(), bizCode.getMsg(), null);
     }
 

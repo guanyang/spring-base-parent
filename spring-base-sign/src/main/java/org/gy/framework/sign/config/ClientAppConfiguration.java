@@ -42,4 +42,8 @@ public class ClientAppConfiguration {
         return Optional.ofNullable(appItemMap.get(appId)).map(AppItem::getAppKey).orElse(StringUtils.EMPTY);
     }
 
+    public AppItem getAppItem(int appId) {
+        return appItemMap.get(appId);
+    }
+
 }

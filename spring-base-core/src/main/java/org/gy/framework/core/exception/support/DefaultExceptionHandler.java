@@ -19,6 +19,8 @@ public class DefaultExceptionHandler implements ExceptionHandlerI {
 
     private static final String DEFAULT_MSG_FORMAT = "Process failed: [{0}] , errorCode: {1}, errorMsg: {2}";
 
+    public static final String DEFAULT_TYPE = "default";
+
     private static DefaultExceptionHandler singleton = new DefaultExceptionHandler();
 
     public static ExceptionHandlerI getInstance() {
@@ -57,4 +59,8 @@ public class DefaultExceptionHandler implements ExceptionHandlerI {
         }
     }
 
+    @Override
+    public String type() {
+        return DEFAULT_TYPE;
+    }
 }

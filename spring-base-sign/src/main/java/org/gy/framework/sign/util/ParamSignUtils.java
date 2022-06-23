@@ -19,30 +19,21 @@ import org.gy.framework.sign.exception.SignInvalidException;
 @Slf4j
 public class ParamSignUtils {
 
-    private static final String PARAM_NAME_KEY = "key";
+    private static final String PARAM_NAME_KEY = "appKey";
     private static final String SEPRATOR_PARAM = "&";
     private static final String SEPRATOR_KV = "=";
 
     public static <T extends SignedReq> void checkSign(T t, String key) {
-        List<String> paramList = FieldUtils.getFieldsListWithAnnotation(t.getClass(), SignParam.class)
-            .stream().sorted(Comparator.comparing(ParamSignUtils::getSignParamName))
-            .map(f -> joinKV(ParamSignUtils.getSignParamName(f), getFieldValue(f, t)))
-            .collect(Collectors.toList());
-        String keyParam = joinKV(PARAM_NAME_KEY, key);
-
-        String calSign = md5(joinKVStrs(Arrays.asList(joinKVStrs(paramList), keyParam)));
+        String calSign = sign(t, key);
         if (!StringUtils.equalsIgnoreCase(calSign, t.getSign())) {
-            log.error("sign invalid, req:{}.", t);
             throw new SignInvalidException("sign invalid");
         }
     }
 
     public static <T> String sign(T t, String key) {
-        List<String> kvList = FieldUtils.getFieldsListWithAnnotation(t.getClass(), SignParam.class)
-            .stream().sorted(Comparator.comparing(ParamSignUtils::getSignParamName))
-            .map(f -> joinKV(ParamSignUtils.getSignParamName(f), getFieldValue(f, t)))
-            .collect(Collectors.toList());
-
+        List<String> kvList = FieldUtils.getFieldsListWithAnnotation(t.getClass(), SignParam.class).stream()
+            .sorted(Comparator.comparing(ParamSignUtils::getSignParamName))
+            .map(f -> joinKV(ParamSignUtils.getSignParamName(f), getFieldValue(f, t))).collect(Collectors.toList());
         return md5(joinKVStrs(joinKVStrs(kvList), joinKV(PARAM_NAME_KEY, key)));
     }
 
