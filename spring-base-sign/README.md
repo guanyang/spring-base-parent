@@ -9,7 +9,7 @@
   <dependency>
     <groupId>org.gy.framework</groupId>
     <artifactId>spring-base-sign</artifactId>
-    <version>${current.version}</version>
+    <version>${project.version}</version>
   </dependency>
 ```
 

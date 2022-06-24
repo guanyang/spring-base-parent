@@ -10,7 +10,7 @@
   <dependency>
     <groupId>org.gy.framework</groupId>
     <artifactId>spring-base-xss</artifactId>
-    <version>${current.version}</version>
+    <version>${project.version}</version>
   </dependency>
 ```
 

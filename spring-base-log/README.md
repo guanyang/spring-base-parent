@@ -10,7 +10,7 @@
   <dependency>
     <groupId>org.gy.framework</groupId>
     <artifactId>spring-base-log</artifactId>
-    <version>${current.version}</version>
+    <version>${project.version}</version>
   </dependency>
 ```
 - 日志`@LogTrace`支持类、方法层级定义
