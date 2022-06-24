@@ -9,7 +9,7 @@
 <dependency>
   <groupId>org.gy.framework</groupId>
   <artifactId>spring-base-parent</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
 </dependency>
 ```
 
