@@ -1,5 +1,7 @@
 package org.gy.framework.sign.dto;
 
+import org.gy.framework.sign.util.ParamSignUtils;
+
 /**
  * @author gy
  */
@@ -21,7 +23,7 @@ public interface SignedReq {
     long getTimestamp();
 
     /**
-     * 请求唯一随机数，建议32位字符串
+     * 请求唯一随机数，建议32位字符串，可参考：{@link ParamSignUtils#uuid()}
      */
     String getNonce();
 

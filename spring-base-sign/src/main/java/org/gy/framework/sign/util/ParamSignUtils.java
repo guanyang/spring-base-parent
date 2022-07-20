@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -64,6 +65,10 @@ public class ParamSignUtils {
     private static String getSignParamName(Field field) {
         String name = field.getAnnotation(SignParam.class).name();
         return StringUtils.defaultIfBlank(name, field.getName());
+    }
+
+    public static String uuid() {
+        return UUID.randomUUID().toString().replaceAll("-", "");
     }
 
 }
