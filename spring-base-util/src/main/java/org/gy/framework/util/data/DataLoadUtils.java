@@ -31,13 +31,28 @@ public class DataLoadUtils {
      * @version 1.0.0
      */
     public static <T, R> List<R> batchExecute(List<T> params, Function<List<T>, List<R>> executeFun, int batchSize) {
+        return batchExecute(params, executeFun, batchSize, true);
+    }
+
+    /**
+     * 功能描述：批量获取，避免超过单次查询限制
+     *
+     * @param params 方法入参
+     * @param executeFun 执行函数
+     * @param batchSize 批量大小
+     * @param distinct 参数是否去重，true是，false否
+     * @author gy
+     * @version 1.0.0
+     */
+    public static <T, R> List<R> batchExecute(List<T> params, Function<List<T>, List<R>> executeFun, int batchSize,
+        boolean distinct) {
         List<R> result = Lists.newArrayList();
         if (isEmpty(params)) {
             log.warn("[batchExecute]批量获取参数为空:batchSize={}", batchSize);
             return result;
         }
         //去重处理
-        List<T> reqList = params.stream().distinct().collect(Collectors.toList());
+        List<T> reqList = distinct ? params.stream().distinct().collect(Collectors.toList()) : params;
         //分批获取，避免超过批量限制
         List<List<T>> partition = Lists.partition(reqList, batchSize);
         partition.forEach(items -> {
