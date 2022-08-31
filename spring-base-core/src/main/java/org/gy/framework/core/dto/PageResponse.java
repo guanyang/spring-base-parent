@@ -21,9 +21,9 @@ public class PageResponse<T> extends BaseResponse {
     private static final long serialVersionUID = -3414014589767966265L;
 
     private Collection<T> data = Collections.EMPTY_LIST;
-    private int total;
+    private long total;
 
-    public static <T> PageResponse<T> asSuccess(Collection<T> data, int total) {
+    public static <T> PageResponse<T> asSuccess(Collection<T> data, long total) {
         PageResponse<T> response = new PageResponse<>();
         response.wrapResponse(SUCCESS_CODE, SUCCESS_MSG);
         response.setData(data);
