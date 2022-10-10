@@ -38,16 +38,6 @@ public interface IStdEnum<T> {
     }
 
     /**
-     * 对比两个枚举是否完全相同（==）
-     *
-     * @param other 枚举
-     * @return 是否相同
-     */
-    default boolean equals(IStdEnum<T> other) {
-        return this == other;
-    }
-
-    /**
      * 根据code获取枚举定义
      *
      * @param enumClass 枚举类
