@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -70,17 +70,18 @@ public class BeanUtil {
     }
 
     public static <T, R> Stream<R> copyList(List<T> sourceList, Class<R> clazz) {
-        return copyList(sourceList, clazz, t -> true);
+        return copyList(sourceList, clazz, (p, v) -> true);
     }
 
-    public static <T, R> Stream<R> copyList(List<T> sourceList, Class<R> clazz, Predicate<Object> propertiesPredicate) {
+    public static <T, R> Stream<R> copyList(List<T> sourceList, Class<R> clazz,
+        BiPredicate<String, Object> propertiesPredicate) {
         if (clazz == null || ObjectUtils.isEmpty(sourceList)) {
             return Stream.empty();
         }
         return sourceList.stream().map(s -> copyProperties(s, clazz, propertiesPredicate)).filter(Objects::nonNull);
     }
 
-    public static <T, R> R copyProperties(T source, Class<R> clazz, Predicate<Object> propertiesPredicate) {
+    public static <T, R> R copyProperties(T source, Class<R> clazz, BiPredicate<String, Object> propertiesPredicate) {
         try {
             R target = clazz.newInstance();
             copyProperties(source, target, propertiesPredicate);
@@ -92,18 +93,28 @@ public class BeanUtil {
     }
 
     public static void copyProperties(Object source, Object target) {
-        copyProperties(source, target, t -> true);
+        copyProperties(source, target, (p, v) -> true);
     }
 
-    public static void copyProperties(Object source, Object target, Predicate<Object> propertiesPredicate) {
+    public static void copyProperties(Object source, Object target, BiPredicate<String, Object> propertiesPredicate) {
         copyProperties(source, target, propertiesPredicate, (String[]) null);
     }
 
     public static void copyProperties(Object source, Object target, String... ignoreProperties) {
-        copyProperties(source, target, t -> true, ignoreProperties);
+        copyProperties(source, target, (p, v) -> true, ignoreProperties);
     }
 
-    public static void copyProperties(Object source, Object target, Predicate<Object> propertiesPredicate,
+    /**
+     * 属性拷贝
+     *
+     * @param source 原数据
+     * @param target 目标结果
+     * @param propertiesPredicate 属性判断函数，参数顺序：<属性名，属性值>
+     * @param ignoreProperties 忽略的属性名称
+     * @author gy
+     * @version 1.0.0
+     */
+    public static void copyProperties(Object source, Object target, BiPredicate<String, Object> propertiesPredicate,
         String... ignoreProperties) {
         Assert.notNull(source, "Source must not be null");
         Assert.notNull(target, "Target must not be null");
@@ -125,8 +136,8 @@ public class BeanUtil {
                                 readMethod.setAccessible(true);
                             }
                             Object value = readMethod.invoke(source);
-                            Boolean valuePredicate = Optional.ofNullable(propertiesPredicate).map(p -> p.test(value))
-                                .orElse(Boolean.TRUE);
+                            Boolean valuePredicate = Optional.ofNullable(propertiesPredicate)
+                                .map(p -> p.test(targetPd.getName(), value)).orElse(Boolean.TRUE);
                             if (valuePredicate) {
                                 if (!Modifier.isPublic(writeMethod.getDeclaringClass().getModifiers())) {
                                     writeMethod.setAccessible(true);
