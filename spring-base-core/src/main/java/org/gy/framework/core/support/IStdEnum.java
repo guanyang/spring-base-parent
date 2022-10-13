@@ -45,7 +45,7 @@ public interface IStdEnum<T> {
      * @param defaultEnum 不存在时默认值
      * @return 枚举对象
      */
-    public static <E extends Enum<E>, T, R extends IStdEnum<T>> R codeOf(Class<E> enumClass, T code, R defaultEnum) {
+    static <E extends Enum<E>, T, R extends IStdEnum<T>> R codeOf(Class<E> enumClass, T code, R defaultEnum) {
         if (null == code) {
             return defaultEnum;
         }
@@ -53,7 +53,7 @@ public interface IStdEnum<T> {
         return (R) stdEnumMap.getOrDefault(code, defaultEnum);
     }
 
-    public static class StdEnumFactory {
+    class StdEnumFactory {
 
         private static final Map<Class<?>, Map<?, IStdEnum<?>>> cacheMap = new HashMap<>();
 
