@@ -14,6 +14,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.gy.framework.core.exception.Assert;
 
 /**
  * 功能描述：转换工具类
@@ -66,7 +67,7 @@ public class ConvertHelper {
     }
 
     public static <R> Set<R> convertToSet(String source, Function<String, R> mapper, long maxSize) {
-        return convertStream(source, mapper).filter(Objects::nonNull).limit(maxSize).collect(Collectors.toSet());
+        return convertStream(source, mapper).limit(maxSize).collect(Collectors.toSet());
     }
 
     public static <R> List<R> convertToList(String source, Function<String, R> mapper) {
@@ -74,7 +75,7 @@ public class ConvertHelper {
     }
 
     public static <R> List<R> convertToList(String source, Function<String, R> mapper, long maxSize) {
-        return convertStream(source, mapper).filter(Objects::nonNull).limit(maxSize).collect(Collectors.toList());
+        return convertStream(source, mapper).limit(maxSize).collect(Collectors.toList());
     }
 
     public static <T, R> List<R> convertToList(List<T> source, Function<T, R> mapper) {
@@ -82,14 +83,14 @@ public class ConvertHelper {
     }
 
     public static <T, R> List<R> convertToList(List<T> source, Function<T, R> mapper, long maxSize) {
-        return convertStream(source, mapper).filter(Objects::nonNull).limit(maxSize).collect(Collectors.toList());
+        return convertStream(source, mapper).limit(maxSize).collect(Collectors.toList());
     }
 
     public static <T, R> Stream<R> convertStream(List<T> source, Function<T, R> mapper) {
         if (isEmpty(source)) {
             return Stream.empty();
         }
-        return source.stream().map(mapper);
+        return source.stream().map(mapper).filter(Objects::nonNull);
     }
 
     public static <R> Stream<R> convertStream(String source, Function<String, R> mapper) {
@@ -101,7 +102,8 @@ public class ConvertHelper {
         if (!hasContent(source)) {
             return Stream.empty();
         }
-        return Stream.of(splitFunc.apply(source)).map(mapper);
+        return Stream.of(splitFunc.apply(source)).filter(Assert::hasContent).map(String::trim).map(mapper)
+            .filter(Objects::nonNull);
     }
 
 }
