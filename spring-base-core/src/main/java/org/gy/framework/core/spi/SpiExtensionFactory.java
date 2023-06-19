@@ -94,7 +94,7 @@ public final class SpiExtensionFactory {
     }
 
     private static <T extends SpiIdentity> String buildKey(String type, Class<T> clazz) {
-        return String.join(DELIMITER, clazz.getSimpleName(), type);
+        return String.join(DELIMITER, clazz.getName(), type);
     }
 
 }
