@@ -167,7 +167,7 @@ public class DataLoadUtils {
      * @version 1.0.0
      */
     public static <T extends DataLoadContext, R> void execute(T req, Function<T, List<R>> queryFuntion,
-        Function<R, Long> idMapper, Consumer<List<R>> dataConsumer) {
+        Function<R, Number> idMapper, Consumer<List<R>> dataConsumer) {
         List<R> list;
         do {
             list = queryFuntion.apply(req);
@@ -175,7 +175,7 @@ public class DataLoadUtils {
                 break;
             }
             dataConsumer.accept(list);
-            Long id = idMapper.apply(list.get(list.size() - 1));
+            Number id = idMapper.apply(list.get(list.size() - 1));
             req.setIdValue(id);
         } while (!isEmpty(list) && list.size() == req.getPageSize());
     }
@@ -198,7 +198,7 @@ public class DataLoadUtils {
          */
         private String idName = ID_NAME;
 
-        private Long idValue = 0L;
+        private Number idValue = 0L;
 
         private Long startTime;
 
