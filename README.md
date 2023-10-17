@@ -27,17 +27,31 @@
 
 #### Change Log
 ##### 1.0.0-SNAPSHOT
-```
-初试版本
-```
+- 初始版本
 
 #### 1.0.1-SNAPSHOT
-```
-1. 添加Filter和FilterChain支持
-2. 完善Exception类型及ExceptionHandlerI处理
-3. 模块【spring-base-util】添加FileFilter过滤清洗，防止文件上传违规内容
+- 添加Filter和FilterChain支持
+- 完善Exception类型及ExceptionHandlerI处理
+- 模块【spring-base-util】添加FileFilter过滤清洗，防止文件上传违规内容
   - 支持常见图片文件头尾字节码检查，防止恶意篡改文件扩展名上传，例如：jpg、png、gif、bmp
   - 支持图片文件字节码流内容清洗，剔除夹带恶意代码
-4. 模块【spring-base-core】添加statemachine状态机，支持Fluent API调用
-5. 模块【spring-base-core】添加SPI扩展工厂，方便扩展定义实现
-```
+- 模块【spring-base-core】添加statemachine状态机，支持Fluent API调用
+- 模块【spring-base-core】添加SPI扩展工厂，方便扩展定义实现
+
+
+#### 1.0.2-SNAPSHOT
+- 升级框架依赖组件，解决安全漏洞
+- 添加【spring-base-limit】全局限流模块，默认实现`Redis`限流，支持SPI扩展
+- 优化【spring-base-lock】模块代码
+  - 优化锁调用逻辑
+  - 优化Spel表达式支持能力
+- 优化【spring-base-sign】模块代码
+  - 优化签名及验签逻辑
+  - 增加验签时间戳偏移校验，增加时间戳偏移自定义能力
+
+#### 1.0.3-SNAPSHOT
+- 升级框架依赖组件
+- 模块【spring-base-util】能力增强
+  - 添加`DataLoadUtils`工具，实现数据分批加载，避免单次处理数据过大，同时支持`CompletableFuture`多线程任务执行处理
+- 优化【spring-base-sign】模块代码
+- 优化【spring-base-core】模块SPI代码
