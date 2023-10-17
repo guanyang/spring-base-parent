@@ -18,9 +18,6 @@ public class ClientAppProperties {
 
         private int appId;
         private String appKey;
-        /**
-         * 签名允许的时间偏移，单位：秒，默认30
-         */
-        private int clockSkew = 30;
+
     }
 }

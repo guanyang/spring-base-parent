@@ -13,7 +13,7 @@ import org.gy.framework.core.spi.SpiExtensionFactory;
 public class ExceptionHandlerFactory {
 
     public static ExceptionHandlerI getHandler(String type) {
-        return Optional.ofNullable(type).map(t -> SpiExtensionFactory.getExtension(type, ExceptionHandlerI.class))
+        return Optional.ofNullable(type).map(t -> SpiExtensionFactory.getExtension(t, ExceptionHandlerI.class))
             .orElseGet(DefaultExceptionHandler::getInstance);
     }
 

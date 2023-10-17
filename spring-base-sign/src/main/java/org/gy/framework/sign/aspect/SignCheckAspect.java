@@ -1,11 +1,14 @@
 package org.gy.framework.sign.aspect;
 
+import java.lang.reflect.Method;
 import java.util.stream.Stream;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.gy.framework.sign.annotation.SignCheck;
 import org.gy.framework.sign.config.ClientAppConfiguration;
 import org.gy.framework.sign.config.ClientAppProperties.AppItem;
 import org.gy.framework.sign.dto.SignedReq;
@@ -30,17 +33,19 @@ public class SignCheckAspect {
         if (appItem == null || StringUtils.isBlank(appItem.getAppKey())) {
             throw new SignInvalidException("app_id/app_key not exists");
         }
+        Method method = ((MethodSignature) joinpoint.getSignature()).getMethod();
+        SignCheck signCheck = method.getAnnotation(SignCheck.class);
         //校验时间戳偏移，默认不能超过30s，可以自定义配置
-        checkTime(req, appItem);
+        checkTime(req, signCheck);
 
         ParamSignUtils.checkSign(req, appItem.getAppKey());
 
         return joinpoint.proceed();
     }
 
-    private static <T extends SignedReq> void checkTime(T req, AppItem appItem) {
+    private static <T extends SignedReq> void checkTime(T req, SignCheck signCheck) {
         int timeSpan = Math.abs((int) (System.currentTimeMillis() - req.getTimestamp()) / 1000);
-        int clockSkew = appItem.getClockSkew();
+        int clockSkew = signCheck.clockSkew();
         if (clockSkew > 0 && clockSkew < timeSpan) {
             throw new SignInvalidException("SignedReq timestamp invalid");
         }

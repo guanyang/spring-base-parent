@@ -38,16 +38,6 @@ public interface IStdEnum<T> {
     }
 
     /**
-     * 对比两个枚举是否完全相同（==）
-     *
-     * @param other 枚举
-     * @return 是否相同
-     */
-    default boolean equals(IStdEnum<T> other) {
-        return this == other;
-    }
-
-    /**
      * 根据code获取枚举定义
      *
      * @param enumClass 枚举类
@@ -55,7 +45,7 @@ public interface IStdEnum<T> {
      * @param defaultEnum 不存在时默认值
      * @return 枚举对象
      */
-    public static <E extends Enum<E>, T, R extends IStdEnum<T>> R codeOf(Class<E> enumClass, T code, R defaultEnum) {
+    static <E extends Enum<E>, T, R extends IStdEnum<T>> R codeOf(Class<E> enumClass, T code, R defaultEnum) {
         if (null == code) {
             return defaultEnum;
         }
@@ -63,7 +53,7 @@ public interface IStdEnum<T> {
         return (R) stdEnumMap.getOrDefault(code, defaultEnum);
     }
 
-    public static class StdEnumFactory {
+    class StdEnumFactory {
 
         private static final Map<Class<?>, Map<?, IStdEnum<?>>> cacheMap = new HashMap<>();
 

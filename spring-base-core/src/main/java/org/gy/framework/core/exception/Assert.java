@@ -1,7 +1,9 @@
 package org.gy.framework.core.exception;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Assertion utility class that assists in validating arguments.
@@ -37,8 +39,8 @@ import java.util.Map;
 public abstract class Assert {
 
     /**
-     * Assert a boolean expression, throwing an {@code IllegalStateException} if the expression evaluates to {@code
-     * false}.
+     * Assert a boolean expression, throwing an {@code IllegalStateException} if the expression evaluates to
+     * {@code false}.
      * <p>Call {@link #isTrue} if you wish to throw an {@code IllegalArgumentException}
      * on an assertion failure.
      * <pre class="code">Assert.state(id == null, "The id property must not already be initialized");</pre>
@@ -54,8 +56,8 @@ public abstract class Assert {
     }
 
     /**
-     * Assert a boolean expression, throwing an {@code IllegalArgumentException} if the expression evaluates to {@code
-     * false}.
+     * Assert a boolean expression, throwing an {@code IllegalArgumentException} if the expression evaluates to
+     * {@code false}.
      * <pre class="code">Assert.isTrue(i &gt; 0, "The value must be greater than zero");</pre>
      *
      * @param expression a boolean expression
@@ -137,8 +139,7 @@ public abstract class Assert {
      * @throws IllegalArgumentException if the text contains the substring
      */
     public static void doesNotContain(String textToSearch, String substring, String message) {
-        if (hasContent(textToSearch) && hasContent(substring) &&
-            textToSearch.contains(substring)) {
+        if (hasContent(textToSearch) && hasContent(substring) && textToSearch.contains(substring)) {
             throw new IllegalArgumentException(message);
         }
     }
@@ -320,16 +321,20 @@ public abstract class Assert {
         return hasContent((CharSequence) str);
     }
 
-    public static boolean isEmpty(Object[] array) {
-        return (array == null || array.length == 0);
-    }
-
-    public static boolean isEmpty(Collection<?> collection) {
-        return (collection == null || collection.isEmpty());
-    }
-
-    public static boolean isEmpty(Map<?, ?> map) {
-        return (map == null || map.isEmpty());
+    public static boolean isEmpty(Object obj) {
+        if (obj == null) {
+            return true;
+        } else if (obj instanceof Optional) {
+            return !((Optional) obj).isPresent();
+        } else if (obj instanceof CharSequence) {
+            return ((CharSequence) obj).length() == 0;
+        } else if (obj.getClass().isArray()) {
+            return Array.getLength(obj) == 0;
+        } else if (obj instanceof Collection) {
+            return ((Collection) obj).isEmpty();
+        } else {
+            return obj instanceof Map ? ((Map) obj).isEmpty() : false;
+        }
     }
 
 }

@@ -9,7 +9,7 @@
   <dependency>
     <groupId>org.gy.framework</groupId>
     <artifactId>spring-base-sign</artifactId>
-    <version>${current.version}</version>
+    <version>${project.version}</version>
   </dependency>
 ```
 
@@ -22,7 +22,6 @@ sign:
       -
         appId: 1    // 分配给客户端的appId
         appKey: test1    // 分配给客户端的appSecret
-        clockSkew: 30   // 签名允许的时间偏移，单位：秒，默认30s
       -
         appId: 2
         appKey: test2
@@ -33,8 +32,8 @@ sign:
 ```
 @SignParam注解name属性用于该字段在生成签名时的健值，不指定则默认使用字段名
 ```
-- 在需要验签的Controller方法加上@SignCheck注解
-- 验签失败会抛出SignInvalidException异常，可以针对此异常定义返回调用方的信息
+- 在需要验签的Controller方法加上`@SignCheck`注解，可指定`clockSkew`参数配置时间偏移量
+- 验签失败会抛出`SignInvalidException`异常，可以针对此异常定义返回调用方的信息
 
 ##### 签名
 - 使用ParamSignUtils.sign(req, key)生成签名
