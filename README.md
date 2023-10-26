@@ -5,7 +5,7 @@
 - 常用组件、工具类封装，方便代码复用
 
 #### 最新maven坐标
-```
+```xml
 <dependency>
   <groupId>org.gy.framework</groupId>
   <artifactId>spring-base-parent</artifactId>
@@ -14,6 +14,7 @@
 ```
 
 #### 内容介绍
+
 | 模块(artifactId)    | 说明          | 备注                                  |
 |-------------------|-------------|-------------------------------------|
 | spring-base-core  | 基础核心定义      | [参考文档](spring-base-core/README.md)  |
