@@ -1,9 +1,11 @@
 package org.gy.framework.core.support;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
@@ -55,31 +57,22 @@ public interface IStdEnum<T> {
 
     class StdEnumFactory {
 
-        private static final Map<Class<?>, Map<?, IStdEnum<?>>> cacheMap = new HashMap<>();
+        private static final Map<Class<?>, Map<?, IStdEnum<?>>> cacheMap = new ConcurrentHashMap<>();
 
         public static <E extends Enum<E>> Map<?, IStdEnum<?>> findFromCache(Class<E> enumClass,
-            Function<IStdEnum, ?> keyFunction) {
+            Function<IStdEnum<?>, ?> keyFunction) {
             Objects.requireNonNull(enumClass, "enumClass is required!");
             Objects.requireNonNull(keyFunction, "keyFunction is required!");
-            Map<?, IStdEnum<?>> stdEnumMap = cacheMap.get(enumClass);
-            if (stdEnumMap == null) {
-                synchronized (cacheMap) {
-                    stdEnumMap = cacheMap.get(enumClass);
-                    if (stdEnumMap == null) {
-                        stdEnumMap = loadEnumMap(enumClass, keyFunction);
-                        cacheMap.put(enumClass, stdEnumMap);
-                    }
-                }
-            }
-            return stdEnumMap;
+            return cacheMap.computeIfAbsent(enumClass,
+                key -> Collections.unmodifiableMap(loadEnumMap(enumClass, keyFunction)));
         }
 
-        public static <E extends Enum<E>> Map<?, IStdEnum<?>> loadEnumMap(Class<E> enumClass,
-            Function<IStdEnum, ?> keyFunction) {
-            Map result = new HashMap<>();
-            EnumSet.allOf(enumClass).stream().forEach(item -> {
+        private static <E extends Enum<E>> Map<?, IStdEnum<?>> loadEnumMap(Class<E> enumClass,
+            Function<IStdEnum<?>, ?> keyFunction) {
+            Map<Object, IStdEnum<?>> result = new HashMap<>();
+            EnumSet.allOf(enumClass).forEach(item -> {
                 if (item instanceof IStdEnum) {
-                    IStdEnum stdEnum = (IStdEnum) item;
+                    IStdEnum<?> stdEnum = (IStdEnum<?>) item;
                     result.put(keyFunction.apply(stdEnum), stdEnum);
                 }
             });

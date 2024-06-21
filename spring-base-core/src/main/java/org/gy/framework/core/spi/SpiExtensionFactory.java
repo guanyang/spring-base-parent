@@ -1,9 +1,7 @@
 package org.gy.framework.core.spi;
 
 import static org.gy.framework.core.exception.Assert.hasText;
-import static org.gy.framework.core.exception.Assert.isEmpty;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceLoader;
@@ -41,22 +39,11 @@ public final class SpiExtensionFactory {
 
     private static <T extends SpiIdentity> Map<String, Object> getCachedInstances(final Class<T> clazz) {
         Objects.requireNonNull(clazz, "extension clazz is null");
-        Map<String, Object> holderMap = CACHED_INSTANCES.get(clazz);
-        if (isEmpty(holderMap)) {
-            synchronized (CACHED_INSTANCES) {
-                holderMap = CACHED_INSTANCES.get(clazz);
-                if (isEmpty(holderMap)) {
-                    holderMap = loadInstances(clazz);
-                    CACHED_INSTANCES.put(clazz, holderMap);
-                }
-            }
-        }
-        return holderMap;
+        return CACHED_INSTANCES.computeIfAbsent(clazz, key -> loadInstances(clazz));
     }
 
 
-    public static <T extends SpiIdentity> ServiceLoader<T> getExtensionLoader(final Class<T> clazz,
-        final ClassLoader cl) {
+    public static <T extends SpiIdentity> ServiceLoader<T> getExtensionLoader(final Class<T> clazz) {
 
         Objects.requireNonNull(clazz, "extension clazz is null");
 
@@ -64,20 +51,11 @@ public final class SpiExtensionFactory {
             throw new IllegalArgumentException("extension clazz (" + clazz + ") is not interface!");
         }
         ServiceLoader<T> loader = (ServiceLoader<T>) EXTENSION_LOADERS.get(clazz);
-        if (loader == null) {
-            EXTENSION_LOADERS.putIfAbsent(clazz, ServiceLoader.load(clazz));
-            loader = (ServiceLoader<T>) EXTENSION_LOADERS.get(clazz);
-        }
-        return loader;
-    }
-
-    public static <T extends SpiIdentity> ServiceLoader<T> getExtensionLoader(Class<T> clazz) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        return getExtensionLoader(clazz, cl);
+        return (ServiceLoader<T>) EXTENSION_LOADERS.computeIfAbsent(clazz, key -> ServiceLoader.load(clazz));
     }
 
     private static <T extends SpiIdentity> Map<String, Object> loadInstances(final Class<T> clazz) {
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new ConcurrentHashMap<>();
         ServiceLoader<T> loader = getExtensionLoader(clazz);
         loader.forEach(s -> {
             serviceConsumer(clazz, s, result::put);

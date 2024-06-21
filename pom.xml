@@ -27,6 +27,18 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <springboot.version>2.6.0</springboot.version>
   </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-launcher</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -65,16 +77,16 @@
         <version>${project.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>net.coobird</groupId>
-        <artifactId>thumbnailator</artifactId>
-        <version>0.4.17</version>
-      </dependency>
-      <dependency>
-        <groupId>com.madgag</groupId>
-        <artifactId>animated-gif-lib</artifactId>
-        <version>1.4</version>
-      </dependency>
+<!--      <dependency>-->
+<!--        <groupId>net.coobird</groupId>-->
+<!--        <artifactId>thumbnailator</artifactId>-->
+<!--        <version>0.4.17</version>-->
+<!--      </dependency>-->
+<!--      <dependency>-->
+<!--        <groupId>com.madgag</groupId>-->
+<!--        <artifactId>animated-gif-lib</artifactId>-->
+<!--        <version>1.4</version>-->
+<!--      </dependency>-->
 
       <dependency>
         <groupId>commons-beanutils</groupId>
@@ -209,7 +221,7 @@
         </configuration>
         <executions>
           <execution>
-            <phase>compile</phase>
+            <phase>package</phase>
             <goals>
               <goal>jar</goal>
             </goals>
