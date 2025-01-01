@@ -1,7 +1,8 @@
 package org.gy.framework.core.trace;
 
-import java.util.UUID;
 import org.slf4j.MDC;
+
+import java.util.UUID;
 
 /**
  * 功能描述：
@@ -11,9 +12,9 @@ import org.slf4j.MDC;
  */
 public class TraceUtils {
 
-    public static final String HTTP_HEADER_TRACE_ID = "X-Request-Id";
+    public static String HTTP_HEADER_TRACE_ID = "X-Request-Id";
 
-    public static final String LOG_TRACE_ID = "x-trace-id";
+    public static String LOG_TRACE_ID = "x-trace-id";
 
 
     public static String computeIfAbsent() {
@@ -63,6 +64,14 @@ public class TraceUtils {
 
     private static boolean isNotBlank(final CharSequence cs) {
         return !isBlank(cs);
+    }
+
+    public static void setLogTraceKey(String traceKey) {
+        LOG_TRACE_ID = traceKey;
+    }
+
+    public static void setHeadTraceKey(String traceKey) {
+        HTTP_HEADER_TRACE_ID = traceKey;
     }
 
 
