@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.gy.framework.lock.exception.LockCodeEnum;
 
+import java.io.Serializable;
+
 /**
  * 功能描述：
  *
@@ -14,15 +16,16 @@ import org.gy.framework.lock.exception.LockCodeEnum;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LockResult<T> {
+public class LockResult<T> implements Serializable {
+    private static final long serialVersionUID = 4525481578052443433L;
 
     public static final int SUCCESS = LockCodeEnum.LOCK_SUCCESS.getCode();
 
     public static final String SUCCESS_MSG = LockCodeEnum.LOCK_SUCCESS.getMsg();
 
-    public static final int ERROR = LockCodeEnum.LOCK_ERROR.getCode();
+    public static final int ERROR = LockCodeEnum.TOO_MANY_REQUESTS.getCode();
 
-    public static final String ERROR_MSG = LockCodeEnum.LOCK_ERROR.getMsg();
+    public static final String ERROR_MSG = LockCodeEnum.TOO_MANY_REQUESTS.getMsg();
 
     private int error;
     private String msg;
@@ -36,7 +39,7 @@ public class LockResult<T> {
         return wrapResult(SUCCESS, SUCCESS_MSG, data);
     }
 
-    public static LockResult wrapError() {
+    public static <T> LockResult<T> wrapError() {
         return wrapResult(ERROR, ERROR_MSG, null);
     }
 

@@ -35,7 +35,7 @@ public class DistributedLockException extends RuntimeException {
     }
 
     public DistributedLockException(LockCodeEnum bizCode, Throwable e) {
-        super(e);
+        super(bizCode.getMsg(), e);
         this.code = bizCode.getCode();
         this.msg = bizCode.getMsg();
     }

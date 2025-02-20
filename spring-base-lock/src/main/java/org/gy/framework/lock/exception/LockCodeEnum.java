@@ -16,6 +16,8 @@ public enum LockCodeEnum {
     //加锁成功
     LOCK_SUCCESS(0, "操作成功"),
 
+    TOO_MANY_REQUESTS(429, "Too Many Requests"),
+
     //加锁失败
     LOCK_ERROR(500, "操作失败"),
 

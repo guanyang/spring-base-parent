@@ -1,11 +1,12 @@
 package org.gy.framework.lock.core.support;
 
-import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.lock.core.AbstractDistributedLock;
 import org.gy.framework.lock.core.DistributedLock;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
+
+import java.util.Collections;
 
 /**
  * 功能描述：redis分布式锁
@@ -18,7 +19,7 @@ public class RedisDistributedLock extends AbstractDistributedLock implements Dis
 
     private static final Long SUCCESS = 1L;
 
-    private static final String LOCK_SCRIPT_STRING = "if redis.call('setNx',KEYS[1],ARGV[1]) == 1 then return redis.call('expire',KEYS[1],ARGV[2]) else return 0 end";
+    private static final String LOCK_SCRIPT_STRING = "if redis.call('setNx',KEYS[1],ARGV[1]) == 1 then return redis.call('pexpire',KEYS[1],ARGV[2]) else return 0 end";
     private static final RedisScript<Long> LOCK_SCRIPT = RedisScript.of(LOCK_SCRIPT_STRING, Long.class);
 
     private static final String UNLOCK_SCRIPT_STRING = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
@@ -27,22 +28,20 @@ public class RedisDistributedLock extends AbstractDistributedLock implements Dis
     /**
      * redis客户端
      */
-    private StringRedisTemplate redisTemplate;
+    private final StringRedisTemplate redisTemplate;
 
-    public RedisDistributedLock(StringRedisTemplate redisTemplate, String lockKey, int expireTime) {
-        super(lockKey, expireTime);
+    public RedisDistributedLock(StringRedisTemplate redisTemplate, String lockKey, long expireMillis) {
+        super(lockKey, expireMillis);
         this.redisTemplate = redisTemplate;
     }
 
     @Override
-    public boolean innerLock(String lockKey, String requestId, int expireTime) {
+    public boolean innerLock(String lockKey, String requestId, long expireMillis) {
         try {
-            Long result = redisTemplate.execute(LOCK_SCRIPT, Collections.singletonList(lockKey), requestId,
-                String.valueOf(expireTime));
+            Long result = redisTemplate.execute(LOCK_SCRIPT, Collections.singletonList(lockKey), requestId, String.valueOf(expireMillis));
             return SUCCESS.equals(result);
         } catch (Exception e) {
-            log.error("[RedisDistributedLock]lock error:lockKey={},value={},expireTime={}.", lockKey, requestId,
-                expireTime, e);
+            log.error("[RedisDistributedLock]lock error:lockKey={},value={},expireMillis={}.", lockKey, requestId, expireMillis, e);
         }
         return false;
     }

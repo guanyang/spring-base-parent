@@ -28,6 +28,10 @@
 
 #### Change Log
 
+#### 1.0.5-SNAPSHOT
+- 优化【spring-base-lock】模块代码
+  - 优化锁调用核心逻辑及超时处理，支持毫秒级
+
 #### 1.0.4-SNAPSHOT
 - 升级框架依赖组件
 - 优化【spring-base-core】模块代码

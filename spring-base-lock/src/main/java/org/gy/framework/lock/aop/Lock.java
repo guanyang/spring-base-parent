@@ -23,9 +23,9 @@ public @interface Lock {
     String key();
 
     /**
-     * 锁过期时间，单位：秒
+     * 锁过期时间，单位：毫秒
      */
-    int expireTime() default 5;
+    int expireTimeMillis() default 30000;
 
     /**
      * 等待超时时间，单位：毫秒

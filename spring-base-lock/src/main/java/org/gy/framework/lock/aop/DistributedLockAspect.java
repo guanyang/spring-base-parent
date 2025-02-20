@@ -1,8 +1,6 @@
 package org.gy.framework.lock.aop;
 
-import static org.gy.framework.lock.core.DistributedLockAction.execute;
-
-import java.lang.reflect.Method;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -17,6 +15,10 @@ import org.gy.framework.lock.exception.LockCodeEnum;
 import org.gy.framework.lock.model.LockResult;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.lang.reflect.Method;
+
+import static org.gy.framework.lock.core.DistributedLockAction.execute;
+
 /**
  * 分布式锁切面
  *
@@ -29,7 +31,7 @@ public class DistributedLockAspect {
 
     private final CustomCachedExpressionEvaluator evaluator = new CustomCachedExpressionEvaluator();
 
-    private StringRedisTemplate stringRedisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
 
     public DistributedLockAspect(StringRedisTemplate stringRedisTemplate) {
         this.stringRedisTemplate = stringRedisTemplate;
@@ -47,42 +49,31 @@ public class DistributedLockAspect {
         // 获取AspectAnnotation注解
         Lock lock = method.getAnnotation(Lock.class);
         String key = this.getValue(jp.getTarget(), method, jp.getArgs(), lock.key());
-        int expireTime = lock.expireTime();
+        long expireTime = lock.expireTimeMillis();
         long waitTimeMillis = lock.waitTimeMillis();
         long sleepTimeMillis = lock.sleepTimeMillis();
-        log.debug("[DistributedLockAspect]{}方法加锁：key={},expireTime={}s,waitTime={}ms,sleepTime={}ms", methodName, key,
-            expireTime, waitTimeMillis, sleepTimeMillis);
+        log.info("[DistributedLockAspect][{}]方法加锁：key={},expireTime={}ms,waitTime={}ms,sleepTime={}ms", methodName, key, expireTime, waitTimeMillis, sleepTimeMillis);
 
         //定义redis锁实现
         DistributedLock lockEntity = new RedisDistributedLock(stringRedisTemplate, key, expireTime);
 
-        LockResult<Object> result = execute(lockEntity, waitTimeMillis, sleepTimeMillis, () -> {
-            try {
-                return jp.proceed();
-            } catch (Throwable e) {
-                log.error("[DistributedLockAspect]{}内部处理异常，key={},expireTime={}s,waitTime={}ms,sleepTime={}ms.",
-                    methodName, key, expireTime, waitTimeMillis, sleepTimeMillis, e);
-                if (e instanceof RuntimeException) {
-                    throw (RuntimeException) e;
-                }
-                throw new DistributedLockException(LockCodeEnum.INNER_ERROR, e);
-            }
-        });
+        LockResult<Object> result = execute(lockEntity, waitTimeMillis, sleepTimeMillis, () -> proceed(jp));
         if (result == null || !result.success()) {
-            log.warn("[DistributedLockAspect]{}加锁失败，key={},expireTime={}s,waitTime={}ms,sleepTime={}ms.", methodName,
-                key, expireTime, waitTimeMillis, sleepTimeMillis);
-            throw new DistributedLockException(LockCodeEnum.LOCK_ERROR, "系统繁忙，请稍后重试");
+            throw new DistributedLockException(LockCodeEnum.TOO_MANY_REQUESTS);
         }
-
         return result.getData();
+    }
+
+    @SneakyThrows
+    protected Object proceed(ProceedingJoinPoint joinPoint) {
+        return joinPoint.proceed();
     }
 
     private String getValue(Object target, Method method, Object[] args, String expression) {
         try {
             return evaluator.getValue(target, method, args, expression, String.class);
         } catch (Exception e) {
-            log.error("[DistributedLockAspect]SPEL analysis error", e);
-            throw new DistributedLockException(LockCodeEnum.PARAM_SPEL_ERROR);
+            throw new DistributedLockException(LockCodeEnum.PARAM_SPEL_ERROR, e);
         }
 
     }

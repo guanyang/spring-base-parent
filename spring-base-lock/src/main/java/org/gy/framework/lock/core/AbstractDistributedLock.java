@@ -1,9 +1,11 @@
 package org.gy.framework.lock.core;
 
 
-import static org.gy.framework.lock.utils.IdUtils.defaultRequestId;
-
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.TimeUnit;
+
+import static org.gy.framework.lock.utils.IdUtils.defaultRequestId;
 
 /**
  * 功能描述：
@@ -16,41 +18,41 @@ public abstract class AbstractDistributedLock implements DistributedLock {
 
     public static final long SLEEP_TIME_MILLIS = 50;
 
-    public static final int EXPIRE_TIME_SECOND = 5;
+    public static final long EXPIRE_TIME_MILLIS = 30000;
     /**
      * 锁key
      */
-    private String lockKey;
+    private final String lockKey;
     /**
      * 锁的值，请求ID
      */
-    private String requestId;
+    private final String requestId;
     /**
-     * 过期时间，单位：秒
+     * 过期时间，单位：毫秒
      */
-    private int expireTime;
+    private final long expireMillis;
     /**
      * 加锁是否成功，true是，false否
      */
     private volatile boolean locked = false;
 
     public AbstractDistributedLock(String lockKey) {
-        this(lockKey, EXPIRE_TIME_SECOND);
+        this(lockKey, EXPIRE_TIME_MILLIS);
     }
 
-    public AbstractDistributedLock(String lockKey, int expireTime) {
-        this(lockKey, defaultRequestId(), expireTime);
+    public AbstractDistributedLock(String lockKey, long expireMillis) {
+        this(lockKey, defaultRequestId(), expireMillis);
     }
 
-    public AbstractDistributedLock(String lockKey, String requestId, int expireTime) {
+    public AbstractDistributedLock(String lockKey, String requestId, long expireMillis) {
         this.lockKey = lockKey;
         this.requestId = requestId;
-        this.expireTime = checkExpireTime(expireTime);
+        this.expireMillis = checkExpireTime(expireMillis);
     }
 
 
-    private static int checkExpireTime(int expireTime) {
-        return expireTime > 0 ? expireTime : EXPIRE_TIME_SECOND;
+    private static long checkExpireTime(long expireMillis) {
+        return expireMillis > 0 ? expireMillis : EXPIRE_TIME_MILLIS;
     }
 
     private static long checkSleepTime(long sleepTimeMillis) {
@@ -65,30 +67,30 @@ public abstract class AbstractDistributedLock implements DistributedLock {
     @Override
     public boolean tryLock(long waitTimeMillis, long sleepTimeMillis) {
         try {
-            long startTime = System.currentTimeMillis();
+            final long startTime = System.currentTimeMillis();
             if (waitTimeMillis == 0) {
                 //此情况，不需要等待重试
-                locked = innerLock(lockKey, requestId, expireTime);
+                locked = innerLock(lockKey, requestId, expireMillis);
                 return locked;
             }
-            sleepTimeMillis = checkSleepTime(sleepTimeMillis);
+            long sleepInterval = checkSleepTime(sleepTimeMillis);
             while (checkCondition(startTime, waitTimeMillis)) {
-                locked = innerLock(lockKey, requestId, expireTime);
+                locked = innerLock(lockKey, requestId, expireMillis);
                 if (locked) {
                     return true;
                 }
                 // 针对有超时的场景，如果此时耗费时间加上sleepTime已经超时，直接返回失败即可，不需要sleep，可提升效率
                 if (waitTimeMillis > 0) {
-                    long time = (System.currentTimeMillis() - startTime) + sleepTimeMillis - waitTimeMillis;
-                    if (time > 0) {
+                    long elapsed = System.currentTimeMillis() - startTime;
+                    long remaining = waitTimeMillis - elapsed;
+                    if (remaining <= sleepInterval) {
                         return false;
                     }
                 }
-                wrapBlockTime(sleepTimeMillis);
+                TimeUnit.MILLISECONDS.sleep(sleepInterval);
             }
         } catch (Exception e) {
-            log.error("[DistributedLock]加锁异常:waitTimeMillis={},sleepTimeMillis={}.",
-                waitTimeMillis, sleepTimeMillis, e);
+            log.warn("[DistributedLock]加锁异常:lockKey={},expireMillis={},waitTimeMillis={},sleepTimeMillis={}.", lockKey, expireMillis, waitTimeMillis, sleepTimeMillis, e);
         }
         return false;
     }
@@ -117,30 +119,22 @@ public abstract class AbstractDistributedLock implements DistributedLock {
         return (System.currentTimeMillis() - startTime) <= waitTimeMillis;
     }
 
-    private void wrapBlockTime(long sleepTimeMillis) {
-        try {
-            Thread.sleep(sleepTimeMillis);
-        } catch (InterruptedException e) {
-            log.error("[DistributedLock]线程被中断" + Thread.currentThread().getId(), e);
-        }
-    }
-
 
     /**
      * 功能描述：获取锁
      *
-     * @param lockKey 锁key
-     * @param requestId 锁的值，请求ID
-     * @param expireTime 过期时间，单位：秒
+     * @param lockKey      锁key
+     * @param requestId    锁的值，请求ID
+     * @param expireMillis 过期时间，单位：毫秒
      * @return 获取锁是否成功，true是，false否
      * @author gy
      */
-    public abstract boolean innerLock(String lockKey, String requestId, int expireTime);
+    public abstract boolean innerLock(String lockKey, String requestId, long expireMillis);
 
     /**
      * 功能描述：释放锁
      *
-     * @param lockKey 锁key
+     * @param lockKey   锁key
      * @param requestId 锁的值，请求ID
      * @return 释放锁是否成功，true是，false否
      * @author gy
