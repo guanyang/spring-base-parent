@@ -1,0 +1,27 @@
+package org.gy.framework.idempotent.core.support;
+
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.SecureUtil;
+import org.aspectj.lang.JoinPoint;
+import org.gy.framework.idempotent.annotation.Idempotent;
+import org.gy.framework.idempotent.core.IdempotentKeyResolver;
+
+import java.util.stream.Stream;
+
+/**
+ * 默认（全局级别）幂等 Key 解析器
+ *
+ * @author gy
+ */
+public class DefaultIdempotentKeyResolver implements IdempotentKeyResolver {
+
+    @Override
+    public String resolver(JoinPoint joinPoint, Idempotent idempotent) {
+        StringBuilder keyBuilder = new StringBuilder();
+        Stream.of(joinPoint.getArgs()).map(Object::toString).forEach(keyBuilder::append);
+        String md5 = SecureUtil.md5(keyBuilder.toString());
+        String methodName = joinPoint.getSignature().toString();
+        return StrUtil.join(StrUtil.COLON, idempotent.keyPrefix(), methodName, md5);
+    }
+
+}

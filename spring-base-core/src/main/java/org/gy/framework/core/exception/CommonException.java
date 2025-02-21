@@ -34,7 +34,7 @@ public class CommonException extends RuntimeException {
     }
 
     public CommonException(ErrorCodeI errorCodeI, Throwable e) {
-        super(e);
+        super(errorCodeI.getMsg(), e);
         this.error = errorCodeI.getError();
         this.msg = errorCodeI.getMsg();
     }

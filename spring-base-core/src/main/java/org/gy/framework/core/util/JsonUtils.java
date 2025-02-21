@@ -1,12 +1,13 @@
 package org.gy.framework.core.util;
 
-import static org.gy.framework.core.exception.Assert.hasContent;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.Reader;
 import java.lang.reflect.Type;
-import lombok.extern.slf4j.Slf4j;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * 功能描述：
@@ -18,58 +19,44 @@ import lombok.extern.slf4j.Slf4j;
 public class JsonUtils {
 
     private static final Gson GSON = new GsonBuilder()
-        .disableInnerClassSerialization()           //禁此序列化内部类
-        .disableHtmlEscaping()                      //禁止转义html标签
-        .create();
+            .disableInnerClassSerialization()           //禁此序列化内部类
+            .disableHtmlEscaping()                      //禁止转义html标签
+            .create();
 
     private JsonUtils() {
 
     }
 
     public static <T> T toObject(String json, Class<T> clazz) {
-        if (hasContent(json)) {
-            try {
-                return GSON.fromJson(json, clazz);
-            } catch (Throwable e) {
-                log.error("json转object异常: json=[{}], class=[{}]", json, clazz, e);
-                return null;
-            }
-        } else {
-            return null;
-        }
+        return execute(json, clazz, GSON::fromJson);
     }
 
     public static <T> T toObject(Reader reader, Class<T> clazz) {
-        if (null != reader) {
-            try {
-                return GSON.fromJson(reader, clazz);
-            } catch (Throwable e) {
-                log.error("json转object异常: , class=[{}]", clazz, e);
-                return null;
-            }
-        } else {
-            return null;
-        }
+        return execute(reader, clazz, GSON::fromJson);
     }
 
     public static <T> T toObject(String json, Type type) {
-        if (hasContent(json)) {
-            try {
-                return GSON.fromJson(json, type);
-            } catch (Throwable e) {
-                log.error("json转object异常: json=[{}], type=[{}]", json, type, e);
-                return null;
-            }
-        } else {
+        return execute(json, type, GSON::fromJson);
+    }
+
+    public static String toJson(Object obj) {
+        return execute(obj, GSON::toJson);
+    }
+
+    private static <T, R> R execute(T t, Function<T, R> function) {
+        try {
+            return function.apply(t);
+        } catch (Throwable e) {
+            log.warn("[JsonUtils]execute error: t={}", t, e);
             return null;
         }
     }
 
-    public static String toJson(Object obj) {
+    private static <T, U, R> R execute(T t, U u, BiFunction<T, U, R> function) {
         try {
-            return GSON.toJson(obj);
+            return function.apply(t, u);
         } catch (Throwable e) {
-            log.error("object转json异常: object=[{}]", obj, e);
+            log.warn("[JsonUtils]execute error: t={}, u={}", t, u, e);
             return null;
         }
     }

@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.gy.framework</groupId>
     <artifactId>spring-base-parent</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>${revision}</version>
   </parent>
   <artifactId>spring-base-sign</artifactId>
   <packaging>jar</packaging>
@@ -25,6 +25,12 @@
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

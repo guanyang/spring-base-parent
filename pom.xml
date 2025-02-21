@@ -9,7 +9,7 @@
   </parent>
   <groupId>org.gy.framework</groupId>
   <artifactId>spring-base-parent</artifactId>
-  <version>1.0.5-SNAPSHOT</version>
+  <version>${revision}</version>
   <packaging>pom</packaging>
   <modules>
     <module>spring-base-core</module>
@@ -20,25 +20,19 @@
     <module>spring-base-lock</module>
     <module>spring-base-log</module>
     <module>spring-base-limit</module>
+    <module>spring-base-idempotent</module>
   </modules>
   <properties>
+    <revision>1.0.5-SNAPSHOT</revision>
     <java.version>1.8</java.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <java.encoding>UTF-8</java.encoding>
+    <project.build.sourceEncoding>${java.encoding}</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>${java.encoding}</project.reporting.outputEncoding>
     <springboot.version>2.6.0</springboot.version>
+    <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
+    <transmittable-thread-local.version>2.14.5</transmittable-thread-local.version>
+    <fastjson2.version>2.0.50</fastjson2.version>
   </properties>
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-launcher</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -75,6 +69,26 @@
         <groupId>org.gy.framework</groupId>
         <artifactId>spring-base-log</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gy.framework</groupId>
+        <artifactId>spring-base-limit</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gy.framework</groupId>
+        <artifactId>spring-base-idempotent</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.alibaba.fastjson2</groupId>
+        <artifactId>fastjson2</artifactId>
+        <version>${fastjson2.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>transmittable-thread-local</artifactId>
+        <version>${transmittable-thread-local.version}</version>
       </dependency>
 
 <!--      <dependency>-->
@@ -131,7 +145,7 @@
       <dependency>
         <groupId>cn.hutool</groupId>
         <artifactId>hutool-all</artifactId>
-        <version>5.3.0</version>
+        <version>5.8.35</version>
       </dependency>
       <dependency>
         <groupId>org.projectlombok</groupId>
@@ -211,6 +225,7 @@
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
+          <encoding>${java.encoding}</encoding>
         </configuration>
       </plugin>
       <plugin>
@@ -224,6 +239,49 @@
             <phase>package</phase>
             <goals>
               <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <!-- 忽略 Javadoc 错误 -->
+          <failOnError>false</failOnError>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>${flatten-maven-plugin.version}</version>
+        <configuration>
+          <updatePomFile>true</updatePomFile>
+          <flattenedPomFilename>.flattened-pom.iml</flattenedPomFilename>
+          <!--          <outputDirectory>${project.build.directory}</outputDirectory>-->
+          <flattenMode>resolveCiFriendliesOnly</flattenMode>
+        </configuration>
+        <executions>
+          <execution>
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>flatten.clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
             </goals>
           </execution>
         </executions>
