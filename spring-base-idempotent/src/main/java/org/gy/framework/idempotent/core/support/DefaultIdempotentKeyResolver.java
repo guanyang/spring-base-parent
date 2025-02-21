@@ -3,9 +3,11 @@ package org.gy.framework.idempotent.core.support;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.gy.framework.idempotent.annotation.Idempotent;
 import org.gy.framework.idempotent.core.IdempotentKeyResolver;
 
+import java.lang.reflect.Method;
 import java.util.stream.Stream;
 
 /**
@@ -20,8 +22,8 @@ public class DefaultIdempotentKeyResolver implements IdempotentKeyResolver {
         StringBuilder keyBuilder = new StringBuilder();
         Stream.of(joinPoint.getArgs()).map(Object::toString).forEach(keyBuilder::append);
         String md5 = SecureUtil.md5(keyBuilder.toString());
-        String methodName = joinPoint.getSignature().toString();
-        return StrUtil.join(StrUtil.COLON, idempotent.keyPrefix(), methodName, md5);
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        return StrUtil.join(StrUtil.COLON, idempotent.keyPrefix(), method.getName(), md5);
     }
 
 }
