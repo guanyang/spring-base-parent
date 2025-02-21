@@ -9,7 +9,7 @@
 <dependency>
   <groupId>org.gy.framework</groupId>
   <artifactId>spring-base-parent</artifactId>
-  <version>1.0.5-SNAPSHOT</version>
+  <version>1.0.6-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -28,6 +28,8 @@
 | spring-base-idempotent | 幂等组件        | [参考文档](spring-base-idempotent/README.md) |
 
 #### Change Log
+
+#### 1.0.6-SNAPSHOT
 
 #### 1.0.5-SNAPSHOT
 - 优化【spring-base-lock】模块代码

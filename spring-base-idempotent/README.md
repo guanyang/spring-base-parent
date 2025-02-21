@@ -15,7 +15,7 @@
         <groupId>org.gy.framework</groupId>
         <artifactId>spring-base-idempotent</artifactId>
         <!--注意修改版本号-->
-        <version>1.0.5-SNAPSHOT</version>
+        <version>1.0.6-SNAPSHOT</version>
     </dependency>
     ```
 
