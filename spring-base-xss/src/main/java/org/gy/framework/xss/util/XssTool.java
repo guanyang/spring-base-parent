@@ -20,7 +20,7 @@ public class XssTool {
     private static Pattern scriptPatternEval = Pattern.compile("eval\\((.*?)\\)",
         Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
-    private static Pattern scriptPatternExp = Pattern.compile("e­xpression\\((.*?)\\)",
+    private static Pattern scriptPatternExp = Pattern.compile("expression\\((.*?)\\)",
         Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static Pattern scriptPatternJs = Pattern.compile("javascript:", Pattern.CASE_INSENSITIVE);

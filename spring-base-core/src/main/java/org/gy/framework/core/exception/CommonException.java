@@ -22,7 +22,7 @@ public class CommonException extends RuntimeException {
     private final String msg;
 
     public CommonException(ErrorCodeI errorCodeI) {
-        super();
+        super(errorCodeI.getMsg());
         this.error = errorCodeI.getError();
         this.msg = errorCodeI.getMsg();
     }
