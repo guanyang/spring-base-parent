@@ -36,7 +36,7 @@ public class LockCommonTests {
         int expireTime = 3000;
         int sleepInterval = 5000;
         long expire = -1;
-        DistributedLock lock = new RedisDistributedLock(redisTemplate, redisKey, expireTime);
+        DistributedLock lock = new RedisDistributedLock(redisTemplate, redisKey, expireTime, true);
         boolean lockFlag = false;
         try {
             lockFlag = lock.tryLock(-1, 50);

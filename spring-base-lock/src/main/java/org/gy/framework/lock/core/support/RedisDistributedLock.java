@@ -41,9 +41,17 @@ public class RedisDistributedLock extends AbstractDistributedLock implements Dis
      */
     private final StringRedisTemplate redisTemplate;
 
+    //考虑到续期各种异常因素影响，默认不开启
+    private final boolean renewal;
+
     public RedisDistributedLock(StringRedisTemplate redisTemplate, String lockKey, long expireMillis) {
+        this(redisTemplate, lockKey, expireMillis, false);
+    }
+
+    public RedisDistributedLock(StringRedisTemplate redisTemplate, String lockKey, long expireMillis, boolean renewal) {
         super(lockKey, expireMillis);
         this.redisTemplate = redisTemplate;
+        this.renewal = renewal;
     }
 
     @Override
@@ -89,6 +97,10 @@ public class RedisDistributedLock extends AbstractDistributedLock implements Dis
     }
 
     protected void scheduleRenewal(String lockKey, String requestId, long expireMillis) {
+        if (!renewal){
+            log.debug("[RedisDistributedLock]renewal disabled:lockKey={},value={},expireMillis={}.", lockKey, requestId, expireMillis);
+            return;
+        }
         // 续期间隔设置为过期时间的 1/3
         long renewInterval = expireMillis / 3;
         ScheduledFuture<?> future = SCHEDULER.scheduleAtFixedRate(() -> {
@@ -104,6 +116,10 @@ public class RedisDistributedLock extends AbstractDistributedLock implements Dis
 
 
     protected void cancelRenewal(String lockKey) {
+        if (!renewal){
+            log.debug("[RedisDistributedLock]renewal disabled:lockKey={}.", lockKey);
+            return;
+        }
         ScheduledFuture<?> future = RENEWAL_TASKS.remove(lockKey);
         if (future != null) {
             future.cancel(true);
