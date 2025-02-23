@@ -93,6 +93,7 @@ public class RedisDistributedLock extends AbstractDistributedLock implements Dis
         long renewInterval = expireMillis / 3;
         ScheduledFuture<?> future = SCHEDULER.scheduleAtFixedRate(() -> {
             boolean result = innerRenewal(lockKey, requestId, expireMillis);
+            log.debug("[RedisDistributedLock]renewal result:lockKey={},requestId={},expireMillis={},renewInterval={},result={}.", lockKey, requestId, expireMillis, renewInterval, result);
             if (!result) {
                 cancelRenewal(lockKey);
             }

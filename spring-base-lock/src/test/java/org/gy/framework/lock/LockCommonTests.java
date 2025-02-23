@@ -1,14 +1,7 @@
 package org.gy.framework.lock;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import lombok.Data;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.lock.core.DistributedLock;
 import org.gy.framework.lock.core.DistributedLockAction;
@@ -18,11 +11,48 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 @Slf4j
 public class LockCommonTests {
 
     @Test
     void contextLoads() {
+    }
+
+    @Test
+    public void testLockRenewal() {
+        Num num = new Num();
+        StringRedisTemplate redisTemplate = initStringRedisTemplate();
+        String redisKey = "GY:LOCK:TEST:" + System.currentTimeMillis();
+        int expireTime = 3000;
+        int sleepInterval = 5000;
+        long expire = -1;
+        DistributedLock lock = new RedisDistributedLock(redisTemplate, redisKey, expireTime);
+        boolean lockFlag = false;
+        try {
+            lockFlag = lock.tryLock(-1, 50);
+            if (!lockFlag) {
+                throw new RuntimeException("lock failed.");
+            }
+            sleep(sleepInterval);
+            num.incr();
+        } finally {
+            expire = redisTemplate.opsForValue().getOperations().getExpire(redisKey, TimeUnit.MILLISECONDS);
+            if (lockFlag) {
+                lock.unlock();
+            }
+        }
+        log.info("expire value={}", expire);
+        assertTrue(expire > 0);
     }
 
     @Test
@@ -82,7 +112,7 @@ public class LockCommonTests {
         CompletableFuture<Void> allFuture = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         log.info("after allOf");
         CompletableFuture<List<T>> result = allFuture.thenApply(
-            s -> futures.stream().map(CompletableFuture::join).collect(Collectors.toList()));
+                s -> futures.stream().map(CompletableFuture::join).collect(Collectors.toList()));
         List<T> data = result.join();
         log.info("exucute finish.");
         return data;
@@ -106,8 +136,14 @@ public class LockCommonTests {
         }
     }
 
+    @SneakyThrows
+    private static void sleep(long timeout) {
+        TimeUnit.MILLISECONDS.sleep(timeout);
+    }
+
     private static StringRedisTemplate initStringRedisTemplate() {
         LettuceConnectionFactory factory = new LettuceConnectionFactory("127.0.0.1", 6379);
+        factory.setPassword("12345678");
         factory.afterPropertiesSet();
         return new StringRedisTemplate(factory);
     }
