@@ -1,6 +1,7 @@
 package org.gy.framework.lock.core;
 
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.TimeUnit;
@@ -13,6 +14,7 @@ import static org.gy.framework.lock.utils.IdUtils.defaultRequestId;
  * @author gy
  * @version 1.0.0
  */
+@Getter
 @Slf4j
 public abstract class AbstractDistributedLock implements DistributedLock {
 
