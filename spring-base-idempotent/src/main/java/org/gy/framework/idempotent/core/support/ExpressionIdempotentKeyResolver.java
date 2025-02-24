@@ -11,15 +11,14 @@ import org.gy.framework.lock.aop.support.CustomCachedExpressionEvaluator;
 
 import java.lang.reflect.Method;
 
-public class ExpressionIdempotentKeyResolver implements IdempotentKeyResolver {
+public class ExpressionIdempotentKeyResolver extends AbstractIdempotentKeyResolver {
 
     private final CustomCachedExpressionEvaluator evaluator = new CustomCachedExpressionEvaluator();
 
     @Override
-    public String resolver(JoinPoint joinPoint, Idempotent idempotent) {
+    protected String internalKeyExtractor(JoinPoint joinPoint, Idempotent idempotent) {
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-        String value = this.getValue(joinPoint.getTarget(), method, joinPoint.getArgs(), idempotent.keyArg());
-        return StrUtil.join(StrUtil.COLON, idempotent.keyPrefix(), value);
+        return this.getValue(joinPoint.getTarget(), method, joinPoint.getArgs(), idempotent.keyArg());
     }
 
     private String getValue(Object target, Method method, Object[] args, String expression) {
