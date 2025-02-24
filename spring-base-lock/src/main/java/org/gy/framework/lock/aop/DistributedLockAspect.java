@@ -55,7 +55,7 @@ public class DistributedLockAspect {
         log.info("[DistributedLockAspect][{}]方法加锁：key={},expireTime={}ms,waitTime={}ms,sleepTime={}ms", methodName, key, expireTime, waitTimeMillis, sleepTimeMillis);
 
         //定义redis锁实现
-        DistributedLock lockEntity = new RedisDistributedLock(stringRedisTemplate, key, expireTime);
+        DistributedLock lockEntity = new RedisDistributedLock(stringRedisTemplate, key, expireTime, lock.renewal());
 
         LockResult<Object> result = execute(lockEntity, waitTimeMillis, sleepTimeMillis, () -> proceed(jp));
         if (result == null || !result.success()) {

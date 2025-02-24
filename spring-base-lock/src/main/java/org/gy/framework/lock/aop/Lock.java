@@ -40,4 +40,9 @@ public @interface Lock {
      */
     long sleepTimeMillis() default 30;
 
+    /**
+     * 是否自动续期，默认否
+     */
+    boolean renewal() default false;
+
 }
