@@ -17,7 +17,7 @@ public enum LimitCodeEnum {
     EXEC_SUCCESS(0, "操作成功"),
 
     //失败
-    EXEC_LIMIT_ERROR(500, "您操作太频繁，请稍后再试"),
+    EXEC_LIMIT_ERROR(429, "您操作太频繁，请稍后再试"),
 
     INNER_ERROR(998, "内部服务异常"),
 

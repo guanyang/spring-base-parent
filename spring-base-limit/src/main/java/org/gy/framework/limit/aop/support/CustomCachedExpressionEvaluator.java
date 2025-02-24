@@ -44,12 +44,7 @@ public class CustomCachedExpressionEvaluator extends CachedExpressionEvaluator {
 
     protected MetaData getMetaData(Method method, Class<?> targetClass) {
         AnnotatedElementKey cacheKey = new AnnotatedElementKey(method, targetClass);
-        MetaData metaData = metadataCache.get(cacheKey);
-        if (metaData == null) {
-            metaData = new MetaData(method, targetClass);
-            this.metadataCache.put(cacheKey, metaData);
-        }
-        return metaData;
+        return metadataCache.computeIfAbsent(cacheKey, key -> new MetaData(method, targetClass));
     }
 
     protected static class MetaData {

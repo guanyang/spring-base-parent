@@ -1,22 +1,28 @@
 package org.gy.framework.limit.aop;
 
-import java.lang.reflect.Method;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.gy.framework.core.util.CollectionUtils;
 import org.gy.framework.limit.annotation.LimitCheck;
-import org.gy.framework.limit.aop.support.CustomCachedExpressionEvaluator;
 import org.gy.framework.limit.core.ILimitCheckService;
 import org.gy.framework.limit.core.ILimitCheckServiceDispatch;
+import org.gy.framework.limit.core.LimitKeyResolver;
 import org.gy.framework.limit.core.support.LimitCheckContext;
 import org.gy.framework.limit.enums.LimitTypeEnum;
 import org.gy.framework.limit.exception.LimitCodeEnum;
 import org.gy.framework.limit.exception.LimitException;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * 频率限制切面
@@ -28,12 +34,13 @@ import org.springframework.util.StringUtils;
 @Aspect
 public class LimitCheckAspect {
 
-    private final CustomCachedExpressionEvaluator evaluator = new CustomCachedExpressionEvaluator();
+    private final Map<Class<? extends LimitKeyResolver>, LimitKeyResolver> keyResolvers;
 
-    private ILimitCheckServiceDispatch dispatch;
+    private final ILimitCheckServiceDispatch dispatch;
 
-    public LimitCheckAspect(ILimitCheckServiceDispatch dispatch) {
+    public LimitCheckAspect(ILimitCheckServiceDispatch dispatch, List<LimitKeyResolver> keyResolvers) {
         this.dispatch = dispatch;
+        this.keyResolvers = CollectionUtils.convertMap(keyResolvers, LimitKeyResolver::getClass, Function.identity());
     }
 
     @Pointcut("@annotation(org.gy.framework.limit.annotation.LimitCheck)")
@@ -47,33 +54,22 @@ public class LimitCheckAspect {
         String methodName = method.getName();
         // 获取AspectAnnotation注解
         LimitCheck check = method.getAnnotation(LimitCheck.class);
-        String type = Optional.ofNullable(check.type()).filter(StringUtils::hasText)
-            .orElseGet(LimitTypeEnum.REDIS::getCode);
+        String type = Optional.ofNullable(check.type()).filter(StringUtils::hasText).orElseGet(LimitTypeEnum.REDIS::getCode);
         ILimitCheckService checkService = dispatch.findService(type);
-        if (checkService == null) {
-            log.error("[LimitCheckAspect]{}频率检查类型不支持：type={}.", methodName, type);
-            throw new LimitException(LimitCodeEnum.INNER_ERROR);
-        }
-        String key = this.getValue(jp.getTarget(), method, jp.getArgs(), check.key());
-        int time = check.time();
+        Assert.notNull(checkService, () -> "LimitCheck type not support: " + type);
+
+        LimitKeyResolver keyResolver = keyResolvers.get(check.keyResolver());
+        Assert.notNull(keyResolver, () -> "LimitKeyResolver not found: " + methodName);
+        String key = keyResolver.resolver(jp, check);
+
         int limit = check.limit();
-        log.debug("[LimitCheckAspect]{}方法频率检查：key={},time={}S,limit={},type={}", methodName, key, time, limit, type);
+        long time = check.timeUnit().toMillis(check.time());
         boolean result = checkService.check(LimitCheckContext.of(key, time, limit));
         if (result) {
-            log.info("[LimitCheckAspect]{}方法频率超过阈值，key={},time={}S,limit={}", methodName, key, time, limit);
-            throw new LimitException(LimitCodeEnum.EXEC_LIMIT_ERROR);
+            log.info("[LimitCheckAspect][{}]方法频率超过阈值，key={},time={}ms,limit={},type={}", methodName, key, time, limit, type);
+            throw new LimitException(LimitCodeEnum.EXEC_LIMIT_ERROR, check.message());
         }
         return jp.proceed();
-    }
-
-    private String getValue(Object target, Method method, Object[] args, String expression) {
-        try {
-            return evaluator.getValue(target, method, args, expression, String.class);
-        } catch (Exception e) {
-            log.error("[LimitCheckAspect]SPEL analysis error", e);
-            throw new LimitException(LimitCodeEnum.PARAM_SPEL_ERROR, e);
-        }
-
     }
 
 }

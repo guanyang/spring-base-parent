@@ -17,11 +17,11 @@ import org.springframework.data.redis.core.script.RedisScript;
 @Slf4j
 public class RedisLimitCheckService implements ILimitCheckService {
 
-    private static final String DEFAULT_SCRIPT_STR = "local current; current = redis.call('incr',KEYS[1]); if tonumber(current) == 1 then redis.call('expire',KEYS[1],ARGV[1]); end; return current;";
+    private static final String DEFAULT_SCRIPT_STR = "local current; current = redis.call('incr',KEYS[1]); if tonumber(current) == 1 then redis.call('pexpire',KEYS[1],ARGV[1]); end; return current;";
 
     private static final RedisScript<Long> DEFAULT_SCRIPT = new DefaultRedisScript<>(DEFAULT_SCRIPT_STR, Long.class);
 
-    private StringRedisTemplate restTemplate;
+    private final StringRedisTemplate restTemplate;
 
     public RedisLimitCheckService(StringRedisTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -37,15 +37,15 @@ public class RedisLimitCheckService implements ILimitCheckService {
      */
     @Override
     public boolean check(LimitCheckContext context) {
-        return innerIncr(context.getKey(), context.getTime()) > context.getLimit();
+        return innerIncr(context.getKey(), context.getTimeInMillis()) > context.getLimit();
     }
 
-    private long innerIncr(String key, int expireTime) {
+    private long innerIncr(String key, long expireMillis) {
         try {
             //基于脚本操作，保证原子性
-            return restTemplate.execute(DEFAULT_SCRIPT, Collections.singletonList(key), String.valueOf(expireTime));
+            return restTemplate.execute(DEFAULT_SCRIPT, Collections.singletonList(key), String.valueOf(expireMillis));
         } catch (Exception e) {
-            log.error("[ILimitCheckService]incr error:key={},expireTime={}.", key, expireTime, e);
+            log.error("[ILimitCheckService]incr error:key={},expireMillis={}.", key, expireMillis, e);
         }
         return Long.MAX_VALUE;
     }

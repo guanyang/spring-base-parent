@@ -20,15 +20,29 @@ public class LimitCheckContext {
     /**
      * 时间期限，单位：秒
      */
+    @Deprecated
     private int time;
+    /**
+     * 时间期限，单位：毫秒
+     */
+    private long timeInMillis;
     /**
      * 限制阈值
      */
     private long limit;
 
+    @Deprecated
     public static LimitCheckContext of(String key, int time, long limit) {
         LimitCheckContext ctx = new LimitCheckContext();
         ctx.setKey(key).setTime(time).setLimit(limit);
+        ctx.setTimeInMillis(time * 1000L);
+        return ctx;
+    }
+
+    public static LimitCheckContext of(String key, long timeInMillis, long limit) {
+        LimitCheckContext ctx = new LimitCheckContext();
+        ctx.setKey(key).setTimeInMillis(timeInMillis).setLimit(limit);
+        ctx.setTime((int) (timeInMillis / 1000L));
         return ctx;
     }
 

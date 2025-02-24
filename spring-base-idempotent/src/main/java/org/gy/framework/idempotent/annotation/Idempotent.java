@@ -2,6 +2,7 @@ package org.gy.framework.idempotent.annotation;
 
 import org.gy.framework.idempotent.core.IdempotentKeyResolver;
 import org.gy.framework.idempotent.core.support.DefaultIdempotentKeyResolver;
+import org.gy.framework.idempotent.core.support.ExpressionIdempotentKeyResolver;
 
 import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;

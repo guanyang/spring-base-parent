@@ -1,12 +1,15 @@
 package org.gy.framework.limit;
 
+import java.util.List;
 import java.util.Optional;
 import org.gy.framework.limit.annotation.EnableLimitCheck;
 import org.gy.framework.limit.aop.LimitCheckAspect;
 import org.gy.framework.limit.core.ILimitCheckServiceDispatch;
+import org.gy.framework.limit.core.LimitKeyResolver;
 import org.gy.framework.limit.core.support.DefaultLimitCheckServiceDispatch;
 import org.gy.framework.limit.core.support.RedisLimitCheckService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -29,14 +32,14 @@ public class LimitCheckConfig implements ImportAware {
     protected AnnotationAttributes enableAsync;
 
     @Bean
-    @ConditionalOnClass(StringRedisTemplate.class)
-    public LimitCheckAspect limitCheckAspect(ApplicationContext context) {
+    @ConditionalOnMissingBean(LimitCheckAspect.class)
+    public LimitCheckAspect limitCheckAspect(ApplicationContext context, List<LimitKeyResolver> keyResolvers) {
         ILimitCheckServiceDispatch dispatch = new DefaultLimitCheckServiceDispatch();
         //自定义redisTemplate名称，方便切面注入指定bean，解决应用中存在多个redisTemplate的问题
         String name = enableAsync.getString("redisTemplateName");
         Optional.ofNullable(name).map(n -> context.getBean(n, StringRedisTemplate.class))
             .map(RedisLimitCheckService::new).ifPresent(DefaultLimitCheckServiceDispatch::addLimitCheckIfAbsent);
-        return new LimitCheckAspect(dispatch);
+        return new LimitCheckAspect(dispatch, keyResolvers);
     }
 
     @Override

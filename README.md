@@ -32,6 +32,8 @@
 #### 1.0.6-SNAPSHOT
 - 优化【spring-base-lock】模块代码
   - 基于`ScheduledExecutorService`实现锁续期，避免业务处理过长导致锁失效
+- 优化【spring-base-limit】模块代码
+  - 优化限流核心逻辑，支持多种限流key解析器，也可以自定义扩展
 
 #### 1.0.5-SNAPSHOT
 - 优化【spring-base-lock】模块代码
