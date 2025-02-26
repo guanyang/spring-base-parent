@@ -1,9 +1,8 @@
-package org.gy.framework.limit.core.support;
+package org.gy.framework.limit.model;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.gy.framework.core.util.JsonUtils;
-import org.gy.framework.limit.annotation.LimitCheck;
 import org.gy.framework.limit.core.ILimitCheckService;
 import org.gy.framework.limit.enums.LimitTypeEnum;
 
@@ -21,6 +20,10 @@ public class LimitCheckContext {
      * 业务唯一标识定义
      */
     private String key;
+    /**
+     * 提示信息
+     */
+    private String message;
     /**
      * 时间期限，单位：秒
      */

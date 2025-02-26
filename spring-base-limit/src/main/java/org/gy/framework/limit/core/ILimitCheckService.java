@@ -1,10 +1,7 @@
 package org.gy.framework.limit.core;
 
 import org.gy.framework.core.spi.SpiIdentity;
-import org.gy.framework.core.util.CollectionUtils;
-import org.gy.framework.limit.core.support.LimitCheckContext;
-import org.gy.framework.limit.enums.LimitTypeEnum;
-import org.springframework.data.redis.core.script.RedisScript;
+import org.gy.framework.limit.model.LimitCheckContext;
 
 import java.util.List;
 import java.util.stream.Collectors;

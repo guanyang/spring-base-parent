@@ -1,7 +1,7 @@
 package org.gy.framework.idempotent.exception;
 
 import lombok.Getter;
-import org.gy.framework.lock.exception.LockCodeEnum;
+import org.gy.framework.idempotent.annotation.Idempotent;
 
 @Getter
 public class IdempotentException extends RuntimeException {
@@ -14,6 +14,10 @@ public class IdempotentException extends RuntimeException {
      * 错误详情
      */
     private final String msg;
+    /**
+     * Idempotent注解
+     */
+    private transient Idempotent annotation;
 
     public IdempotentException(IdempotentErrorCodeI bizCode) {
         super(bizCode.getMsg());
@@ -25,6 +29,13 @@ public class IdempotentException extends RuntimeException {
         super(msg);
         this.code = bizCode.getCode();
         this.msg = msg;
+    }
+
+    public IdempotentException(IdempotentErrorCodeI bizCode, String msg, Idempotent annotation) {
+        super(msg);
+        this.code = bizCode.getCode();
+        this.msg = msg;
+        this.annotation = annotation;
     }
 
     public IdempotentException(IdempotentErrorCodeI bizCode, Throwable e) {

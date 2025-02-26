@@ -3,7 +3,7 @@ package org.gy.framework.limit.core;
 import org.aspectj.lang.JoinPoint;
 import org.gy.framework.core.spi.SpiExtensionFactory;
 import org.gy.framework.limit.annotation.LimitCheck;
-import org.gy.framework.limit.core.support.LimitCheckContext;
+import org.gy.framework.limit.model.LimitCheckContext;
 import org.gy.framework.limit.enums.LimitTypeEnum;
 import org.gy.framework.limit.exception.LimitException;
 

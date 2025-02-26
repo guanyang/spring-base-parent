@@ -6,7 +6,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.gy.framework.limit.annotation.LimitCheck;
 import org.gy.framework.limit.core.ILimitCheckServiceDispatch;
-import org.gy.framework.limit.core.support.LimitCheckContext;
+import org.gy.framework.limit.model.LimitCheckContext;
 import org.gy.framework.limit.exception.LimitCodeEnum;
 import org.gy.framework.limit.exception.LimitException;
 

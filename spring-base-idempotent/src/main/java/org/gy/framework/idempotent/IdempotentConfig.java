@@ -3,10 +3,14 @@ package org.gy.framework.idempotent;
 import org.gy.framework.idempotent.annotation.EnableIdempotent;
 import org.gy.framework.idempotent.aop.IdempotentAspect;
 import org.gy.framework.idempotent.core.IdempotentKeyResolver;
-import org.gy.framework.idempotent.core.support.DefaultIdempotentKeyResolver;
-import org.gy.framework.idempotent.core.support.ExpressionIdempotentKeyResolver;
+import org.gy.framework.idempotent.core.IdempotentService;
+import org.gy.framework.idempotent.core.support.DefaultIdempotentServiceImpl;
+import org.gy.framework.lock.aop.support.CustomCachedExpressionEvaluator;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -19,17 +23,31 @@ import java.util.List;
 
 @Configuration
 @ComponentScan(basePackageClasses = IdempotentConfig.class)
-public class IdempotentConfig implements ImportAware {
+public class IdempotentConfig implements ImportAware, ApplicationContextAware {
 
     protected AnnotationAttributes enableAsync;
 
+    protected ApplicationContext context;
+
     @Bean
     @ConditionalOnMissingBean(IdempotentAspect.class)
-    public IdempotentAspect idempotentAspect(ApplicationContext applicationContext, List<IdempotentKeyResolver> keyResolvers) {
+    public IdempotentAspect idempotentAspect(IdempotentService idempotentService) {
+        return new IdempotentAspect(idempotentService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(IdempotentService.class)
+    public IdempotentService idempotentService(List<IdempotentKeyResolver> keyResolvers) {
         //自定义redisTemplate名称，方便切面注入指定bean，解决应用中存在多个redisTemplate的问题
         String redisTemplateName = enableAsync.getString("redisTemplateName");
-        StringRedisTemplate stringRedisTemplate = applicationContext.getBean(redisTemplateName, StringRedisTemplate.class);
-        return new IdempotentAspect(stringRedisTemplate, keyResolvers);
+        StringRedisTemplate stringRedisTemplate = context.getBean(redisTemplateName, StringRedisTemplate.class);
+        return new DefaultIdempotentServiceImpl(keyResolvers, stringRedisTemplate);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(CustomCachedExpressionEvaluator.class)
+    public CustomCachedExpressionEvaluator idempotentExpressionEvaluator(ConfigurableBeanFactory beanFactory) {
+        return new CustomCachedExpressionEvaluator(beanFactory);
     }
 
     @Override
@@ -40,14 +58,8 @@ public class IdempotentConfig implements ImportAware {
         }
     }
 
-    @Bean
-    public DefaultIdempotentKeyResolver defaultIdempotentKeyResolver() {
-        return new DefaultIdempotentKeyResolver();
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
     }
-
-    @Bean
-    public ExpressionIdempotentKeyResolver expressionIdempotentKeyResolver() {
-        return new ExpressionIdempotentKeyResolver();
-    }
-
 }

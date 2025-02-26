@@ -37,14 +37,14 @@ public @interface Idempotent {
      * 使用的 Key 解析器
      *
      * @see DefaultIdempotentKeyResolver 全局级别
-     * @see ExpressionIdempotentKeyResolver 自定义表达式，通过 {@link #keyArg()} 计算
+     * @see ExpressionIdempotentKeyResolver 自定义表达式，通过 {@link #key()} 计算
      */
     Class<? extends IdempotentKeyResolver> keyResolver() default DefaultIdempotentKeyResolver.class;
 
     /**
      * 使用的 Key 参数
      */
-    String keyArg() default "";
+    String key() default "";
 
     /**
      * key前缀
@@ -55,4 +55,14 @@ public @interface Idempotent {
      * 删除 Key，当发生异常时候
      */
     boolean deleteKeyWhenException() default true;
+
+    /**
+     * 自定义降级方法，不定义则抛出IdempotentException
+     */
+    String fallback() default "";
+
+    /**
+     * 降级方法所在的 Spring Bean，默认为当前类
+     */
+    Class<?> fallbackBean() default Void.class;
 }

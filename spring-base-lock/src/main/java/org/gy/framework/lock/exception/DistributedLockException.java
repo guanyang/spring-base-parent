@@ -25,7 +25,7 @@ public class DistributedLockException extends RuntimeException {
     /**
      * lock注解
      */
-    private Lock annotation;
+    private transient Lock annotation;
 
 
     public DistributedLockException(LockCodeEnum bizCode) {

@@ -13,6 +13,7 @@ import org.gy.framework.limit.core.ILimitCheckService;
 import org.gy.framework.limit.core.ILimitCheckServiceDispatch;
 import org.gy.framework.limit.core.LimitKeyResolver;
 import org.gy.framework.limit.exception.LimitException;
+import org.gy.framework.limit.model.LimitCheckContext;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -64,6 +65,7 @@ public class DefaultLimitCheckServiceDispatch implements ILimitCheckServiceDispa
         long time = check.timeUnit().toMillis(check.time());
         LimitCheckContext checkContext = LimitCheckContext.of(key, time, limit);
         checkContext.setType(type);
+        checkContext.setMessage(check.message());
         int capacity = getValue(joinPoint, check.capacityExpression(), Integer::parseInt, check::capacity);
         checkContext.setCapacity(capacity);
         checkContext.setRequested(check.requested());

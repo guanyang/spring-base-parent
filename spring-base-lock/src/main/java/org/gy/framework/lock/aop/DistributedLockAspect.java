@@ -31,10 +31,9 @@ public class DistributedLockAspect {
     @Around(value = "@annotation(annotation)")
     public Object annotationAround(ProceedingJoinPoint jp, Lock annotation) throws Throwable {
         LockContext context = lockService.createContext(jp, annotation);
-        log.info("[DistributedLockAspect]方法加锁：{}", context);
-
         LockResult<Object> result = lockService.execute(context, () -> proceed(jp));
         if (result == null || !result.success()) {
+            log.info("[DistributedLockAspect]方法加锁失败：{}", context);
             DistributedLockException lockException = new DistributedLockException(LockCodeEnum.TOO_MANY_REQUESTS, annotation.message(), annotation);
             return lockService.invokeFallback(jp, annotation, lockException);
         }

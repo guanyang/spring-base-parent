@@ -51,9 +51,9 @@ public class LimitCheckConfig implements ImportAware, InitializingBean, Applicat
         return new DefaultLimitCheckServiceDispatch(keyResolvers, evaluator);
     }
 
-    @Bean("limitExpressionEvaluator")
+    @Bean
     @ConditionalOnMissingBean(CustomCachedExpressionEvaluator.class)
-    public CustomCachedExpressionEvaluator customCachedExpressionEvaluator(ConfigurableBeanFactory beanFactory) {
+    public CustomCachedExpressionEvaluator limitExpressionEvaluator(ConfigurableBeanFactory beanFactory) {
         return new CustomCachedExpressionEvaluator(beanFactory);
     }
 

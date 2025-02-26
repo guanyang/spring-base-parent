@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.core.util.CollectionUtils;
 import org.gy.framework.limit.core.ILimitCheckService;
 import org.gy.framework.limit.enums.LimitTypeEnum;
+import org.gy.framework.limit.model.LimitCheckContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 

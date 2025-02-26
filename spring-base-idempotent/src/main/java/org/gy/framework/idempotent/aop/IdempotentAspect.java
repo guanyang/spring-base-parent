@@ -4,21 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.gy.framework.idempotent.annotation.Idempotent;
-import org.gy.framework.idempotent.core.IdempotentKeyResolver;
+import org.gy.framework.idempotent.core.IdempotentService;
 import org.gy.framework.idempotent.exception.IdempotentCodeEnum;
 import org.gy.framework.idempotent.exception.IdempotentException;
-import org.gy.framework.idempotent.util.CollectionUtils;
+import org.gy.framework.idempotent.model.IdempotentContext;
 import org.gy.framework.lock.core.DistributedLock;
-import org.gy.framework.lock.core.support.RedisDistributedLock;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.util.Assert;
 
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.Optional;
 
 /**
  * 幂等切面
@@ -30,48 +23,30 @@ import java.util.function.Function;
 @Aspect
 public class IdempotentAspect {
 
-    private final Map<Class<? extends IdempotentKeyResolver>, IdempotentKeyResolver> keyResolvers;
+    private final IdempotentService idempotentService;
 
-    private final StringRedisTemplate stringRedisTemplate;
-
-    public IdempotentAspect(StringRedisTemplate stringRedisTemplate, List<IdempotentKeyResolver> keyResolvers) {
-        this.stringRedisTemplate = stringRedisTemplate;
-        this.keyResolvers = CollectionUtils.convertMap(keyResolvers, IdempotentKeyResolver::getClass, Function.identity());
+    public IdempotentAspect(IdempotentService idempotentService) {
+        this.idempotentService = idempotentService;
     }
 
-    @Around(value = "@annotation(idempotent)")
-    public Object aroundPointCut(ProceedingJoinPoint joinPoint, Idempotent idempotent) throws Throwable {
-        // 幂等校验
-        DistributedLock lockEntity = internalValidate(joinPoint, idempotent);
-        // 方法执行
-        return internalProceed(joinPoint, idempotent, lockEntity);
-    }
-
-    protected DistributedLock internalValidate(ProceedingJoinPoint joinPoint, Idempotent idempotent) {
-        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-        String methodName = method.getName();
-
-        IdempotentKeyResolver keyResolver = keyResolvers.get(idempotent.keyResolver());
-        Assert.notNull(keyResolver, () -> "IdempotentKeyResolver not found: " + methodName);
-        String key = keyResolver.resolver(joinPoint, idempotent);
-
-        //定义redis锁实现
-        long expireTime = idempotent.timeUnit().toMillis(idempotent.timeout());
-        DistributedLock lockEntity = new RedisDistributedLock(stringRedisTemplate, key, expireTime);
-        boolean success = lockEntity.tryLock();
+    @Around(value = "@annotation(annotation)")
+    public Object aroundPointCut(ProceedingJoinPoint joinPoint, Idempotent annotation) throws Throwable {
+        IdempotentContext checkContext = idempotentService.createContext(joinPoint, annotation);
+        boolean success = idempotentService.check(checkContext);
         if (!success) {
-            log.info("[IdempotentAspect][{}]方法存在重复请求：key={},expireTime={}ms", methodName, key, expireTime);
-            throw new IdempotentException(IdempotentCodeEnum.TOO_MANY_REQUESTS, idempotent.message());
+            log.info("[IdempotentAspect]方法存在重复请求：{}", checkContext);
+            IdempotentException exception = new IdempotentException(IdempotentCodeEnum.TOO_MANY_REQUESTS, annotation.message(), annotation);
+            return idempotentService.invokeFallback(joinPoint, annotation, exception);
         }
-        return lockEntity;
+        return internalProceed(joinPoint, checkContext);
     }
 
-    protected Object internalProceed(ProceedingJoinPoint joinPoint, Idempotent idempotent, DistributedLock lockEntity) throws Throwable {
+    protected Object internalProceed(ProceedingJoinPoint joinPoint, IdempotentContext checkContext) throws Throwable {
         try {
             return joinPoint.proceed();
         } catch (Throwable ex) {
-            if (idempotent.deleteKeyWhenException()) {
-                lockEntity.unlock();
+            if (checkContext.isDeleteKeyWhenException()) {
+                Optional.ofNullable(checkContext.getLockService()).ifPresent(DistributedLock::unlock);
             }
             throw ex;
         }

@@ -24,7 +24,7 @@ public class LimitException extends RuntimeException {
     /**
      * 限流注解
      */
-    private LimitCheck annotation;
+    private transient LimitCheck annotation;
 
     public LimitException(LimitCodeEnum bizCode) {
         super(bizCode.getMsg());

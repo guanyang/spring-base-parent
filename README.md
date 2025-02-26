@@ -9,7 +9,7 @@
 <dependency>
   <groupId>org.gy.framework</groupId>
   <artifactId>spring-base-parent</artifactId>
-  <version>1.0.6-SNAPSHOT</version>
+  <version>1.0.7-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -28,6 +28,15 @@
 | spring-base-idempotent | 幂等组件        | [参考文档](spring-base-idempotent/README.md) |
 
 #### Change Log
+#### 1.0.7-SNAPSHOT
+- 优化【spring-base-lock】模块代码
+  - 支持自定义降级行为，定义`fallback`和`fallbackBean`
+- 优化【spring-base-limit】模块代码
+  - 支持`TIME_WINDOW`和`TOKEN_BUCKET`两种限流算法
+  - 支持自定义降级行为，定义`fallback`和`fallbackBean`
+  - 支持动态设置限流大小，支持`limitExpression`和`capacityExpression`
+- 优化【spring-base-idempotent】模块代码
+  - 支持自定义降级行为，定义`fallback`和`fallbackBean`
 
 #### 1.0.6-SNAPSHOT
 - 优化【spring-base-lock】模块代码

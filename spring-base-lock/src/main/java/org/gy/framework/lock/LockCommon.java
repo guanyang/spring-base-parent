@@ -44,9 +44,9 @@ public class LockCommon implements ImportAware, ApplicationContextAware {
         return new DefaultLockServiceImpl(keyResolvers, stringRedisTemplate);
     }
 
-    @Bean("lockExpressionEvaluator")
+    @Bean
     @ConditionalOnMissingBean(CustomCachedExpressionEvaluator.class)
-    public CustomCachedExpressionEvaluator customCachedExpressionEvaluator(ConfigurableBeanFactory beanFactory) {
+    public CustomCachedExpressionEvaluator lockExpressionEvaluator(ConfigurableBeanFactory beanFactory) {
         return new CustomCachedExpressionEvaluator(beanFactory);
     }
 

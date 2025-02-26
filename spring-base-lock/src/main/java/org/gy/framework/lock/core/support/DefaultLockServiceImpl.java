@@ -1,7 +1,5 @@
 package org.gy.framework.lock.core.support;
 
-import cn.hutool.extra.spring.SpringUtil;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -11,9 +9,9 @@ import org.gy.framework.lock.core.*;
 import org.gy.framework.lock.exception.DistributedLockException;
 import org.gy.framework.lock.model.LockContext;
 import org.gy.framework.lock.model.LockResult;
+import org.gy.framework.lock.utils.InvokeUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -73,40 +71,9 @@ public class DefaultLockServiceImpl implements ILockService {
     }
 
     @Override
-    @SneakyThrows
     public Object invokeFallback(JoinPoint joinPoint, Lock annotation, DistributedLockException exception) {
         String fallbackMethodName = annotation.fallback();
         Class<?> fallbackBeanClass = annotation.fallbackBean();
-        Object targetBean = (fallbackBeanClass == Void.class) ? joinPoint.getTarget() : SpringUtil.getBean(fallbackBeanClass);
-
-        // 如果 `fallback` 方法不存在，直接抛出异常
-        if (!StringUtils.hasText(fallbackMethodName) || targetBean == null) {
-            throw exception;
-        }
-
-        Object[] originalArgs = joinPoint.getArgs();
-        Method currentMethod = ((MethodSignature) joinPoint.getSignature()).getMethod();
-        Class<?>[] parameterTypes = currentMethod.getParameterTypes();
-        try {
-            //先尝试获取无 `DistributedLockException` 参数的 `fallback` 方法
-            Method fallbackMethod = targetBean.getClass().getDeclaredMethod(fallbackMethodName, parameterTypes);
-            return fallbackMethod.invoke(targetBean, originalArgs);
-        } catch (NoSuchMethodException e) {
-            //尝试获取带 `DistributedLockException` 的方法
-            Method fallbackMethod = targetBean.getClass().getDeclaredMethod(fallbackMethodName, getParameterTypesWithException(parameterTypes, DistributedLockException.class));
-            Object[] fallbackArgs = new Object[originalArgs.length + 1];
-            System.arraycopy(originalArgs, 0, fallbackArgs, 0, originalArgs.length);
-            fallbackArgs[fallbackArgs.length - 1] = exception;
-            return fallbackMethod.invoke(targetBean, fallbackArgs);
-        }
-    }
-
-    private static Class<?>[] getParameterTypesWithException(Class<?>[] parameterTypes, Class<? extends Throwable> exceptionTypes) {
-        Class<?>[] paramTypes = new Class<?>[parameterTypes.length + 1];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            paramTypes[i] = parameterTypes[i];
-        }
-        paramTypes[parameterTypes.length] = exceptionTypes;
-        return paramTypes;
+        return InvokeUtils.invokeFallback(joinPoint, exception, fallbackMethodName, fallbackBeanClass);
     }
 }

@@ -2,9 +2,8 @@ package org.gy.framework.limit;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.gy.framework.limit.annotation.LimitCheck;
 import org.gy.framework.limit.core.ILimitCheckService;
-import org.gy.framework.limit.core.support.LimitCheckContext;
+import org.gy.framework.limit.model.LimitCheckContext;
 import org.gy.framework.limit.core.support.RedisLimitCheckService;
 import org.gy.framework.limit.core.support.RedisTokenBucketLimitCheckService;
 import org.junit.jupiter.api.Test;

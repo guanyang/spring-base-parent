@@ -5,6 +5,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.gy.framework.limit.annotation.LimitCheck;
 import org.gy.framework.limit.aop.support.CustomCachedExpressionEvaluator;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
 
@@ -24,6 +25,7 @@ public class ExpressionLimitKeyResolver extends AbstractLimitKeyResolver {
 
     @Override
     protected String internalKeyExtractor(JoinPoint joinPoint, LimitCheck annotation) {
+        Assert.hasText(annotation.key(), () -> "LimitCheck key must not be empty");
         return evaluator.getValue(joinPoint, annotation.key());
     }
 }
