@@ -1,10 +1,12 @@
 package org.gy.framework.limit.annotation;
 
+import org.gy.framework.limit.core.ILimitCheckService;
 import org.gy.framework.limit.core.LimitKeyResolver;
 import org.gy.framework.limit.core.support.ClientIpLimitKeyResolver;
 import org.gy.framework.limit.core.support.ExpressionLimitKeyResolver;
 import org.gy.framework.limit.core.support.GlobalLimitKeyResolver;
 import org.gy.framework.limit.core.support.ServerNodeLimitKeyResolver;
+import org.gy.framework.limit.enums.LimitTypeEnum;
 
 import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
@@ -41,9 +43,14 @@ public @interface LimitCheck {
     String key() default "";
 
     /**
-     * 频率限制次数
+     * 时间窗口模式表示频率限制次数，令牌桶模式表示令牌生产速率
      */
-    int limit();
+    int limit() default 1;
+
+    /**
+     * 限制数量表达式，支持SpEL或${spring.xxx}，优先级高于limit
+     */
+    String limitExpression() default "";
 
     /**
      * 限制时间，默认为 60s
@@ -61,10 +68,43 @@ public @interface LimitCheck {
     String keyPrefix() default "limitCheck";
 
     /**
-     * 频率限制类型，支持自定义扩展，默认支持redis
+     * 限流模式，支持SPI扩展，默认redis时间窗口模式<br>
+     * <li>TIME_WINDOW: redis时间窗口模式</li>
+     * <li>TOKEN_BUCKET: redis令牌桶模式</li>
      *
-     * @see org.gy.framework.limit.core.ILimitCheckService
+     * @see LimitTypeEnum 模式定义枚举
+     * @see ILimitCheckService#type() SPI扩展点
      */
-    String type() default "redis";
+    String type() default "";
+
+    /**
+     * 限流模式枚举，type优先级高于typeEnum<br>
+     */
+    LimitTypeEnum typeEnum() default LimitTypeEnum.TIME_WINDOW;
+
+    /**
+     * 用于令牌桶模式，表示令牌桶的桶的大小，这个参数控制了请求最大并发数
+     */
+    int capacity() default 1;
+
+    /**
+     * 令牌桶容量表达式，支持SpEL或${spring.xxx}，优先级高于capacity
+     */
+    String capacityExpression() default "";
+
+    /**
+     * 用于令牌桶模式，表示每次获取的令牌数，一般不用改动这个参数值
+     */
+    int requested() default 1;
+
+    /**
+     * 限流后的自定义降级方法，不定义则抛出LimitException
+     */
+    String fallback() default "";
+
+    /**
+     * 降级方法所在的 Spring Bean，默认为当前类
+     */
+    Class<?> fallbackBean() default Void.class;
 
 }

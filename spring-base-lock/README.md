@@ -1,38 +1,90 @@
 ## spring-base-lock
 
-### 配置说明
-依赖StringRedisTemplate 如果springboot中没有配置StringRedisTemplate，则不可使用
+### 概览
+- 默认支持基于`redis`+`lua`实现的分布式锁，需要应用配置`StringRedisTemplate`实例
+- 分布式锁key支持解析器扩展，可以自定义实现`LockKeyResolver`即可
+  - `ExpressionLockKeyResolver.class`: 默认解析器，支持SpEL或${spring.xxx}
+- 支持自定义降级行为
+  - `fallback`: 降级函数，支持当前bean和其他bean两种方式，支持原参数+`DistributedLockException`和原参数两种方式
+  - `fallbackBean`: 降级函数所在的bean，默认为当前bean，支持其他bean
 
 ### 使用说明
 1. 当前分布式采用redis+lua实现，后续可以扩展其他实现方式
 2. 支持手动调用和AOP注解两种方式实现
 - AOP切面默认不开启，如需开启，需要在启动类添加@EnableLockAspect注解
-```
-//如果应用配置多个StringRedisTemplate，需要切面注入指定bean，启动类添加如下注解，注意修改bean名称：
+```java
+//默认基于redis，如果应用配置多个StringRedisTemplate，需要配置redisTemplateName属性指定bean
+//如果不想基于redis实现，可以不配置redisTemplateName属性
 @EnableLockAspect(redisTemplateName = "stringRedisTemplate")
+public class DemoApplication  {
+}
 ```
+
 - 手动调用入口：DistributedLockAction
-```
-//定义分布式实现
-DistributedLock lock = new RedisDistributedLock(redisTemplate, lockKey, expireTime);
-//方法执行
-LockResult<Long> execute = DistributedLockAction.execute(lock, () -> {
-    return System.currentTimeMillis();
-});
-Assert.assertTrue(execute.success());
+```java
+public void demo() {
+    //定义分布式实现
+    DistributedLock lock = new RedisDistributedLock(redisTemplate, lockKey, expireTime);
+    //方法执行
+    LockResult<Long> execute = DistributedLockAction.execute(lock, () -> {
+        return System.currentTimeMillis();
+    });
+    System.out.println(result.getData());
+}
 ```
 - AOP入口类：DistributedLockAspect，注解调用示例如下，支持Spel表达式
-```
+```java
 @Lock(key = "'GY:LOCK:TEST:' + #user.name")
 public void test(User user){
     System.out.println("------------>>>>>>>>"+user);
 }
 ```
+
+3. 支持自定义降级行为，默认会抛出`DistributedLockException`异常，可以针对此异常自定义返回信息，也可自定义降级函数`fallback`，优先级高于异常处理
+- 降级函数在当前bean
+    ```java
+    //降级函数fallback定义示例
+    @Lock(key = "'GY:LOCK:TEST:' + #user.name", fallback = "fallbackMethod1")
+    public void test(User user){
+        System.out.println("------------>>>>>>>>"+user);
+    }
+   
+    //场景一：降级fallback方法带原参数+DistributedLockException
+    public void fallbackMethod1(User user, DistributedLockException e){
+        System.out.println("fallback------------>>>>>>>>"+user);
+    }
+   
+    //场景二：降级fallback方法带原参数，无DistributedLockException
+    public void fallbackMethod2(User user){
+        System.out.println("fallback------------>>>>>>>>"+user);
+    }
+    ```
+- 降级函数在其他bean
+    ```java
+    //降级函数fallback和fallbackBean定义示例
+    @Lock(key = "'GY:LOCK:TEST:' + #user.name", fallback = "fallbackMethod3", fallbackBean = FallbackHandler.class)
+    public void test(User user){
+        System.out.println("------------>>>>>>>>"+user);
+    }
+    
+    @Component
+    public class FallbackHandler  {
+        //场景三：降级fallback方法带原参数+DistributedLockException
+        public void fallbackMethod3(User user, DistributedLockException e){
+            System.out.println("fallback------------>>>>>>>>"+user);
+        }
+        
+        //场景四：降级fallback方法带原参数，无DistributedLockException
+        public void fallbackMethod4(User user){
+            System.out.println("fallback------------>>>>>>>>"+user);
+        }
+    }
+    ```
 ### 获取锁方式
 > 方法入口类：DistributedLockAction
 - 仅尝试一次获取锁，没有获取到，则直接返回获取失败
 
-``` 
+```java 
 /**
      * 功能描述：业务执行，包含加锁、释放锁(仅尝试一次获取锁)
      *
@@ -45,7 +97,7 @@ public void test(User user){
 ``` 
 - 一直尝试，直到获取成功
 
-``` 
+```java 
 /**
      * 功能描述:业务执行，包含加锁、释放锁(一直尝试，直到获取成功)
      *
@@ -60,7 +112,7 @@ public void test(User user){
 ``` 
 - 多次尝试获取锁，自定义超时时间
 
-``` 
+```java 
 /**
      * 功能描述:业务执行，包含加锁、释放锁(多次尝试获取锁，自定义超时时间)
      *

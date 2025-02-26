@@ -2,8 +2,9 @@ package org.gy.framework.util.data.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.gy.framework.core.exception.Assert;
 import org.gy.framework.core.support.IStdEnum;
+
+import java.util.Objects;
 
 /**
  * 删除枚举定义
@@ -26,9 +27,8 @@ public enum DeletedEnum implements IStdEnum<Integer> {
     private final String desc;
 
     public static DeletedEnum codeOf(Integer code) {
-        DeletedEnum deletedEnum = DeletedEnum.codeOf(code, null);
-        Assert.notNull(deletedEnum, "unknown DeletedEnum code:" + code);
-        return deletedEnum;
+        DeletedEnum item = DeletedEnum.codeOf(code, null);
+        return Objects.requireNonNull(item, () -> "unknown DeletedEnum error:" + code);
     }
 
     public static DeletedEnum codeOf(Integer code, DeletedEnum defaultEnum) {

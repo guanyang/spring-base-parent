@@ -1,6 +1,7 @@
 package org.gy.framework.lock.exception;
 
 import lombok.Getter;
+import org.gy.framework.lock.annotation.Lock;
 
 /**
  * 功能描述：
@@ -21,6 +22,11 @@ public class DistributedLockException extends RuntimeException {
      */
     private final String msg;
 
+    /**
+     * lock注解
+     */
+    private Lock annotation;
+
 
     public DistributedLockException(LockCodeEnum bizCode) {
         super(bizCode.getMsg());
@@ -32,6 +38,13 @@ public class DistributedLockException extends RuntimeException {
         super(msg);
         this.code = bizCode.getCode();
         this.msg = msg;
+    }
+
+    public DistributedLockException(LockCodeEnum bizCode, String msg, Lock annotation) {
+        super(msg);
+        this.code = bizCode.getCode();
+        this.msg = msg;
+        this.annotation = annotation;
     }
 
     public DistributedLockException(LockCodeEnum bizCode, Throwable e) {

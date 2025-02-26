@@ -6,6 +6,7 @@ import org.gy.framework.limit.annotation.LimitCheck;
 import org.gy.framework.limit.core.ILimitCheckService;
 import org.gy.framework.limit.core.support.LimitCheckContext;
 import org.gy.framework.limit.core.support.RedisLimitCheckService;
+import org.gy.framework.limit.core.support.RedisTokenBucketLimitCheckService;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -32,7 +33,24 @@ public class LimitCommonTests {
         ILimitCheckService checkService = new RedisLimitCheckService(redisTemplate);
         String redisKey = "GY:LIMIT:TEST:" + System.currentTimeMillis();
         int expected = 1;
-        LimitCheckContext checkContext = LimitCheckContext.of(redisKey, 1000, expected);
+        LimitCheckContext checkContext = LimitCheckContext.of(redisKey, 1000L, expected);
+        List<Boolean> execute = execute(5, () -> {
+            boolean checked = checkService.check(checkContext);
+            sleep(50);
+            return !checked;
+        });
+        long actual = execute.stream().filter(Boolean::booleanValue).count();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void redisTokenBucketCheckServiceTest() {
+        StringRedisTemplate redisTemplate = initStringRedisTemplate();
+        ILimitCheckService checkService = new RedisTokenBucketLimitCheckService(redisTemplate);
+        String redisKey = "GY:BUCKET_LIMIT:TEST:" + System.currentTimeMillis();
+        int expected = 3;
+        LimitCheckContext checkContext = LimitCheckContext.of(redisKey, 1000L, 1);
+        checkContext.setCapacity(expected).setRequested(1);
         List<Boolean> execute = execute(5, () -> {
             boolean checked = checkService.check(checkContext);
             sleep(50);

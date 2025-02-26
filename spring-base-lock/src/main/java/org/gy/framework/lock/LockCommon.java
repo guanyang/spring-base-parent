@@ -2,9 +2,15 @@ package org.gy.framework.lock;
 
 import org.gy.framework.lock.annotation.EnableLockAspect;
 import org.gy.framework.lock.aop.DistributedLockAspect;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.gy.framework.lock.aop.support.CustomCachedExpressionEvaluator;
+import org.gy.framework.lock.core.ILockService;
+import org.gy.framework.lock.core.LockKeyResolver;
+import org.gy.framework.lock.core.support.DefaultLockServiceImpl;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -13,20 +19,35 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.util.List;
+
 @Configuration
 @ComponentScan(basePackageClasses = LockCommon.class)
-public class LockCommon implements ImportAware {
+public class LockCommon implements ImportAware, ApplicationContextAware {
 
     protected AnnotationAttributes enableAsync;
 
+    protected ApplicationContext context;
+
     @Bean
-    @ConditionalOnClass(StringRedisTemplate.class)
     @ConditionalOnMissingBean(DistributedLockAspect.class)
-    public DistributedLockAspect distributedLockAspect(ApplicationContext applicationContext) {
+    public DistributedLockAspect distributedLockAspect(ILockService lockService) {
+        return new DistributedLockAspect(lockService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ILockService.class)
+    public ILockService lockService(List<LockKeyResolver> keyResolvers) {
         //自定义redisTemplate名称，方便切面注入指定bean，解决应用中存在多个redisTemplate的问题
         String redisTemplateName = enableAsync.getString("redisTemplateName");
-        StringRedisTemplate stringRedisTemplate = applicationContext.getBean(redisTemplateName, StringRedisTemplate.class);
-        return new DistributedLockAspect(stringRedisTemplate);
+        StringRedisTemplate stringRedisTemplate = context.getBean(redisTemplateName, StringRedisTemplate.class);
+        return new DefaultLockServiceImpl(keyResolvers, stringRedisTemplate);
+    }
+
+    @Bean("lockExpressionEvaluator")
+    @ConditionalOnMissingBean(CustomCachedExpressionEvaluator.class)
+    public CustomCachedExpressionEvaluator customCachedExpressionEvaluator(ConfigurableBeanFactory beanFactory) {
+        return new CustomCachedExpressionEvaluator(beanFactory);
     }
 
     @Override
@@ -37,4 +58,8 @@ public class LockCommon implements ImportAware {
         }
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
+    }
 }

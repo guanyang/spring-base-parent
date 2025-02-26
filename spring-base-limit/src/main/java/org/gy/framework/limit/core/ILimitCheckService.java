@@ -1,7 +1,14 @@
 package org.gy.framework.limit.core;
 
 import org.gy.framework.core.spi.SpiIdentity;
+import org.gy.framework.core.util.CollectionUtils;
 import org.gy.framework.limit.core.support.LimitCheckContext;
+import org.gy.framework.limit.enums.LimitTypeEnum;
+import org.springframework.data.redis.core.script.RedisScript;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 频率限制检查接口定义
@@ -10,7 +17,17 @@ import org.gy.framework.limit.core.support.LimitCheckContext;
  * @version 1.0.0
  */
 public interface ILimitCheckService extends SpiIdentity {
-    
+
+    String KEY_FORMAT = "{%s}:%s";
+
+    Long SUCCESS = 1L;
+
+    default List<String> getKeys(String hashTag, String... keyNames) {
+        // use `{}` around keys to use Redis Key hash tags
+        // this allows for using redis cluster
+        return Stream.of(keyNames).map(keyName -> String.format(KEY_FORMAT, hashTag, keyName)).collect(Collectors.toList());
+    }
+
 
     /**
      * 检查频率是否超过阈值，true是，false否

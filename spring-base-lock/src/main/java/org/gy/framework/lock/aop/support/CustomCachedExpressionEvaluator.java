@@ -3,9 +3,14 @@ package org.gy.framework.lock.aop.support;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.context.expression.CachedExpressionEvaluator;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
@@ -22,10 +27,28 @@ import org.springframework.expression.TypedValue;
  */
 public class CustomCachedExpressionEvaluator extends CachedExpressionEvaluator {
 
+    private final ConfigurableBeanFactory beanFactory;
+
     private final Map<ExpressionKey, Expression> expressionCache = new ConcurrentHashMap<>(512);
 
     private final Map<AnnotatedElementKey, MetaData> metadataCache = new ConcurrentHashMap<>(512);
 
+    public CustomCachedExpressionEvaluator() {
+        this(null);
+    }
+
+    public CustomCachedExpressionEvaluator(ConfigurableBeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+    }
+
+    public String getValue(JoinPoint joinPoint, String expression) {
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        try {
+            return getValue(joinPoint.getTarget(), method, joinPoint.getArgs(), expression, String.class);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Expression parse error: " + expression, e);
+        }
+    }
 
     public <T> T getValue(Object target, Method method, Object[] args, String expression, Class<T> desiredResultType) {
         Class<?> targetClass = AopProxyUtils.ultimateTargetClass(target);
@@ -35,7 +58,7 @@ public class CustomCachedExpressionEvaluator extends CachedExpressionEvaluator {
     }
 
     protected Expression getExpression(String expression, AnnotatedElementKey methodKey) {
-        return getExpression(expressionCache, methodKey, expression);
+        return getExpression(expressionCache, methodKey, resolve(expression));
     }
 
     protected EvaluationContext createEvaluationContext(Method method, Object[] args) {
@@ -45,6 +68,13 @@ public class CustomCachedExpressionEvaluator extends CachedExpressionEvaluator {
     protected MetaData getMetaData(Method method, Class<?> targetClass) {
         AnnotatedElementKey cacheKey = new AnnotatedElementKey(method, targetClass);
         return metadataCache.computeIfAbsent(cacheKey, key -> new MetaData(method, targetClass));
+    }
+
+    /**
+     * 解析spring上下文或环境变量值
+     */
+    protected String resolve(String value) {
+        return Optional.ofNullable(beanFactory).map(f -> f.resolveEmbeddedValue(value)).orElse(value);
     }
 
     protected static class MetaData {
@@ -60,8 +90,7 @@ public class CustomCachedExpressionEvaluator extends CachedExpressionEvaluator {
         public MetaData(Method method, Class<?> targetClass) {
             this.method = BridgeMethodResolver.findBridgedMethod(method);
             this.targetClass = targetClass;
-            this.targetMethod = (!Proxy.isProxyClass(targetClass) ? AopUtils.getMostSpecificMethod(method, targetClass)
-                : this.method);
+            this.targetMethod = (!Proxy.isProxyClass(targetClass) ? AopUtils.getMostSpecificMethod(method, targetClass) : this.method);
             this.methodKey = new AnnotatedElementKey(this.targetMethod, targetClass);
         }
     }

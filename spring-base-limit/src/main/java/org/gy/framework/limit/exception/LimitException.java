@@ -1,6 +1,7 @@
 package org.gy.framework.limit.exception;
 
 import lombok.Getter;
+import org.gy.framework.limit.annotation.LimitCheck;
 
 /**
  * 功能描述：
@@ -20,7 +21,10 @@ public class LimitException extends RuntimeException {
      * 错误详情
      */
     private final String msg;
-
+    /**
+     * 限流注解
+     */
+    private LimitCheck annotation;
 
     public LimitException(LimitCodeEnum bizCode) {
         super(bizCode.getMsg());
@@ -34,8 +38,15 @@ public class LimitException extends RuntimeException {
         this.msg = msg;
     }
 
+    public LimitException(LimitCodeEnum bizCode, String msg, LimitCheck annotation) {
+        super(msg);
+        this.code = bizCode.getCode();
+        this.msg = msg;
+        this.annotation = annotation;
+    }
+
     public LimitException(LimitCodeEnum bizCode, Throwable e) {
-        super(e);
+        super(bizCode.getMsg(), e);
         this.code = bizCode.getCode();
         this.msg = bizCode.getMsg();
     }

@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.gy.framework.core.support.IStdEnum;
 
+import java.util.Objects;
+
 /**
  * 功能描述：错误码统一维护
  * <ul>
@@ -57,8 +59,7 @@ public enum CommonErrorCode implements ErrorCodeI {
 
     public static ErrorCodeI errorOf(Integer error) {
         ErrorCodeI item = errorOf(error, null);
-        Assert.notNull(item, "unknown CommonErrorCode error:" + error);
-        return item;
+        return Objects.requireNonNull(item, () -> "unknown CommonErrorCode error:" + error);
     }
 
     public static ErrorCodeI errorOf(Integer error, ErrorCodeI defaultEnum) {

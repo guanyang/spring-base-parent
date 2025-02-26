@@ -2,6 +2,19 @@ package org.gy.framework.limit.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.gy.framework.core.support.IStdEnum;
+import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 频率限制类型定义
@@ -9,14 +22,52 @@ import lombok.Getter;
  * @author gy
  * @version 1.0.0
  */
+@Slf4j
 @Getter
 @AllArgsConstructor
-public enum LimitTypeEnum {
+public enum LimitTypeEnum implements IStdEnum<String> {
 
-    REDIS("redis", "redis频率限制");
+    TIME_WINDOW("TIME_WINDOW", "redis时间窗口模式", "scripts/rateLimit-timeWindow.lua"),
+
+    TOKEN_BUCKET("TOKEN_BUCKET", "redis令牌桶模式", "scripts/rateLimit-tokenBucket.lua");
 
     private final String code;
 
     private final String desc;
+
+    private final String scriptFileName;
+
+    public static final Map<String, String> REDIS_SCRIPTS = new ConcurrentHashMap<>();
+
+    static {
+        Arrays.stream(LimitTypeEnum.values()).filter(item -> StringUtils.hasText(item.getScriptFileName())).forEach(item -> {
+            REDIS_SCRIPTS.put(item.getCode(), getRateLimiterScript(item.getScriptFileName()));
+        });
+    }
+
+    public static LimitTypeEnum codeOf(String code) {
+        LimitTypeEnum item = LimitTypeEnum.codeOf(code, null);
+        return Objects.requireNonNull(item, () -> "unknown LimitTypeEnum error:" + code);
+    }
+
+    public static LimitTypeEnum codeOf(String code, LimitTypeEnum defaultEnum) {
+        return IStdEnum.codeOf(LimitTypeEnum.class, code, defaultEnum);
+    }
+
+    public static String scriptOf(LimitTypeEnum item) {
+        return Optional.ofNullable(item).map(i -> REDIS_SCRIPTS.get(i.getCode())).orElse(null);
+    }
+
+    public static String scriptOf(String code) {
+        return Optional.ofNullable(code).map(REDIS_SCRIPTS::get).orElse(null);
+    }
+
+    private static String getRateLimiterScript(String scriptFileName) {
+        try (InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(scriptFileName)) {
+            return StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new IllegalStateException("lua Initialization failure: " + scriptFileName, e);
+        }
+    }
 
 }
