@@ -48,7 +48,7 @@ public class RedisLimitCheckService implements ILimitCheckService {
             List<Long> result = (List<Long>) restTemplate.execute(script, keys, String.valueOf(context.getLimit()), String.valueOf(context.getTimeInMillis()));
             return CollectionUtils.isNotEmpty(result) && !SUCCESS.equals(result.get(0));
         } catch (Exception e) {
-            log.error("[ILimitCheckService]redis error: {}", context, e);
+            log.error("[ILimitCheckService]TIME_WINDOW error: {}", context, e);
             return false;
         }
     }

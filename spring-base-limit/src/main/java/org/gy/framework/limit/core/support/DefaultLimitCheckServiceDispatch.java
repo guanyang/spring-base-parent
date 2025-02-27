@@ -1,5 +1,6 @@
 package org.gy.framework.limit.core.support;
 
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -12,16 +13,15 @@ import org.gy.framework.limit.aop.support.CustomCachedExpressionEvaluator;
 import org.gy.framework.limit.core.ILimitCheckService;
 import org.gy.framework.limit.core.ILimitCheckServiceDispatch;
 import org.gy.framework.limit.core.LimitKeyResolver;
+import org.gy.framework.limit.enums.LimitTypeEnum;
 import org.gy.framework.limit.exception.LimitException;
 import org.gy.framework.limit.model.LimitCheckContext;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -37,10 +37,30 @@ public class DefaultLimitCheckServiceDispatch implements ILimitCheckServiceDispa
     private final Map<Class<? extends LimitKeyResolver>, LimitKeyResolver> keyResolvers;
 
     private final CustomCachedExpressionEvaluator evaluator;
+    /**
+     * redis客户端
+     */
+    private final StringRedisTemplate stringRedisTemplate;
 
     public DefaultLimitCheckServiceDispatch(List<LimitKeyResolver> keyResolvers, CustomCachedExpressionEvaluator evaluator) {
+        this(keyResolvers, evaluator, null);
+    }
+
+    public DefaultLimitCheckServiceDispatch(List<LimitKeyResolver> keyResolvers, CustomCachedExpressionEvaluator evaluator, StringRedisTemplate stringRedisTemplate) {
         this.keyResolvers = CollectionUtils.convertMap(keyResolvers, LimitKeyResolver::getClass, Function.identity());
         this.evaluator = evaluator;
+        this.stringRedisTemplate = stringRedisTemplate;
+        initLimitCheck(stringRedisTemplate);
+    }
+
+    public static void initLimitCheck(StringRedisTemplate stringRedisTemplate) {
+        if (stringRedisTemplate == null) {
+            return;
+        }
+        Arrays.stream(LimitTypeEnum.values()).map(LimitTypeEnum::getCheckClass).filter(Objects::nonNull).forEach(item -> {
+            ILimitCheckService checkService = ReflectUtil.newInstance(item, stringRedisTemplate);
+            addLimitCheckIfAbsent(checkService);
+        });
     }
 
     public static void addLimitCheckIfAbsent(ILimitCheckService service) {

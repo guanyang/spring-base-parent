@@ -43,22 +43,25 @@ public @interface LimitCheck {
     String key() default "";
 
     /**
-     * 时间窗口模式表示频率限制次数，令牌桶模式表示令牌生产速率
+     * 限制阈值<br>
+     * <li>时间窗口模式表示请求阈值</li>
+     * <li>令牌桶模式表示令牌生产速率</li>
+     * <li>滑动窗口模式表示请求阈值</li>
      */
     int limit() default 1;
 
     /**
-     * 限制数量表达式，支持SpEL或${spring.xxx}，优先级高于limit
+     * 限制阈值表达式，支持SpEL或${spring.xxx}，优先级高于limit
      */
     String limitExpression() default "";
 
     /**
-     * 限制时间，默认为 60s
+     * 限制时间，默认为 60s（时间窗口、滑动窗口模式有效）
      */
     int time() default 60;
 
     /**
-     * 时间单位，默认为 SECONDS 秒
+     * 时间单位，默认为 SECONDS 秒（时间窗口、滑动窗口模式有效）
      */
     TimeUnit timeUnit() default TimeUnit.SECONDS;
 
@@ -71,6 +74,7 @@ public @interface LimitCheck {
      * 限流模式，支持SPI扩展，默认redis时间窗口模式<br>
      * <li>TIME_WINDOW: redis时间窗口模式</li>
      * <li>TOKEN_BUCKET: redis令牌桶模式</li>
+     * <li>SLIDING_WINDOW: redis滑动窗口模式</li>
      *
      * @see LimitTypeEnum 模式定义枚举
      * @see ILimitCheckService#type() SPI扩展点

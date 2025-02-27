@@ -6,10 +6,7 @@ import org.gy.framework.limit.aop.support.CustomCachedExpressionEvaluator;
 import org.gy.framework.limit.core.ILimitCheckServiceDispatch;
 import org.gy.framework.limit.core.LimitKeyResolver;
 import org.gy.framework.limit.core.support.DefaultLimitCheckServiceDispatch;
-import org.gy.framework.limit.core.support.RedisLimitCheckService;
-import org.gy.framework.limit.core.support.RedisTokenBucketLimitCheckService;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
@@ -23,7 +20,6 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 频率检查配置入口
@@ -33,7 +29,7 @@ import java.util.Optional;
  */
 @Configuration
 @ComponentScan(basePackageClasses = LimitCheckConfig.class)
-public class LimitCheckConfig implements ImportAware, InitializingBean, ApplicationContextAware {
+public class LimitCheckConfig implements ImportAware, ApplicationContextAware {
 
     protected AnnotationAttributes enableAsync;
 
@@ -48,7 +44,10 @@ public class LimitCheckConfig implements ImportAware, InitializingBean, Applicat
     @Bean
     @ConditionalOnMissingBean(ILimitCheckServiceDispatch.class)
     public ILimitCheckServiceDispatch limitCheckServiceDispatch(List<LimitKeyResolver> keyResolvers, CustomCachedExpressionEvaluator evaluator) {
-        return new DefaultLimitCheckServiceDispatch(keyResolvers, evaluator);
+        //自定义redisTemplate名称，方便切面注入指定bean，解决应用中存在多个redisTemplate的问题
+        String redisTemplateName = enableAsync.getString("redisTemplateName");
+        StringRedisTemplate stringRedisTemplate = context.getBean(redisTemplateName, StringRedisTemplate.class);
+        return new DefaultLimitCheckServiceDispatch(keyResolvers, evaluator, stringRedisTemplate);
     }
 
     @Bean
@@ -68,16 +67,6 @@ public class LimitCheckConfig implements ImportAware, InitializingBean, Applicat
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.context = applicationContext;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        //自定义redisTemplate名称，方便切面注入指定bean，解决应用中存在多个redisTemplate的问题
-        String name = enableAsync.getString("redisTemplateName");
-        Optional.ofNullable(name).map(n -> context.getBean(n, StringRedisTemplate.class)).ifPresent(t -> {
-            DefaultLimitCheckServiceDispatch.addLimitCheckIfAbsent(new RedisLimitCheckService(t));
-            DefaultLimitCheckServiceDispatch.addLimitCheckIfAbsent(new RedisTokenBucketLimitCheckService(t));
-        });
     }
 
 }

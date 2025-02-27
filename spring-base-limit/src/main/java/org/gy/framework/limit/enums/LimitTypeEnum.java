@@ -4,6 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.core.support.IStdEnum;
+import org.gy.framework.limit.core.ILimitCheckService;
+import org.gy.framework.limit.core.support.RedisLimitCheckService;
+import org.gy.framework.limit.core.support.RedisSlidingWindowLimitCheckService;
+import org.gy.framework.limit.core.support.RedisTokenBucketLimitCheckService;
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 
@@ -27,13 +31,17 @@ import java.util.concurrent.ConcurrentHashMap;
 @AllArgsConstructor
 public enum LimitTypeEnum implements IStdEnum<String> {
 
-    TIME_WINDOW("TIME_WINDOW", "redis时间窗口模式", "scripts/rateLimit-timeWindow.lua"),
+    TIME_WINDOW("TIME_WINDOW", "redis时间窗口模式", RedisLimitCheckService.class, "scripts/rateLimit-timeWindow.lua"),
 
-    TOKEN_BUCKET("TOKEN_BUCKET", "redis令牌桶模式", "scripts/rateLimit-tokenBucket.lua");
+    TOKEN_BUCKET("TOKEN_BUCKET", "redis令牌桶模式", RedisTokenBucketLimitCheckService.class, "scripts/rateLimit-tokenBucket.lua"),
+
+    SLIDING_WINDOW("SLIDING_WINDOW", "redis滑动窗口模式", RedisSlidingWindowLimitCheckService.class, "scripts/rateLimit-slidingWindow.lua");
 
     private final String code;
 
     private final String desc;
+
+    private final Class<? extends ILimitCheckService> checkClass;
 
     private final String scriptFileName;
 

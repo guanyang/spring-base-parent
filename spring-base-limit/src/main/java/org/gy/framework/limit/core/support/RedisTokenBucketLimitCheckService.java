@@ -47,7 +47,7 @@ public class RedisTokenBucketLimitCheckService implements ILimitCheckService {
             List<Long> result = (List<Long>) restTemplate.execute(script, keys, String.valueOf(context.getLimit()), String.valueOf(context.getCapacity()), String.valueOf(context.getRequested()), String.valueOf(Instant.now().getEpochSecond()));
             return CollectionUtils.isNotEmpty(result) && !SUCCESS.equals(result.get(0));
         } catch (Exception e) {
-            log.error("[ILimitCheckService]redis_token_bucket error: {}", context, e);
+            log.error("[ILimitCheckService]TOKEN_BUCKET error: {}", context, e);
             return false;
         }
     }

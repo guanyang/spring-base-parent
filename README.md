@@ -32,7 +32,7 @@
 - 优化【spring-base-lock】模块代码
   - 支持自定义降级行为，定义`fallback`和`fallbackBean`
 - 优化【spring-base-limit】模块代码
-  - 支持`TIME_WINDOW`和`TOKEN_BUCKET`两种限流算法
+  - 支持`TIME_WINDOW`、`TOKEN_BUCKET`和`SLIDING_WINDOW`三种限流算法
   - 支持自定义降级行为，定义`fallback`和`fallbackBean`
   - 支持动态设置限流大小，支持`limitExpression`和`capacityExpression`
 - 优化【spring-base-idempotent】模块代码

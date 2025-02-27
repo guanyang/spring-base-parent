@@ -10,8 +10,9 @@
   - `ClientIpLimitKeyResolver.class`: 客户端IP级别限流key解析器
   - `ServerNodeLimitKeyResolver.class`: 服务器节点级别限流key解析器
 - 限流算法说明
-  - TIME_WINDOW: 时间窗口限流，偏向控制请求数量，如果请求数量超过限制，则限流
+  - TIME_WINDOW: 时间窗口限流(即固定窗口)，偏向控制请求数量，如果请求数量超过限制，则限流
   - TOKEN_BUCKET: 令牌桶限流，偏向控制请求速率，如果QPS超过限制，则限流
+  - SLIDING_WINDOW: 滑动窗口限流，可以解决固定窗口存在的流量突刺问题，平滑的处理请求，限流的效果和你的滑动单位有关
 - 限流支持自定义降级行为
   - `fallback`: 降级函数，支持当前bean和其他bean两种方式，支持原参数+`LimitException`和原参数两种方式
   - `fallbackBean`: 降级函数所在的bean，默认为当前bean，支持其他bean
@@ -35,6 +36,12 @@
    
     //当前示例场景：TOKEN_BUCKET令牌桶限流，最大并发数为100，QPS限制为50
     @LimitCheck(key = "'GY:LIMIT:TEST:' + #user.name", limit = 50, capacity = 100, typeEnum = LimitTypeEnum.TOKEN_BUCKET)
+    public void test(User user){
+        System.out.println("------------>>>>>>>>"+user);
+    }
+   
+    //当前示例场景：SLIDING_WINDOW滑动窗口限流，每秒500次
+    @LimitCheck(key = "'GY:LIMIT:TEST:' + #user.name", limit = 500, time = 1, typeEnum = LimitTypeEnum.SLIDING_WINDOW)
     public void test(User user){
         System.out.println("------------>>>>>>>>"+user);
     }
