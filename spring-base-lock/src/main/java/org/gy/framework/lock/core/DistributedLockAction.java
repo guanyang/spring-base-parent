@@ -31,7 +31,7 @@ public class DistributedLockAction {
      */
     public static <T> LockResult<T> execute(DistributedLock lock, long sleepTimeMillis,
         DistributedLockCallback<T> runnable) {
-        return execute(lock, -1, sleepTimeMillis, runnable);
+        return execute(lock, Long.MAX_VALUE, sleepTimeMillis, runnable);
     }
 
     /**

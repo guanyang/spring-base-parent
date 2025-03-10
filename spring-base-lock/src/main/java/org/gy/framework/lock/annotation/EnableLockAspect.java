@@ -25,4 +25,9 @@ public @interface EnableLockAspect {
      */
     String redisTemplateName() default "stringRedisTemplate";
 
+    /**
+     * 自定义redissonClient名称，方便切面注入指定bean，解决应用中存在多个redissonClient的问题
+     */
+    String redissonClientName() default "redisson";
+
 }

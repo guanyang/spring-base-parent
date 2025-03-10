@@ -4,8 +4,12 @@ import org.gy.framework.lock.annotation.EnableLockAspect;
 import org.gy.framework.lock.aop.DistributedLockAspect;
 import org.gy.framework.lock.aop.support.CustomCachedExpressionEvaluator;
 import org.gy.framework.lock.core.ILockService;
+import org.gy.framework.lock.core.LockExecutorResolver;
 import org.gy.framework.lock.core.LockKeyResolver;
 import org.gy.framework.lock.core.support.DefaultLockServiceImpl;
+import org.gy.framework.lock.core.support.RedisLockExecutorResolver;
+import org.gy.framework.lock.core.support.RedissonLockExecutorResolver;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -37,17 +41,32 @@ public class LockCommon implements ImportAware, ApplicationContextAware {
 
     @Bean
     @ConditionalOnMissingBean(ILockService.class)
-    public ILockService lockService(List<LockKeyResolver> keyResolvers) {
-        //自定义redisTemplate名称，方便切面注入指定bean，解决应用中存在多个redisTemplate的问题
-        String redisTemplateName = enableAsync.getString("redisTemplateName");
-        StringRedisTemplate stringRedisTemplate = context.getBean(redisTemplateName, StringRedisTemplate.class);
-        return new DefaultLockServiceImpl(keyResolvers, stringRedisTemplate);
+    public ILockService lockService(List<LockKeyResolver> keyResolvers, List<LockExecutorResolver> lockExecutorResolvers) {
+        return new DefaultLockServiceImpl(keyResolvers, lockExecutorResolvers);
     }
 
     @Bean
     @ConditionalOnMissingBean(CustomCachedExpressionEvaluator.class)
     public CustomCachedExpressionEvaluator lockExpressionEvaluator(ConfigurableBeanFactory beanFactory) {
         return new CustomCachedExpressionEvaluator(beanFactory);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(RedisLockExecutorResolver.class)
+    public RedisLockExecutorResolver redisLockExecutorResolver() {
+        //自定义redisTemplate名称，方便切面注入指定bean，解决应用中存在多个redisTemplate的问题
+        String redisTemplateName = enableAsync.getString("redisTemplateName");
+        StringRedisTemplate client = context.getBean(redisTemplateName, StringRedisTemplate.class);
+        return new RedisLockExecutorResolver(client);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(RedissonLockExecutorResolver.class)
+    public RedissonLockExecutorResolver redissonLockExecutorResolver() {
+        //自定义redisTemplate名称，方便切面注入指定bean，解决应用中存在多个redisTemplate的问题
+        String redissonClientName = enableAsync.getString("redissonClientName");
+        RedissonClient client = context.getBean(redissonClientName, RedissonClient.class);
+        return new RedissonLockExecutorResolver(client);
     }
 
     @Override

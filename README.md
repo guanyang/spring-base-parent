@@ -9,7 +9,7 @@
 <dependency>
   <groupId>org.gy.framework</groupId>
   <artifactId>spring-base-parent</artifactId>
-  <version>1.0.7-SNAPSHOT</version>
+  <version>1.0.8-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -28,6 +28,11 @@
 | spring-base-idempotent | 幂等组件        | [参考文档](spring-base-idempotent/README.md) |
 
 #### Change Log
+#### 1.0.8-SNAPSHOT
+- 优化【spring-base-lock】模块代码，分布式锁执行器支持自定义扩展，实现`LockExecutorResolver`接口
+  - `RedissonLockExecutorResolver`: 基于Redisson的执行器，默认启用
+  - `RedisLockExecutorResolver`: 基于原生Redis+lua的执行器
+
 #### 1.0.7-SNAPSHOT
 - 优化【spring-base-lock】模块代码
   - 支持自定义降级行为，定义`fallback`和`fallbackBean`

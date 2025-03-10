@@ -8,9 +8,9 @@ import org.gy.framework.lock.annotation.Lock;
 import org.gy.framework.lock.core.*;
 import org.gy.framework.lock.exception.DistributedLockException;
 import org.gy.framework.lock.model.LockContext;
+import org.gy.framework.lock.model.LockEntry;
 import org.gy.framework.lock.model.LockResult;
 import org.gy.framework.lock.utils.InvokeUtils;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
@@ -23,14 +23,12 @@ import java.util.function.Function;
 public class DefaultLockServiceImpl implements ILockService {
 
     private final Map<Class<? extends LockKeyResolver>, LockKeyResolver> keyResolvers;
-    /**
-     * redis客户端
-     */
-    private final StringRedisTemplate stringRedisTemplate;
 
-    public DefaultLockServiceImpl(List<LockKeyResolver> keyResolvers, StringRedisTemplate stringRedisTemplate) {
+    private final Map<Class<? extends LockExecutorResolver>, LockExecutorResolver> lockExecutorResolvers;
+
+    public DefaultLockServiceImpl(List<LockKeyResolver> keyResolvers, List<LockExecutorResolver> lockExecutorResolvers) {
         this.keyResolvers = CollectionUtils.convertMap(keyResolvers, LockKeyResolver::getClass, Function.identity());
-        this.stringRedisTemplate = stringRedisTemplate;
+        this.lockExecutorResolvers = CollectionUtils.convertMap(lockExecutorResolvers, LockExecutorResolver::getClass, Function.identity());
     }
 
     @Override
@@ -41,9 +39,17 @@ public class DefaultLockServiceImpl implements ILockService {
 
         LockKeyResolver keyResolver = keyResolvers.get(annotation.keyResolver());
         Assert.notNull(keyResolver, () -> "LockKeyResolver not found: " + methodName);
-        String key = keyResolver.resolver(joinPoint, annotation);
 
-        return buildLockContext(annotation, key, methodName);
+        LockExecutorResolver executorResolver = lockExecutorResolvers.get(annotation.executorResolver());
+        Assert.notNull(executorResolver, () -> "LockExecutorResolver not found: " + methodName);
+
+        String key = keyResolver.resolver(joinPoint, annotation);
+        LockEntry lockEntry = LockEntry.builder().lockKey(key).expireMillis(annotation.expireTimeMillis()).renewal(annotation.renewal()).build();
+        DistributedLock distributedLock = executorResolver.resolve(lockEntry);
+
+        LockContext lockContext = buildLockContext(annotation, key, methodName);
+        lockContext.setLockService(distributedLock);
+        return lockContext;
     }
 
     protected LockContext buildLockContext(Lock annotation, String key, String methodName) {
@@ -56,9 +62,6 @@ public class DefaultLockServiceImpl implements ILockService {
         context.setSleepTimeMillis(annotation.sleepTimeMillis());
         context.setRenewal(annotation.renewal());
         context.setAnnotation(annotation);
-
-        DistributedLock lockEntity = new RedisDistributedLock(stringRedisTemplate, key, annotation.expireTimeMillis(), annotation.renewal());
-        context.setLockService(lockEntity);
         return context;
     }
 

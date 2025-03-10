@@ -34,16 +34,14 @@ public class InvokeUtils {
             Method fallbackMethod = targetBean.getClass().getDeclaredMethod(fallbackMethodName, getParameterTypesWithException(parameterTypes, exceptionClass));
             Object[] fallbackArgs = new Object[originalArgs.length + 1];
             System.arraycopy(originalArgs, 0, fallbackArgs, 0, originalArgs.length);
-            fallbackArgs[fallbackArgs.length - 1] = exception;
+            fallbackArgs[originalArgs.length] = exception;
             return fallbackMethod.invoke(targetBean, fallbackArgs);
         }
     }
 
     public static Class<?>[] getParameterTypesWithException(Class<?>[] parameterTypes, Class<? extends Throwable> exceptionTypes) {
         Class<?>[] paramTypes = new Class<?>[parameterTypes.length + 1];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            paramTypes[i] = parameterTypes[i];
-        }
+        System.arraycopy(parameterTypes, 0, paramTypes, 0, parameterTypes.length);
         paramTypes[parameterTypes.length] = exceptionTypes;
         return paramTypes;
     }

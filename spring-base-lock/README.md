@@ -1,7 +1,9 @@
 ## spring-base-lock
 
 ### 概览
-- 默认支持基于`redis`+`lua`实现的分布式锁，需要应用配置`StringRedisTemplate`实例
+- 分布式锁执行器支持自定义扩展，实现`LockExecutorResolver`接口
+  - `RedissonLockExecutorResolver`: 基于Redisson的执行器，默认启用
+  - `RedisLockExecutorResolver`: 基于原生Redis+lua的执行器
 - 分布式锁key支持解析器扩展，可以自定义实现`LockKeyResolver`即可
   - `ExpressionLockKeyResolver.class`: 默认解析器，支持SpEL或${spring.xxx}
 - 支持自定义降级行为
@@ -9,13 +11,13 @@
   - `fallbackBean`: 降级函数所在的bean，默认为当前bean，支持其他bean
 
 ### 使用说明
-1. 当前分布式采用redis+lua实现，后续可以扩展其他实现方式
+1. 当前分布式执行器默认启用Redisson实现，即`RedissonLockExecutorResolver`，可自定义
 2. 支持手动调用和AOP注解两种方式实现
 - AOP切面默认不开启，如需开启，需要在启动类添加@EnableLockAspect注解
 ```java
-//默认基于redis，如果应用配置多个StringRedisTemplate，需要配置redisTemplateName属性指定bean
-//如果不想基于redis实现，可以不配置redisTemplateName属性
-@EnableLockAspect(redisTemplateName = "stringRedisTemplate")
+//默认基于redissonClient，如果应用配置多个redissonClient，需要配置redissonClientName属性指定bean
+//如果不想基于redissonClient实现，可以不配置redissonClientName属性，redisTemplateName属性同理
+@EnableLockAspect(redissonClientName = "redissonClient")
 public class DemoApplication  {
 }
 ```
@@ -107,7 +109,7 @@ public void test(User user){
      */
     public static <T> LockResult<T> execute(DistributedLock lock, long sleepTimeMillis,
         DistributedLockCallback<T> runnable) {
-        return execute(lock, -1, sleepTimeMillis, runnable);
+        return execute(lock, Long.MAX_VALUE, sleepTimeMillis, runnable);
     } 
 ``` 
 - 多次尝试获取锁，自定义超时时间

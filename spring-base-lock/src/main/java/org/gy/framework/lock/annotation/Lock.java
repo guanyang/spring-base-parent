@@ -1,7 +1,10 @@
 package org.gy.framework.lock.annotation;
 
+import org.gy.framework.lock.core.LockExecutorResolver;
 import org.gy.framework.lock.core.LockKeyResolver;
 import org.gy.framework.lock.core.support.ExpressionLockKeyResolver;
+import org.gy.framework.lock.core.support.RedissonLockExecutorResolver;
+import org.gy.framework.lock.core.support.RedisLockExecutorResolver;
 
 import java.lang.annotation.*;
 
@@ -37,6 +40,13 @@ public @interface Lock {
      * @see ExpressionLockKeyResolver 自定义表达式，通过 {@link #key()} 计算
      */
     Class<? extends LockKeyResolver> keyResolver() default ExpressionLockKeyResolver.class;
+    /**
+     * 执行器定义
+     *
+     * @see RedissonLockExecutorResolver 基于Redisson的执行器
+     * @see RedisLockExecutorResolver 基于自定义Redis+lua的执行器
+     */
+    Class<? extends LockExecutorResolver> executorResolver() default RedissonLockExecutorResolver.class;
 
     /**
      * 锁过期时间，单位：毫秒
@@ -52,12 +62,14 @@ public @interface Lock {
     long waitTimeMillis() default 0;
 
     /**
-     * 睡眠重试时间，单位：毫秒
+     * 睡眠重试时间，单位：毫秒，支持的LockExecutorResolver：
+     * <li>RedisLockExecutorResolver</li>
      */
-    long sleepTimeMillis() default 30;
+    long sleepTimeMillis() default 50;
 
     /**
-     * 是否自动续期，默认否
+     * 是否自动续期，默认否，支持的LockExecutorResolver：
+     * <li>RedisLockExecutorResolver</li>
      */
     boolean renewal() default false;
 

@@ -23,7 +23,7 @@
     <module>spring-base-idempotent</module>
   </modules>
   <properties>
-    <revision>1.0.7-SNAPSHOT</revision>
+    <revision>1.0.8-SNAPSHOT</revision>
     <java.version>1.8</java.version>
     <java.encoding>UTF-8</java.encoding>
     <project.build.sourceEncoding>${java.encoding}</project.build.sourceEncoding>
@@ -32,6 +32,7 @@
     <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
     <transmittable-thread-local.version>2.14.5</transmittable-thread-local.version>
     <fastjson2.version>2.0.50</fastjson2.version>
+    <redisson.version>3.17.7</redisson.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -89,6 +90,13 @@
         <groupId>com.alibaba</groupId>
         <artifactId>transmittable-thread-local</artifactId>
         <version>${transmittable-thread-local.version}</version>
+      </dependency>
+
+      <!--Redisson-->
+      <dependency>
+        <groupId>org.redisson</groupId>
+        <artifactId>redisson-spring-boot-starter</artifactId>
+        <version>${redisson.version}</version>
       </dependency>
 
 <!--      <dependency>-->
