@@ -31,17 +31,17 @@ public class PageResponse<T> extends BaseResponse {
         return response;
     }
 
-    public static PageResponse asError(int error, String msg) {
-        PageResponse response = new PageResponse<>();
+    public static <T> PageResponse<T> asError(int error, String msg) {
+        PageResponse<T> response = new PageResponse<>();
         response.wrapResponse(error, msg);
         return response;
     }
 
-    public static PageResponse asError(ErrorCodeI bizCode) {
+    public static <T> PageResponse<T> asError(ErrorCodeI bizCode) {
         return asError(bizCode.getError(), bizCode.getMsg());
     }
 
-    public static PageResponse asError(CommonException e) {
+    public static <T> PageResponse<T> asError(CommonException e) {
         return asError(e.getError(), e.getMsg());
     }
 

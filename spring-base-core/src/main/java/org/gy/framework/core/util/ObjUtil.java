@@ -10,9 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * @author Buck
- * @Date 2023/9/14 19:08
- * @Desc
+ * @author gy
  */
 public class ObjUtil {
 

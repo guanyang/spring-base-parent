@@ -31,7 +31,7 @@ public class Response<T> extends BaseResponse {
         return asSuccess(SUCCESS_MSG, data);
     }
 
-    public static Response asSuccess() {
+    public static <T> Response<T> asSuccess() {
         return asSuccess(SUCCESS_MSG, null);
     }
 
@@ -42,23 +42,23 @@ public class Response<T> extends BaseResponse {
         return response;
     }
 
-    public static Response asError(int error, String msg) {
+    public static <T> Response<T> asError(int error, String msg) {
         return asError(error, msg, null);
     }
 
-    public static Response asError(String msg) {
+    public static <T> Response<T> asError(String msg) {
         return asError(ERROR_CODE, msg, null);
     }
 
-    public static Response asError(ErrorCodeI bizCode) {
+    public static <T> Response<T> asError(ErrorCodeI bizCode) {
         return asError(bizCode.getError(), bizCode.getMsg(), null);
     }
 
-    public static Response asError(CommonException e) {
+    public static <T> Response<T> asError(CommonException e) {
         return asError(e.getError(), e.getMsg(), null);
     }
 
-    public static Response asError() {
+    public static <T> Response<T> asError() {
         return asError(ERROR_CODE, ERROR_MSG, null);
     }
 
