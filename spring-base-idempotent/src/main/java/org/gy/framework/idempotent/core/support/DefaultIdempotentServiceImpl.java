@@ -1,5 +1,6 @@
 package org.gy.framework.idempotent.core.support;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -9,6 +10,7 @@ import org.gy.framework.idempotent.core.IdempotentKeyResolver;
 import org.gy.framework.idempotent.core.IdempotentService;
 import org.gy.framework.idempotent.exception.IdempotentException;
 import org.gy.framework.idempotent.model.IdempotentContext;
+import org.gy.framework.idempotent.model.IdempotentResult;
 import org.gy.framework.lock.core.DistributedLock;
 import org.gy.framework.lock.core.support.RedisDistributedLock;
 import org.gy.framework.lock.utils.InvokeUtils;
@@ -19,6 +21,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 
 @Slf4j
@@ -63,10 +67,11 @@ public class DefaultIdempotentServiceImpl implements IdempotentService {
     }
 
     @Override
-    public boolean check(IdempotentContext checkContext) {
+    public <T> IdempotentResult<T> execute(IdempotentContext checkContext, Callable<T> callable) {
         Objects.requireNonNull(checkContext, () -> "checkContext must not be null");
-        DistributedLock checkService = Objects.requireNonNull(checkContext.getLockService(), () -> "lockService must not be null");
-        return checkService.tryLock();
+        Objects.requireNonNull(callable, () -> "callable must not be null");
+        Objects.requireNonNull(checkContext.getLockService(), () -> "lockService must not be null");
+        return internalExecute(checkContext, callable);
     }
 
     @Override
@@ -74,5 +79,24 @@ public class DefaultIdempotentServiceImpl implements IdempotentService {
         String fallbackMethodName = annotation.fallback();
         Class<?> fallbackBeanClass = annotation.fallbackBean();
         return InvokeUtils.invokeFallback(joinPoint, exception, fallbackMethodName, fallbackBeanClass);
+    }
+
+    @SneakyThrows
+    protected <T> IdempotentResult<T> internalExecute(IdempotentContext checkContext, Callable<T> callable) {
+        boolean lockFlag = false;
+        try {
+            DistributedLock checkService = checkContext.getLockService();
+            lockFlag = checkService.tryLock();
+            if (!lockFlag) {
+                return IdempotentResult.wrapError();
+            }
+            T data = callable.call();
+            return IdempotentResult.wrapSuccess(data);
+        } catch (Throwable ex) {
+            if (lockFlag && checkContext.isDeleteKeyWhenException()) {
+                Optional.ofNullable(checkContext.getLockService()).ifPresent(DistributedLock::unlock);
+            }
+            throw ex;
+        }
     }
 }

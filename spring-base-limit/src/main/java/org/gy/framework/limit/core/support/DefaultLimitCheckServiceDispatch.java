@@ -1,7 +1,6 @@
 package org.gy.framework.limit.core.support;
 
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -16,6 +15,7 @@ import org.gy.framework.limit.core.LimitKeyResolver;
 import org.gy.framework.limit.enums.LimitTypeEnum;
 import org.gy.framework.limit.exception.LimitException;
 import org.gy.framework.limit.model.LimitCheckContext;
+import org.gy.framework.limit.util.InvokeUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -106,40 +106,10 @@ public class DefaultLimitCheckServiceDispatch implements ILimitCheckServiceDispa
     public Object invokeFallback(JoinPoint joinPoint, LimitCheck limitCheck, LimitException limitException) {
         String fallbackMethodName = limitCheck.fallback();
         Class<?> fallbackBeanClass = limitCheck.fallbackBean();
-        Object targetBean = (fallbackBeanClass == Void.class) ? joinPoint.getTarget() : SpringUtil.getBean(fallbackBeanClass);
-
-        // 如果 `fallback` 方法不存在，直接抛出异常
-        if (!StringUtils.hasText(fallbackMethodName) || targetBean == null) {
-            throw limitException;
-        }
-
-        Object[] originalArgs = joinPoint.getArgs();
-        Method currentMethod = ((MethodSignature) joinPoint.getSignature()).getMethod();
-        Class<?>[] parameterTypes = currentMethod.getParameterTypes();
-        try {
-            //先尝试获取无 `LimitException` 参数的 `fallback` 方法
-            Method fallbackMethod = targetBean.getClass().getDeclaredMethod(fallbackMethodName, parameterTypes);
-            return fallbackMethod.invoke(targetBean, originalArgs);
-        } catch (NoSuchMethodException e) {
-            //如果无 `LimitException` 版本不存在，尝试获取带 `LimitException` 的方法
-            Method fallbackMethod = targetBean.getClass().getDeclaredMethod(fallbackMethodName, getParameterTypesWithException(parameterTypes, LimitException.class));
-            Object[] fallbackArgs = new Object[originalArgs.length + 1];
-            System.arraycopy(originalArgs, 0, fallbackArgs, 0, originalArgs.length);
-            fallbackArgs[fallbackArgs.length - 1] = limitException;
-            return fallbackMethod.invoke(targetBean, fallbackArgs);
-        }
+        return InvokeUtils.invokeFallback(joinPoint, limitException, fallbackMethodName, fallbackBeanClass);
     }
 
     private <T> T getValue(JoinPoint joinPoint, String expression, Function<String, T> function, Supplier<T> defaultValue) {
         return Optional.ofNullable(expression).filter(StringUtils::hasText).map(s -> evaluator.getValue(joinPoint, s)).map(function).orElseGet(defaultValue);
-    }
-
-    private static Class<?>[] getParameterTypesWithException(Class<?>[] parameterTypes, Class<? extends Throwable> exceptionTypes) {
-        Class<?>[] paramTypes = new Class<?>[parameterTypes.length + 1];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            paramTypes[i] = parameterTypes[i];
-        }
-        paramTypes[parameterTypes.length] = exceptionTypes;
-        return paramTypes;
     }
 }

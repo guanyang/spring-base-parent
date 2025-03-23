@@ -1,4 +1,4 @@
-package org.gy.framework.lock.utils;
+package org.gy.framework.limit.util;
 
 import cn.hutool.extra.spring.SpringUtil;
 import lombok.SneakyThrows;
@@ -8,6 +8,9 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 
+/**
+ * @author guanyang
+ */
 public class InvokeUtils {
 
     private InvokeUtils() {
@@ -57,7 +60,7 @@ public class InvokeUtils {
         } catch (NoSuchMethodException e) {
             //尝试获取带exception的方法
             Class<? extends Throwable> exceptionClass = exception.getClass();
-            Method fallbackMethod = targetBean.getClass().getMethod(fallbackMethodName, getParameterTypesWithException(parameterTypes, exceptionClass));
+            Method fallbackMethod = targetBean.getClass().getDeclaredMethod(fallbackMethodName, getParameterTypesWithException(parameterTypes, exceptionClass));
             fallbackMethod.setAccessible(true);
             Object[] fallbackArgs = new Object[originalArgs.length + 1];
             System.arraycopy(originalArgs, 0, fallbackArgs, 0, originalArgs.length);

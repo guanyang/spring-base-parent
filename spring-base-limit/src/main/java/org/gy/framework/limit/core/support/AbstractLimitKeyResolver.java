@@ -23,9 +23,16 @@ public abstract class AbstractLimitKeyResolver implements LimitKeyResolver {
     }
 
     protected String internalResolver(JoinPoint joinPoint, LimitCheck annotation, BiFunction<JoinPoint, LimitCheck, String> keyBuilder) {
-        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        String methodKey = getMethodKey(signature);
         String keyString = keyBuilder.apply(joinPoint, annotation);
-        return StrUtil.join(StrUtil.COLON, annotation.keyPrefix(), method.getName(), keyString);
+        return StrUtil.join(StrUtil.COLON, annotation.keyPrefix(), methodKey, keyString);
+    }
+
+    protected String getMethodKey(MethodSignature signature) {
+        //基于类名和方法名，确保唯一，md5处理，减少key长度
+        String methodKey = StrUtil.join(StrUtil.DOT, signature.getDeclaringTypeName(), signature.getMethod().getName());
+        return SecureUtil.md5(methodKey);
     }
 
     protected String paramKeyBuilder(JoinPoint joinPoint, Consumer<StringBuilder> customizer) {

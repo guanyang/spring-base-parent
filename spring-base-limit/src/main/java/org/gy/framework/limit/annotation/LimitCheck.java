@@ -2,10 +2,7 @@ package org.gy.framework.limit.annotation;
 
 import org.gy.framework.limit.core.ILimitCheckService;
 import org.gy.framework.limit.core.LimitKeyResolver;
-import org.gy.framework.limit.core.support.ClientIpLimitKeyResolver;
-import org.gy.framework.limit.core.support.ExpressionLimitKeyResolver;
-import org.gy.framework.limit.core.support.GlobalLimitKeyResolver;
-import org.gy.framework.limit.core.support.ServerNodeLimitKeyResolver;
+import org.gy.framework.limit.core.support.*;
 import org.gy.framework.limit.enums.LimitTypeEnum;
 
 import java.lang.annotation.*;
@@ -34,6 +31,7 @@ public @interface LimitCheck {
      * @see ClientIpLimitKeyResolver 客户端IP
      * @see ServerNodeLimitKeyResolver 服务器节点
      * @see ExpressionLimitKeyResolver 自定义表达式，通过 {@link #key()} 计算
+     * @see FunctionLimitKeyResolver 自定义函数，通过 {@link #keyFunction()} 计算
      */
     Class<? extends LimitKeyResolver> keyResolver() default ExpressionLimitKeyResolver.class;
 
@@ -41,6 +39,11 @@ public @interface LimitCheck {
      * 频率限制key
      */
     String key() default "";
+
+    /**
+     * Key计算函数
+     */
+    String keyFunction() default "";
 
     /**
      * 限制阈值<br>

@@ -3,6 +3,7 @@ package org.gy.framework.lock.annotation;
 import org.gy.framework.lock.core.LockExecutorResolver;
 import org.gy.framework.lock.core.LockKeyResolver;
 import org.gy.framework.lock.core.support.ExpressionLockKeyResolver;
+import org.gy.framework.lock.core.support.FunctionLockKeyResolver;
 import org.gy.framework.lock.core.support.RedissonLockExecutorResolver;
 import org.gy.framework.lock.core.support.RedisLockExecutorResolver;
 
@@ -25,6 +26,11 @@ public @interface Lock {
     String key();
 
     /**
+     * Key计算函数
+     */
+    String keyFunction() default "";
+
+    /**
      * 提示信息
      */
     String message() default "Too Many Requests";
@@ -38,6 +44,7 @@ public @interface Lock {
      * 使用的 Key 解析器
      *
      * @see ExpressionLockKeyResolver 自定义表达式，通过 {@link #key()} 计算
+     * @see FunctionLockKeyResolver 自定义函数，通过 {@link #keyFunction()} 计算
      */
     Class<? extends LockKeyResolver> keyResolver() default ExpressionLockKeyResolver.class;
     /**

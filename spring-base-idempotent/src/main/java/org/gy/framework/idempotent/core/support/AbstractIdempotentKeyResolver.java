@@ -23,9 +23,16 @@ public abstract class AbstractIdempotentKeyResolver implements IdempotentKeyReso
     }
 
     protected String internalResolver(JoinPoint joinPoint, Idempotent idempotent, BiFunction<JoinPoint, Idempotent, String> keyBuilder) {
-        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        String methodKey = getMethodKey(signature);
         String keyString = keyBuilder.apply(joinPoint, idempotent);
-        return StrUtil.join(StrUtil.COLON, idempotent.keyPrefix(), method.getName(), keyString);
+        return StrUtil.join(StrUtil.COLON, idempotent.keyPrefix(), methodKey, keyString);
+    }
+
+    protected String getMethodKey(MethodSignature signature) {
+        //基于类名和方法名，确保唯一，md5处理，减少key长度
+        String methodKey = StrUtil.join(StrUtil.DOT, signature.getDeclaringTypeName(), signature.getMethod().getName());
+        return SecureUtil.md5(methodKey);
     }
 
     protected String paramKeyBuilder(JoinPoint joinPoint, Consumer<StringBuilder> customizer) {

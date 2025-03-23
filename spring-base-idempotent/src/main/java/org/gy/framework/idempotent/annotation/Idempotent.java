@@ -3,6 +3,7 @@ package org.gy.framework.idempotent.annotation;
 import org.gy.framework.idempotent.core.IdempotentKeyResolver;
 import org.gy.framework.idempotent.core.support.DefaultIdempotentKeyResolver;
 import org.gy.framework.idempotent.core.support.ExpressionIdempotentKeyResolver;
+import org.gy.framework.idempotent.core.support.FunctionIdempotentKeyResolver;
 
 import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +39,7 @@ public @interface Idempotent {
      *
      * @see DefaultIdempotentKeyResolver 全局级别
      * @see ExpressionIdempotentKeyResolver 自定义表达式，通过 {@link #key()} 计算
+     * @see FunctionIdempotentKeyResolver 使用函数计算，通过 {@link #keyFunction()} 计算
      */
     Class<? extends IdempotentKeyResolver> keyResolver() default DefaultIdempotentKeyResolver.class;
 
@@ -45,6 +47,11 @@ public @interface Idempotent {
      * 使用的 Key 参数
      */
     String key() default "";
+
+    /**
+     * Key计算函数
+     */
+    String keyFunction() default "";
 
     /**
      * key前缀

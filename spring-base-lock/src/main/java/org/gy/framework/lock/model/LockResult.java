@@ -1,5 +1,6 @@
 package org.gy.framework.lock.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,6 +32,7 @@ public class LockResult<T> implements Serializable {
     private String msg;
     private T data;
 
+    @JsonIgnore
     public boolean success() {
         return error == SUCCESS;
     }

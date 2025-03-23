@@ -4,6 +4,9 @@ import org.aspectj.lang.JoinPoint;
 import org.gy.framework.idempotent.annotation.Idempotent;
 import org.gy.framework.idempotent.exception.IdempotentException;
 import org.gy.framework.idempotent.model.IdempotentContext;
+import org.gy.framework.idempotent.model.IdempotentResult;
+
+import java.util.concurrent.Callable;
 
 public interface IdempotentService {
 
@@ -13,9 +16,9 @@ public interface IdempotentService {
     IdempotentContext createContext(JoinPoint joinPoint, Idempotent annotation);
 
     /**
-     * 检查
+     * 幂等执行
      */
-    boolean check(IdempotentContext checkContext);
+    <T> IdempotentResult<T> execute(IdempotentContext checkContext, Callable<T> callable);
 
     /**
      * 执行fallback降级函数

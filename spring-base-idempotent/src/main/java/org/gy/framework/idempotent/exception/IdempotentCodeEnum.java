@@ -13,12 +13,12 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum IdempotentCodeEnum implements IdempotentErrorCodeI {
 
-    //加锁成功
+    //成功
     SUCCESS(0, "操作成功"),
 
     TOO_MANY_REQUESTS(429, "Too Many Requests"),
 
-    //加锁失败
+    //失败
     ERROR(500, "操作失败"),
 
     INNER_ERROR(998, "内部服务异常"),
