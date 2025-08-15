@@ -23,7 +23,7 @@
     <module>spring-base-idempotent</module>
   </modules>
   <properties>
-    <revision>1.0.8-SNAPSHOT</revision>
+    <revision>1.0.9-SNAPSHOT</revision>
     <java.version>1.8</java.version>
     <java.encoding>UTF-8</java.encoding>
     <project.build.sourceEncoding>${java.encoding}</project.build.sourceEncoding>
