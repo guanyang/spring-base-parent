@@ -12,6 +12,7 @@ import lombok.Getter;
 public class CommonException extends RuntimeException {
 
     private static final long serialVersionUID = -6529876068824192516L;
+    public static final String CODE_MSG_FORMAT = "[%d]%s";
     /**
      * 错误码
      */
@@ -55,6 +56,15 @@ public class CommonException extends RuntimeException {
         super(msg, e);
         this.error = error;
         this.msg = msg;
+    }
+
+    @Override
+    public String getMessage() {
+        return getMessageWithCode();
+    }
+
+    public String getMessageWithCode() {
+        return String.format(CODE_MSG_FORMAT, this.error, this.getMsg());
     }
 
 }
