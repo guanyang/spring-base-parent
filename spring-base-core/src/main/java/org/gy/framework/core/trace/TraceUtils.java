@@ -70,8 +70,16 @@ public class TraceUtils {
         LOG_TRACE_ID = traceKey;
     }
 
+    public static String getLogTraceKey() {
+        return LOG_TRACE_ID;
+    }
+
     public static void setHeadTraceKey(String traceKey) {
         HTTP_HEADER_TRACE_ID = traceKey;
+    }
+
+    public static String getHeadTraceKey() {
+        return HTTP_HEADER_TRACE_ID;
     }
 
 

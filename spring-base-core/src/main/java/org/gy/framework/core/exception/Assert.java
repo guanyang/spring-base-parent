@@ -1,9 +1,14 @@
 package org.gy.framework.core.exception;
 
+import org.gy.framework.core.util.StringUtil;
+
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
+
+import static org.gy.framework.core.util.ObjUtil.isEmpty;
 
 /**
  * Assertion utility class that assists in validating arguments.
@@ -70,6 +75,16 @@ public abstract class Assert {
         }
     }
 
+    public static <X extends Throwable> void isFalse(boolean expression, Supplier<X> errorSupplier) throws X {
+        if (expression) {
+            throw errorSupplier.get();
+        }
+    }
+
+    public static void isFalse(boolean expression, String errorMsgTemplate, Object... params) throws IllegalArgumentException {
+        isFalse(expression, () -> new IllegalArgumentException(StringUtil.format(errorMsgTemplate, params)));
+    }
+
     /**
      * Assert that an object is {@code null}.
      * <pre class="code">Assert.isNull(value, "The value must be null");</pre>
@@ -96,6 +111,17 @@ public abstract class Assert {
         if (object == null) {
             throw new IllegalArgumentException(message);
         }
+    }
+
+    public static <T, X extends Throwable> T notNull(T object, Supplier<X> errorSupplier) throws X {
+        if (null == object) {
+            throw errorSupplier.get();
+        }
+        return object;
+    }
+
+    public static <T> T notNull(T object, String errorMsgTemplate, Object... params) throws IllegalArgumentException {
+        return notNull(object, () -> new IllegalArgumentException(StringUtil.format(errorMsgTemplate, params)));
     }
 
     /**
@@ -314,27 +340,11 @@ public abstract class Assert {
     }
 
     public static boolean hasContent(CharSequence str) {
-        return (str != null && str.length() > 0);
+        return StringUtil.hasText(str);
     }
 
     public static boolean hasContent(String str) {
-        return hasContent((CharSequence) str);
-    }
-
-    public static boolean isEmpty(Object obj) {
-        if (obj == null) {
-            return true;
-        } else if (obj instanceof Optional) {
-            return !((Optional) obj).isPresent();
-        } else if (obj instanceof CharSequence) {
-            return ((CharSequence) obj).length() == 0;
-        } else if (obj.getClass().isArray()) {
-            return Array.getLength(obj) == 0;
-        } else if (obj instanceof Collection) {
-            return ((Collection) obj).isEmpty();
-        } else {
-            return obj instanceof Map ? ((Map) obj).isEmpty() : false;
-        }
+        return StringUtil.hasText(str);
     }
 
 }

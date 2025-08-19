@@ -1,8 +1,5 @@
 package org.gy.framework.core.util;
 
-import static org.gy.framework.core.exception.Assert.hasContent;
-import static org.gy.framework.core.exception.Assert.isEmpty;
-
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -15,6 +12,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.gy.framework.core.exception.Assert;
+
+import static org.gy.framework.core.util.ObjUtil.isEmpty;
+import static org.gy.framework.core.util.StringUtil.hasText;
 
 /**
  * 功能描述：转换工具类
@@ -99,7 +99,7 @@ public class ConvertHelper {
 
     public static <R> Stream<R> convertStream(String source, Function<String, String[]> splitFunc,
         Function<String, R> mapper) {
-        if (!hasContent(source)) {
+        if (!hasText(source)) {
             return Stream.empty();
         }
         return Stream.of(splitFunc.apply(source)).filter(Assert::hasContent).map(String::trim).map(mapper)

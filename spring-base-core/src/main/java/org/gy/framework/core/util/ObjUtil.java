@@ -2,12 +2,13 @@ package org.gy.framework.core.util;
 
 import lombok.SneakyThrows;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.gy.framework.core.util.StringUtil.hasText;
 
 /**
  * @author gy
@@ -42,5 +43,21 @@ public class ObjUtil {
             return Collections.emptyMap();
         }
         return map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum, LinkedHashMap::new));
+    }
+
+    public static boolean isEmpty(Object obj) {
+        if (obj == null) {
+            return true;
+        } else if (obj instanceof Optional) {
+            return !((Optional<?>) obj).isPresent();
+        } else if (obj instanceof CharSequence) {
+            return !hasText((CharSequence) obj);
+        } else if (obj.getClass().isArray()) {
+            return Array.getLength(obj) == 0;
+        } else if (obj instanceof Collection) {
+            return ((Collection<?>) obj).isEmpty();
+        } else {
+            return obj instanceof Map ? ((Map<?, ?>) obj).isEmpty() : false;
+        }
     }
 }

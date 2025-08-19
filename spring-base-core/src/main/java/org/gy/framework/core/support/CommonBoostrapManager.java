@@ -1,25 +1,27 @@
 package org.gy.framework.core.support;
 
-import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.core.util.CollectionUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.Ordered;
-import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-@Component
-public class CommonBoostrapManager implements SmartInitializingSingleton, DisposableBean, Ordered {
+public class CommonBoostrapManager implements BeanFactoryPostProcessor, SmartInitializingSingleton, DisposableBean, Ordered {
 
     private final AtomicBoolean init = new AtomicBoolean(false);
 
     //延迟查询，可以获取所有bean，包括动态注册的Bean
     private Map<String, CommonBoostrapAction> actionMap;
+
+    private ConfigurableListableBeanFactory configurableListableBeanFactory;
 
     @Override
     public void destroy() {
@@ -31,7 +33,7 @@ public class CommonBoostrapManager implements SmartInitializingSingleton, Dispos
 
     @Override
     public void afterSingletonsInstantiated() {
-        actionMap = SpringUtil.getBeansOfType(CommonBoostrapAction.class);
+        actionMap = configurableListableBeanFactory.getBeansOfType(CommonBoostrapAction.class);
         if (CollectionUtils.isEmpty(actionMap)) {
             log.warn("[CommonBoostrapManager]no boostrap action");
             return;
@@ -45,5 +47,10 @@ public class CommonBoostrapManager implements SmartInitializingSingleton, Dispos
     @Override
     public int getOrder() {
         return LOWEST_PRECEDENCE;
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        this.configurableListableBeanFactory = beanFactory;
     }
 }
