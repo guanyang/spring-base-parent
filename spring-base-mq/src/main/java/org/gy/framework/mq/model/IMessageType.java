@@ -27,7 +27,7 @@ public interface IMessageType extends CommonServiceAction {
     String getDesc();
 
     default void init() {
-        CommonServiceManager.registerInstance(IMessageType.class, this, IMessageType::getCode);
+        CommonServiceManager.registerInstance(IMessageType.class, this, IMessageType::getCode, true);
     }
 
 

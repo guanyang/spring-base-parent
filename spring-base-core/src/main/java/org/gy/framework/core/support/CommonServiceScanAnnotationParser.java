@@ -9,6 +9,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
@@ -34,13 +35,16 @@ public class CommonServiceScanAnnotationParser {
 
     private final Function<Class<?>, String> beanNameMapper;
 
+    public CommonServiceScanAnnotationParser(AnnotationAttributes componentScan, Environment environment, ConfigurableListableBeanFactory beanFactory) {
+        this(componentScan, environment, beanFactory, null);
+    }
+
     public CommonServiceScanAnnotationParser(AnnotationAttributes componentScan, Environment environment, ConfigurableListableBeanFactory beanFactory, Set<Class<?>> assignableClasses) {
         this(componentScan, environment, beanFactory, assignableClasses, CommonService.class, COMMON_SERVICE_MAPPER);
     }
 
     public CommonServiceScanAnnotationParser(AnnotationAttributes componentScan, Environment environment, ConfigurableListableBeanFactory beanFactory, Set<Class<?>> assignableClasses, Class<? extends Annotation> annotationClass, Function<Class<?>, String> beanNameMapper) {
-        Assert.notNull(annotationClass, "annotationClass must not be null");
-        Assert.notNull(assignableClasses, "assignableClasses must not be null");
+        Assert.isTrue(annotationClass != null || !CollectionUtils.isEmpty(assignableClasses), () -> "annotationClass or assignableClasses is required!");
         this.componentScan = componentScan;
         this.environment = environment;
         this.beanFactory = beanFactory;
@@ -50,15 +54,18 @@ public class CommonServiceScanAnnotationParser {
     }
 
     public Map<String, Object> parseAndRegister(Class<?> declaringClass) {
-        Map<String, Object> result = new HashMap<>();
-
         String[] basePackages = StringUtils.toStringArray(parse(declaringClass));
+        if (CollectionUtils.isEmpty(assignableClasses)) {
+            Set<Class<?>> scanClasses = SpringClassScanner.scanPackage(annotationClass, null, basePackages);
+            return SpringClassScanner.register(scanClasses, beanNameMapper, beanFactory);
+        }
+        Map<String, Object> beanMap = new LinkedHashMap<>();
         assignableClasses.forEach(clazz -> {
             Set<Class<?>> scanClasses = SpringClassScanner.scanPackage(annotationClass, clazz, basePackages);
             Map<String, Object> registerBean = SpringClassScanner.register(scanClasses, beanNameMapper, beanFactory);
-            result.putAll(registerBean);
+            beanMap.putAll(registerBean);
         });
-        return result;
+        return beanMap;
     }
 
     private Set<String> parse(Class<?> declaringClass) {

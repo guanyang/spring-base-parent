@@ -26,7 +26,7 @@ public interface IEventType extends CommonServiceAction {
     String getDesc();
 
     default void init() {
-        CommonServiceManager.registerInstance(IEventType.class, this, IEventType::getCode);
+        CommonServiceManager.registerInstance(IEventType.class, this, IEventType::getCode, true);
     }
 
 

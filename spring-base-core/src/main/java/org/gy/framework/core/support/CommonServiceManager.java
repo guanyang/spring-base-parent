@@ -76,6 +76,10 @@ public class CommonServiceManager implements BeanFactoryPostProcessor, CommonBoo
     }
 
     public static <S extends CommonServiceAction, K> void registerInstance(Class<S> serviceClass, S serviceInstance, Function<? super S, ? extends K> keyMapper) {
+        registerInstance(serviceClass, serviceInstance, keyMapper, false);
+    }
+
+    public static <S extends CommonServiceAction, K> void registerInstance(Class<S> serviceClass, S serviceInstance, Function<? super S, ? extends K> keyMapper, boolean ignoreDuplicate) {
         Assert.notNull(serviceInstance, "CommonServiceManager serviceInstance is null");
         Assert.notNull(keyMapper, "CommonServiceManager keyMapper is null");
         Assert.notNull(serviceClass, "CommonServiceManager serviceClass is null");
@@ -86,9 +90,10 @@ public class CommonServiceManager implements BeanFactoryPostProcessor, CommonBoo
 
         Map<Object, CommonServiceAction> serviceInstanceMap = SERVICE_MAP.computeIfAbsent(serviceClass, k -> new ConcurrentLinkedHashMap<>(LockType.StampedLock));
         //禁止注册相同的类型，避免覆盖导致业务错误
-        Assert.isFalse(serviceInstanceMap.containsKey(key), "CommonServiceManager service already registered: service={}, key={}", serviceClass.getName(), key);
-
-        serviceInstanceMap.put(key, serviceInstance);
+        if (!ignoreDuplicate){
+            Assert.isFalse(serviceInstanceMap.containsKey(key), "CommonServiceManager service already registered: service={}, key={}", serviceClass.getName(), key);
+        }
+        serviceInstanceMap.putIfAbsent(key, serviceInstance);
     }
 
     @Override

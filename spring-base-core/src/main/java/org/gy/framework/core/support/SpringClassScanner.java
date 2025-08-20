@@ -37,12 +37,11 @@ public class SpringClassScanner {
         if (CollectionUtils.isEmpty(classes) || beanFactory == null) {
             return Collections.emptyMap();
         }
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> beanMap = new LinkedHashMap<>();
         classes.forEach(clazz -> {
-            Map<String, Object> registerBean = registerBean(clazz, beanNameMapper, beanFactory);
-            result.putAll(registerBean);
+            registerBean(clazz, beanNameMapper, beanFactory, beanMap);
         });
-        return result;
+        return beanMap;
     }
 
     /**
@@ -116,37 +115,33 @@ public class SpringClassScanner {
     }
 
     @SneakyThrows
-    private static Map<String, Object> registerBean(Class<?> clazz, Function<Class<?>, String> beanNameMapper, ConfigurableListableBeanFactory beanFactory) {
+    private static void registerBean(Class<?> clazz, Function<Class<?>, String> beanNameMapper, ConfigurableListableBeanFactory beanFactory, Map<String, Object> beanMap) {
         if (clazz.isEnum()) {
-            return registerBeanForEnum(clazz, beanNameMapper, beanFactory);
+            registerBeanForEnum(clazz, beanNameMapper, beanFactory, beanMap);
         } else {
-            return registerBeanForNormal(clazz, beanNameMapper, beanFactory);
+            registerBeanForNormal(clazz, beanNameMapper, beanFactory, beanMap);
         }
     }
 
-    private static Map<String, Object> registerBeanForEnum(Class<?> clazz, Function<Class<?>, String> beanNameMapper, ConfigurableListableBeanFactory beanFactory) {
-        Map<String, Object> result = new HashMap<>();
+    private static void registerBeanForEnum(Class<?> clazz, Function<Class<?>, String> beanNameMapper, ConfigurableListableBeanFactory beanFactory, Map<String, Object> beanMap) {
         String simpleName = Optional.ofNullable(beanNameMapper).map(mapper -> mapper.apply(clazz)).orElseGet(clazz::getSimpleName);
         Object[] constants = clazz.getEnumConstants();
         for (Object constant : constants) {
             String beanName = uniqueKey(simpleName, ((Enum<?>) constant).name());
             if (!beanFactory.containsBean(beanName)) {
                 beanFactory.registerSingleton(beanName, constant);
-                result.put(beanName, constant);
+                beanMap.put(beanName, constant);
             }
         }
-        return result;
     }
 
-    private static Map<String, Object> registerBeanForNormal(Class<?> clazz, Function<Class<?>, String> beanNameMapper, ConfigurableListableBeanFactory beanFactory) throws Exception {
-        Map<String, Object> result = new HashMap<>();
+    private static void registerBeanForNormal(Class<?> clazz, Function<Class<?>, String> beanNameMapper, ConfigurableListableBeanFactory beanFactory, Map<String, Object> beanMap) throws Exception {
         String beanName = Optional.ofNullable(beanNameMapper).map(mapper -> mapper.apply(clazz)).orElseGet(clazz::getSimpleName);
         if (!beanFactory.containsBean(beanName)) {
             Object instance = clazz.newInstance();
             beanFactory.registerSingleton(beanName, instance);
-            result.put(beanName, instance);
+            beanMap.put(beanName, instance);
         }
-        return result;
     }
 
     private static String uniqueKey(CharSequence... elements) {

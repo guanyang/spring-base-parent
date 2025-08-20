@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.StampedLock;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public final class ConcurrentLinkedHashMap<K, V> extends HashMap<K, V> implements Map<K, V>, Serializable {
     private static final long serialVersionUID = -70734360194688816L;
@@ -138,6 +141,67 @@ public final class ConcurrentLinkedHashMap<K, V> extends HashMap<K, V> implement
     // 迭代操作（返回快照避免长期加锁）
     public Map<K, V> snapshot() {
         return doWithReadLock(m -> new LinkedHashMap<>(m));
+    }
+
+    @Override
+    public V putIfAbsent(K key, V value) {
+        return doWithWriteLock(c -> c.putIfAbsent(key, value));
+    }
+
+    @Override
+    public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
+        doWithWriteLock(c -> {
+            c.replaceAll(function);
+            return null;
+        });
+    }
+
+    @Override
+    public void forEach(BiConsumer<? super K, ? super V> action) {
+        doWithReadLock(c -> {
+            c.forEach(action);
+            return null;
+        });
+    }
+
+    @Override
+    public V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
+        return doWithWriteLock(c -> c.merge(key, value, remappingFunction));
+    }
+
+    @Override
+    public V compute(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+        return doWithWriteLock(c -> c.compute(key, remappingFunction));
+    }
+
+    @Override
+    public V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+        return doWithWriteLock(c -> c.computeIfPresent(key, remappingFunction));
+    }
+
+    @Override
+    public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
+        return doWithWriteLock(c -> c.computeIfAbsent(key, mappingFunction));
+    }
+
+    @Override
+    public V replace(K key, V value) {
+        return doWithWriteLock(c -> c.replace(key, value));
+    }
+
+    @Override
+    public boolean replace(K key, V oldValue, V newValue) {
+        return doWithWriteLock(c -> c.replace(key, oldValue, newValue));
+    }
+
+    @Override
+    public boolean remove(Object key, Object value) {
+        return doWithWriteLock(c -> c.remove(key, value));
+    }
+
+    @Override
+    public V getOrDefault(Object key, V defaultValue) {
+        return doWithReadLock(c -> c.getOrDefault(key, defaultValue));
     }
 
     private <R> R doWithWriteLock(Action<K, V, R> action) {

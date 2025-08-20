@@ -2,10 +2,7 @@ package org.gy.framework.mq;
 
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
-import org.gy.framework.core.support.CommonBoostrapAction;
-import org.gy.framework.core.support.CommonBoostrapManager;
-import org.gy.framework.core.support.CommonServiceManager;
-import org.gy.framework.core.support.CommonServiceScanAnnotationParser;
+import org.gy.framework.core.support.*;
 import org.gy.framework.mq.annotation.EnableMQ;
 import org.gy.framework.mq.config.RocketMqManager;
 import org.gy.framework.mq.config.RocketMqManager.RocketMQPropertiesMap;
@@ -124,7 +121,7 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostP
 
     @Override
     public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE - 150;
+        return Ordered.LOWEST_PRECEDENCE - 300;
     }
 
     @Override
@@ -134,8 +131,17 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostP
 
     @Override
     public void init() {
-        CommonServiceScanAnnotationParser parser = new CommonServiceScanAnnotationParser(this.enableAsync, this.environment, this.beanFactory, DEFAULT_ASSIGNABLE_CLASSES);
+        CommonServiceScanAnnotationParser parser = new CommonServiceScanAnnotationParser(this.enableAsync, this.environment, this.beanFactory);
         Map<String, Object> registerBean = parser.parseAndRegister(MqConfig.class);
+        registerBean.forEach((beanName, bean) -> beanInit(bean));
         log.info("MqConfig init success, registerBean size: {}", registerBean.size());
+    }
+
+    private void beanInit(Object bean) {
+        //指定bean需要提前初始化，因为注册动态事件时需要使用
+        boolean match = DEFAULT_ASSIGNABLE_CLASSES.stream().anyMatch(clazz -> clazz.isInstance(bean));
+        if (match && bean instanceof CommonServiceAction) {
+            ((CommonServiceAction) bean).init();
+        }
     }
 }
