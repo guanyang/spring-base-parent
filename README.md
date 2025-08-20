@@ -26,8 +26,20 @@
 | spring-base-log        | 日志组件        | [参考文档](spring-base-log/README.md)        |
 | spring-base-limit      | 限流组件        | [参考文档](spring-base-limit/README.md)      |
 | spring-base-idempotent | 幂等组件        | [参考文档](spring-base-idempotent/README.md) |
+| spring-base-mq         | 消息组件        | [参考文档](spring-base-mq/README.md)         |
 
 #### Change Log
+#### 1.0.9-SNAPSHOT
+添加【spring-base-mq】模块代码，提供统一的消息处理框架，该组件具有以下特点：
+
+1. 注解驱动：通过`@DynamicEventStrategy`和`@EnableMQ`注解简化消息处理配置
+2. 事件驱动架构：基于`IEventType`和`IMessageType`接口实现灵活的事件和消息类型管理
+3. AOP切面支持：通过切面实现事件处理的统一拦截和管理
+4. 多消息队列支持：目前支持RocketMQ，后续方便扩展其他消息队列
+5. 可扩展性：提供丰富的扩展点，支持自定义消息处理逻辑
+6. 消息幂等支持：基于Redisson实现，需要添加redis相关配置
+7. 事件日志记录：自定义`EventLogService`实现，可记录事件处理日志
+
 #### 1.0.8-SNAPSHOT
 - 优化【spring-base-lock】模块代码，分布式锁执行器支持自定义扩展，实现`LockExecutorResolver`接口
   - `RedissonLockExecutorResolver`: 基于Redisson的执行器，默认启用
