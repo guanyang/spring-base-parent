@@ -13,6 +13,12 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * 功能描述：通用服务启动管理器
+ *
+ * @author gy
+ * @since 1.0.0
+ */
 @Slf4j
 public class CommonBoostrapManager implements BeanFactoryPostProcessor, SmartInitializingSingleton, DisposableBean, Ordered {
 

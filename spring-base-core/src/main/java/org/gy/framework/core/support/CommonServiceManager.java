@@ -19,6 +19,12 @@ import java.util.function.Function;
 
 import static org.gy.framework.core.exception.CommonErrorCode.PARAM_BAD_REQUEST;
 
+/**
+ * 功能描述: 通用服务管理器
+ *
+ * @author gy
+ * @version 1.0.0
+ */
 @Slf4j
 public class CommonServiceManager implements BeanFactoryPostProcessor, CommonBoostrapAction {
 
