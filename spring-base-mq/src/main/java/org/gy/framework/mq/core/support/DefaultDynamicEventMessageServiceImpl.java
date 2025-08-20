@@ -3,8 +3,6 @@ package org.gy.framework.mq.core.support;
 
 import com.alibaba.fastjson2.util.TypeUtils;
 import org.gy.framework.mq.model.DynamicEventContext;
-import org.gy.framework.mq.model.IEventType;
-import org.gy.framework.mq.model.IMessageType;
 
 import java.lang.reflect.Type;
 import java.util.Objects;
@@ -33,13 +31,13 @@ public class DefaultDynamicEventMessageServiceImpl extends AbstractEventMessageC
     }
 
     @Override
-    public IEventType getEventType() {
-        return context.getEventType();
+    public String getEventTypeCode() {
+        return context.getEventType().getCode();
     }
 
     @Override
-    public IMessageType getMessageType() {
-        return context.getMessageType();
+    public String getMessageTypeCode() {
+        return context.getMessageType().getCode();
     }
 
     @Override

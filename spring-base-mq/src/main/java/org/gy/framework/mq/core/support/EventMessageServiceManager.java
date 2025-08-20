@@ -6,8 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.core.support.CommonServiceManager;
 import org.gy.framework.mq.core.EventMessageConsumerService;
 import org.gy.framework.mq.core.EventMessageProducerService;
-import org.gy.framework.mq.model.IEventType;
-import org.gy.framework.mq.model.IMessageType;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Service;
 
@@ -35,21 +33,21 @@ public class EventMessageServiceManager implements Ordered {
         CURRENT_SERVICE.remove();
     }
 
-    public static <T, R> EventMessageConsumerService<T, R> getService(IEventType eventType) {
-        return CommonServiceManager.getService(EventMessageConsumerService.class, eventType);
+    public static <T, R> EventMessageConsumerService<T, R> getService(String eventTypeCode) {
+        return CommonServiceManager.getService(EventMessageConsumerService.class, eventTypeCode);
     }
 
-    public static <T, R> Optional<EventMessageConsumerService<T, R>> getServiceOptional(IEventType eventType) {
+    public static <T, R> Optional<EventMessageConsumerService<T, R>> getServiceOptional(String eventTypeCode) {
         return CommonServiceManager.getServiceOptional(new TypeReference<EventMessageConsumerService<T, R>>() {
-        }, eventType);
+        }, eventTypeCode);
     }
 
-    public static EventMessageProducerService getSendService(IMessageType messageType) {
-        return CommonServiceManager.getService(EventMessageProducerService.class, messageType);
+    public static EventMessageProducerService getSendService(String messageTypeCode) {
+        return CommonServiceManager.getService(EventMessageProducerService.class, messageTypeCode);
     }
 
-    public static Optional<EventMessageProducerService> getSendServiceOptional(IMessageType messageType) {
-        return CommonServiceManager.getServiceOptional(EventMessageProducerService.class, messageType);
+    public static Optional<EventMessageProducerService> getSendServiceOptional(String messageTypeCode) {
+        return CommonServiceManager.getServiceOptional(EventMessageProducerService.class, messageTypeCode);
     }
 
     @Override

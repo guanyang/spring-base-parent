@@ -90,11 +90,11 @@ public class DynamicEventStrategyRegister implements BeanFactoryPostProcessor, C
         Type dataType = paramTypes[0];
         String eventTypeCode = annotation.eventTypeCode();
         IEventType eventType = CommonServiceManager.getServiceOptional(IEventType.class, eventTypeCode).orElse(null);
-        Assert.notNull(eventType, () -> "IEventType code not support: " + eventTypeCode);
+        Assert.notNull(eventType, () -> "IEventType code not registered: " + eventTypeCode);
 
         String messageTypeCode = annotation.messageTypeCode();
         IMessageType messageType = CommonServiceManager.getServiceOptional(IMessageType.class, messageTypeCode).orElse(null);
-        Assert.notNull(messageType, () -> "IMessageType code not support: " + messageTypeCode);
+        Assert.notNull(messageType, () -> "IMessageType code not registered: " + messageTypeCode);
 
         return new DynamicEventContext<>(eventType, dataType, executeFunction, supportRetry, messageType);
     }

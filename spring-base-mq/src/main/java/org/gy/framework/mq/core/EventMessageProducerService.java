@@ -16,9 +16,11 @@ import java.util.List;
 public interface EventMessageProducerService extends CommonServiceAction {
 
     /**
-     * 消息类型
+     * 消息类型编码
+     *
+     * @see IMessageType
      */
-    IMessageType getMessageType();
+    String getMessageTypeCode();
 
     /**
      * 异步发送消息（普通消息）
@@ -76,8 +78,11 @@ public interface EventMessageProducerService extends CommonServiceAction {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * 初始化
+     */
     default void init() {
-        CommonServiceManager.registerInstance(EventMessageProducerService.class, this, EventMessageProducerService::getMessageType);
+        CommonServiceManager.registerInstance(EventMessageProducerService.class, this, EventMessageProducerService::getMessageTypeCode);
     }
 
 }

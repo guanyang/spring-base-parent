@@ -24,9 +24,10 @@ public class EventMessage<T> implements Serializable {
     private long timestamp = System.currentTimeMillis();
 
     /**
-     * 事件类型（必须）
+     * 事件类型编码（必须）
+     * @see IEventType
      */
-    private IEventType eventType;
+    private String eventTypeCode;
     /**
      * 业务唯一标识，如果有则幂等处理
      */
@@ -55,7 +56,7 @@ public class EventMessage<T> implements Serializable {
 
     public static <T> EventMessage<T> of(IEventType eventType, T data, String bizKey) {
         EventMessage<T> eventMessage = new EventMessage<>();
-        eventMessage.eventType = eventType;
+        eventMessage.eventTypeCode = eventType.getCode();
         eventMessage.bizKey = bizKey;
         eventMessage.data = data;
         return eventMessage;

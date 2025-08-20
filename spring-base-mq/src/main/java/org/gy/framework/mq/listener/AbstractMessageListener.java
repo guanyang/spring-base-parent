@@ -62,20 +62,20 @@ public abstract class AbstractMessageListener implements MessageListener {
         String msgBody = new String(msg.getBody(), StandardCharsets.UTF_8);
 
         EventMessage<?> eventMessage = JSON.parseObject(msgBody, EventMessage.class);
-        if (eventMessage == null || eventMessage.getEventType() == null) {
+        if (eventMessage == null || eventMessage.getEventTypeCode() == null) {
             log.warn("[MessageListener]消息参数错误: msgId={},msgBody={}", msgId, msgBody);
             return;
         }
         log.info("[MessageListener]消息数据: msgId={},msgBody={}", msgId, msgBody);
 
-        EventMessageConsumerService actionService = EventMessageServiceManager.getServiceOptional(eventMessage.getEventType()).orElse(null);
-        if (actionService == null || actionService.getMessageType() == null) {
-            log.warn("[MessageListener]消息事件服务无效: event={}", eventMessage.getEventType());
+        EventMessageConsumerService actionService = EventMessageServiceManager.getServiceOptional(eventMessage.getEventTypeCode()).orElse(null);
+        if (actionService == null || actionService.getEventTypeCode() == null) {
+            log.warn("[MessageListener]消息事件服务无效: event={}", eventMessage.getEventTypeCode());
             return;
         }
-        Set<IMessageType> supportMessageType = rocketMqManager.getSupportMessageType(this);
-        if (!supportMessageType.contains(actionService.getMessageType())) {
-            log.warn("[MessageListener]监听器不支持此消息类型: event={},messageType={}", eventMessage.getEventType(), actionService.getMessageType());
+        Set<String> supportMessageType = rocketMqManager.getSupportMessageType(this);
+        if (!supportMessageType.contains(actionService.getMessageTypeCode())) {
+            log.warn("[MessageListener]监听器不支持此消息类型: event={},messageType={}", eventMessage.getEventTypeCode(), actionService.getMessageTypeCode());
             return;
         }
 
@@ -90,7 +90,7 @@ public abstract class AbstractMessageListener implements MessageListener {
 
     protected DistributedLock internalLock(EventMessage<?> eventMessage) {
         String idempotentKey = getUniqueKey(eventMessage);
-        String code = String.valueOf(eventMessage.getEventType().getCode());
+        String code = String.valueOf(eventMessage.getEventTypeCode());
         String redisKey = StringUtils.joinWith(StrUtil.COLON, IDEMPOTENT_KEY_PREFIX, code, idempotentKey);
         return redisson != null ? new RedissonDistributedLock(redisson, redisKey, getExpireTime()) : null;
     }

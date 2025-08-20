@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DefaultEventMessageProducerOrderlyServiceImpl extends AbstractEventMessageProducerService {
     @Override
-    public IMessageType getMessageType() {
-        return DefaultMessageType.ORDERLY;
+    public String getMessageTypeCode() {
+        return DefaultMessageType.ORDERLY.getCode();
     }
 }

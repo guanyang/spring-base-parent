@@ -32,7 +32,7 @@ public abstract class AbstractEventMessageProducerService implements EventMessag
     private EventLogService eventLogService;
 
     protected RocketMqProducer getProducer() {
-        return rocketMqManager.getProducer(getMessageType());
+        return rocketMqManager.getProducer(getMessageTypeCode());
     }
 
     @Override
