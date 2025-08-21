@@ -19,6 +19,7 @@ import org.gy.framework.mq.model.EventMessageDispatchResult;
 import org.gy.framework.mq.model.IMessageType;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
@@ -49,12 +50,23 @@ public abstract class AbstractMessageListener implements MessageListener {
     @Resource
     private EventLogService eventLogService;
 
+    /**
+     * 消息幂等性过期时间，单位毫秒，默认2小时
+     */
+    @Value("${base.commonConfig.mq.idempotentExpireMillis:7200000}")
+    private long idempotentExpireMillis = DEFAULT_EXPIRE_TIME;
+    /**
+     * 重试次数，默认6次
+     */
+    @Value("${base.commonConfig.mq.retryTimes:6}")
+    private int retryTimes = DEFAULT_RETRY_TIMES;
+
     protected int getRetryTimes() {
-        return DEFAULT_RETRY_TIMES;
+        return retryTimes;
     }
 
-    protected long getExpireTime() {
-        return DEFAULT_EXPIRE_TIME;
+    protected long getIdempotentExpireMillis() {
+        return idempotentExpireMillis;
     }
 
     protected void messageHandler(MessageExt msg) throws Throwable {
@@ -92,7 +104,7 @@ public abstract class AbstractMessageListener implements MessageListener {
         String idempotentKey = getUniqueKey(eventMessage);
         String code = String.valueOf(eventMessage.getEventTypeCode());
         String redisKey = StringUtils.joinWith(StrUtil.COLON, IDEMPOTENT_KEY_PREFIX, code, idempotentKey);
-        return redisson != null ? new RedissonDistributedLock(redisson, redisKey, getExpireTime()) : null;
+        return redisson != null ? new RedissonDistributedLock(redisson, redisKey, getIdempotentExpireMillis()) : null;
     }
 
     protected void internalExecute(EventMessage<?> eventMessage, MessageExt msg, DistributedLock lock) throws Throwable {

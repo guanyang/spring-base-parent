@@ -99,6 +99,9 @@ public abstract class AbstractEventMessageProducerService implements EventMessag
         if (eventMessage.getDelayTimeLevel() > 0) {
             msg.setDelayTimeLevel(eventMessage.getDelayTimeLevel());
         }
+        if (StringUtils.isNotBlank(eventMessage.getTag())){
+            msg.setTags(eventMessage.getTag());
+        }
         return msg;
     }
 

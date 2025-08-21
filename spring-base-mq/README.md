@@ -97,6 +97,7 @@ interface MessageTypeCode {
       "age": 20,
       "name": "test"
   },
+  "tag": "tag_a7fa55a231be",//消息标签，默认不设置
   "delayTimeLevel": 0,    //延迟消息级别，18个等级（1~18），默认不延迟
   "orderlyKey": "orderlyKey_1ab3c128b5db"  //顺序消息key，默认不设置
 }
@@ -136,11 +137,20 @@ void sendMessageTest(){
 
 }
 ```
+#### 7. 消息幂等及重试支持
+- 当前消息幂等是基于`Redisson`来实现，需要添加redis相关配置，默认支持2小时内幂等，可通过如下方式自定义：
+    - 方式一：在`application.yml`中添加`base.commonConfig.mq.idempotentExpireMillis`配置，单位毫秒
+    - 方式二：继承`AbstractMessageListener`抽象类，重写`getIdempotentExpireMillis`方法，返回幂等时间
 
+- 消息重试基于RocketMQ阶梯重试策略，默认支持6次，可通过如下方式自定义：
+    - 方式一：在`application.yml`中添加`base.commonConfig.mq.retryTimes`配置
+    - 方式二：继承`AbstractMessageListener`抽象类，重写`getRetryTimes`方法，返回重试次数
 
-#### 7. 配置消息队列属性
+#### 8. 配置消息队列属性
 
 在`application.yml`中配置RocketMQ等相关属性：
+- `defaultNormalListener`：默认实现的普通消费监听器，可直接使用，参考`DefaultNormalListener`
+- `defaultOrderlyListener`：默认实现的顺序消费监听器，可直接使用，参考`DefaultOrderlyListener`
 
 ```yaml
 rocketmq:
@@ -166,7 +176,7 @@ rocketmq:
 ```
 
 
-#### 8. 自定义扩展
+#### 9. 自定义扩展
 
 可以通过实现以下接口进行自定义扩展：
 - `EventLogService`：自定义事件日志服务
@@ -175,7 +185,7 @@ rocketmq:
 - `EventMessageConsumerService`：自定义消息消费者服务
 - `EventMessageProducerService`：自定义消息生产者服务
 
-#### 9. 核心组件
+#### 10. 核心组件
 - `DynamicEventStrategyAspect`：动态事件策略切面处理
 - `DynamicEventStrategyRegister`：动态事件策略注册器
 - `RocketMqManager`：RocketMQ管理器

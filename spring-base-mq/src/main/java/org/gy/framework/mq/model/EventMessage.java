@@ -50,6 +50,11 @@ public class EventMessage<T> implements Serializable {
      */
     private String orderlyKey;
 
+    /**
+     * 消息标签
+     */
+    private String tag;
+
     public static <T> EventMessage<T> of(IEventType eventType, T data) {
         return of(eventType, data, null);
     }

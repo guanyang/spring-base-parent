@@ -9,6 +9,7 @@ import org.gy.framework.mq.model.IMessageType;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author gy
@@ -56,6 +57,19 @@ public interface EventMessageProducerService extends CommonServiceAction {
     default <T> void asyncSend(T t, IEventType eventType, String orderlyKey) {
         EventMessage<T> req = EventMessage.of(eventType, t);
         req.setOrderlyKey(orderlyKey);
+        asyncSend(req);
+    }
+
+    /**
+     * 异步发送消息（消息自定义扩展）
+     *
+     * @param t          消息体
+     * @param eventType  事件类型
+     * @param customizer 消息自定义
+     */
+    default <T> void asyncSend(T t, IEventType eventType, Consumer<EventMessage<T>> customizer) {
+        EventMessage<T> req = EventMessage.of(eventType, t);
+        customizer.accept(req);
         asyncSend(req);
     }
 
