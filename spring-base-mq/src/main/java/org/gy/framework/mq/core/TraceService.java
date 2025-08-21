@@ -1,7 +1,5 @@
 package org.gy.framework.mq.core;
 
-import cn.hutool.extra.spring.SpringUtil;
-
 public interface TraceService {
 
     /**
