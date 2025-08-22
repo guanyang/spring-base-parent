@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class CommonServiceScanAnnotationParser {
 
@@ -53,8 +54,8 @@ public class CommonServiceScanAnnotationParser {
         this.beanNameMapper = beanNameMapper;
     }
 
-    public Map<String, Object> parseAndRegister(Class<?> declaringClass) {
-        String[] basePackages = StringUtils.toStringArray(parse(declaringClass));
+    public Map<String, Object> parseAndRegister(Supplier<Set<String>> declaringPackages) {
+        String[] basePackages = StringUtils.toStringArray(parse(declaringPackages));
         if (CollectionUtils.isEmpty(assignableClasses)) {
             Set<Class<?>> scanClasses = SpringClassScanner.scanPackage(annotationClass, null, basePackages);
             return SpringClassScanner.register(scanClasses, beanNameMapper, beanFactory);
@@ -68,7 +69,7 @@ public class CommonServiceScanAnnotationParser {
         return beanMap;
     }
 
-    private Set<String> parse(Class<?> declaringClass) {
+    private Set<String> parse(Supplier<Set<String>> declaringPackages) {
         Set<String> basePackages = new LinkedHashSet<>();
         String[] basePackagesArray = componentScan.getStringArray("basePackages");
         for (String pkg : basePackagesArray) {
@@ -78,8 +79,8 @@ public class CommonServiceScanAnnotationParser {
         for (Class<?> clazz : componentScan.getClassArray("basePackageClasses")) {
             basePackages.add(ClassUtils.getPackageName(clazz));
         }
-        if (declaringClass != null) {
-            basePackages.add(ClassUtils.getPackageName(declaringClass));
+        if (declaringPackages != null) {
+            basePackages.addAll(declaringPackages.get());
         }
         return basePackages;
     }

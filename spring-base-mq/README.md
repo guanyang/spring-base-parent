@@ -17,6 +17,7 @@
 #### 1. 启用MQ功能
 
 在Spring Boot启动类上添加`@EnableMQ`注解：
+- 【注意】如果`IEventType`、`IMessageType`的实现类不在启动类包路径下面，则需要添加`@EnableMQ`注解的`basePackages`或`basePackageClasses`属性
 
 ```java
 @EnableMQ
@@ -135,6 +136,9 @@ void sendMessageTest(){
     //异步发送消息（顺序消息），需要指定顺序消费orderlyKey，例如订单号
     //sendService.asyncSend("测试消息对象", IEventType.DEMO_EVENT,"orderlyKey"); 
 
+    //异步发送消息（消息自定义扩展），例如指定消息tag
+    //sendService.asyncSend("test", DefaultEventType.DEMO_EVENT, req -> req.setTag("tag1"));
+
 }
 ```
 #### 7. 消息幂等及重试支持
@@ -157,13 +161,13 @@ rocketmq:
   normal:        #配置标识，需要与IMessageType的code一致
     nameServer: dev.rocketmq:9876    #【必须】nameServer地址，格式: `host:port;host:port`
     topic: normal_topic_dev    #【必须】消息topic
-    producer:     #producer配置
+    producer:     #【可选】producer配置，需要发送消息则配置
       groupName: NormalProducerGroupDev    #【producer存在时必须】组名称，保证唯一
       instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
       sendMessageTimeout: 3000    #消息发送超时时间，单位：毫秒，默认：3000
       retryTimesWhenSendFailed: 5   #消息同步发送失败重试次数，默认：2
       retryTimesWhenSendAsyncFailed: 5    #消息异步发送失败重试次数，默认：2
-    consumer:        #consumer配置
+    consumer:        #【可选】consumer配置，需要监听消息则配置
       groupName: NormalConsumerGroupDev    #【consumer存在时必须】组名称，保证唯一
       instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
       messageModel: CLUSTERING  #消费模式，CLUSTERING集群，BROADCASTING广播，默认：CLUSTERING

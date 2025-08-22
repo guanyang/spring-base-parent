@@ -26,6 +26,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.util.ClassUtils;
 
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,11 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostP
     public static final String ROCKETMQ_PREFIX = "rocketmq";
 
     private AnnotationAttributes enableAsync;
+
+    /**
+     * 获取 EnableMQ 注解所在类名称
+     */
+    private String enableMQClassName;
 
     private Environment environment;
 
@@ -117,6 +123,7 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostP
         if (this.enableAsync == null) {
             throw new IllegalArgumentException("@EnableMQ is not present on importing class " + importMetadata.getClassName());
         }
+        this.enableMQClassName = importMetadata.getClassName();
     }
 
     @Override
@@ -132,7 +139,8 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostP
     @Override
     public void init() {
         CommonServiceScanAnnotationParser parser = new CommonServiceScanAnnotationParser(this.enableAsync, this.environment, this.beanFactory);
-        Map<String, Object> registerBean = parser.parseAndRegister(MqConfig.class);
+        //默认添加EnableMQ注解所在包和MqConfig所在包扫描
+        Map<String, Object> registerBean = parser.parseAndRegister(() -> Sets.newHashSet(ClassUtils.getPackageName(enableMQClassName), ClassUtils.getPackageName(MqConfig.class)));
         registerBean.forEach((beanName, bean) -> beanInit(bean));
         log.info("MqConfig init success, registerBean size: {}", registerBean.size());
     }
