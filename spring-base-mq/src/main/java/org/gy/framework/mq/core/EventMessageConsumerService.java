@@ -7,6 +7,8 @@ import org.gy.framework.mq.model.EventMessage;
 import org.gy.framework.mq.model.IEventType;
 import org.gy.framework.mq.model.IMessageType;
 
+import java.util.Set;
+
 /**
  * @author gy
  */
@@ -32,7 +34,7 @@ public interface EventMessageConsumerService<T, R> extends CommonServiceAction {
      *
      * @see IMessageType
      */
-    String getMessageTypeCode();
+    Set<String> getMessageTypeCode();
 
     /**
      * 是否支持重试

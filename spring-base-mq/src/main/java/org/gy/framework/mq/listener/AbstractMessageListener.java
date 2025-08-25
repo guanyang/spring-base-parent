@@ -86,8 +86,10 @@ public abstract class AbstractMessageListener implements MessageListener {
             return;
         }
         Set<String> supportMessageType = rocketMqManager.getSupportMessageType(this);
-        if (!supportMessageType.contains(actionService.getMessageTypeCode())) {
-            log.warn("[MessageListener]监听器不支持此消息类型: event={},messageType={}", eventMessage.getEventTypeCode(), actionService.getMessageTypeCode());
+        Set<String> messageTypeCode = Optional.ofNullable(actionService.getMessageTypeCode()).orElseGet(Collections::emptySet);
+        boolean messageMatch = messageTypeCode.stream().anyMatch(supportMessageType::contains);
+        if (!messageMatch) {
+            log.warn("[MessageListener]监听器不支持此消息类型: event={},messageType={},supportMessageType={}", eventMessage.getEventTypeCode(), messageTypeCode, supportMessageType);
             return;
         }
 

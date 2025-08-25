@@ -18,15 +18,17 @@ import org.springframework.core.MethodIntrospector;
 import org.springframework.core.MethodIntrospector.MetadataLookup;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class DynamicEventStrategyRegister implements BeanFactoryPostProcessor, CommonBoostrapAction {
@@ -92,11 +94,14 @@ public class DynamicEventStrategyRegister implements BeanFactoryPostProcessor, C
         IEventType eventType = CommonServiceManager.getServiceOptional(IEventType.class, eventTypeCode).orElse(null);
         Assert.notNull(eventType, () -> "IEventType code not registered: " + eventTypeCode);
 
-        String messageTypeCode = annotation.messageTypeCode();
-        IMessageType messageType = CommonServiceManager.getServiceOptional(IMessageType.class, messageTypeCode).orElse(null);
-        Assert.notNull(messageType, () -> "IMessageType code not registered: " + messageTypeCode);
+        String[] messageTypeCodes = annotation.messageTypeCode();
+        Set<IMessageType> messageTypes = Stream.of(messageTypeCodes).map(messageTypeCode -> {
+            IMessageType messageType = CommonServiceManager.getServiceOptional(IMessageType.class, messageTypeCode).orElse(null);
+            Assert.notNull(messageType, () -> "IMessageType code not registered: " + messageTypeCode);
+            return messageType;
+        }).collect(Collectors.toSet());
 
-        return new DynamicEventContext<>(eventType, dataType, executeFunction, supportRetry, messageType);
+        return new DynamicEventContext<>(eventType, dataType, executeFunction, supportRetry, messageTypes);
     }
 
 

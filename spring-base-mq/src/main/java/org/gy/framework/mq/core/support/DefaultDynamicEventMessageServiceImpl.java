@@ -3,9 +3,14 @@ package org.gy.framework.mq.core.support;
 
 import com.alibaba.fastjson2.util.TypeUtils;
 import org.gy.framework.mq.model.DynamicEventContext;
+import org.gy.framework.mq.model.IMessageType;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DefaultDynamicEventMessageServiceImpl extends AbstractEventMessageConsumerService<Object, Object> {
 
@@ -36,8 +41,9 @@ public class DefaultDynamicEventMessageServiceImpl extends AbstractEventMessageC
     }
 
     @Override
-    public String getMessageTypeCode() {
-        return context.getMessageType().getCode();
+    public Set<String> getMessageTypeCode() {
+        Set<IMessageType> messageTypes = Optional.ofNullable(context.getMessageTypes()).orElseGet(Collections::emptySet);
+        return messageTypes.stream().map(IMessageType::getCode).collect(Collectors.toSet());
     }
 
     @Override

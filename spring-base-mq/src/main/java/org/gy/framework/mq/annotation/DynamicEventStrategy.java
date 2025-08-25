@@ -37,5 +37,5 @@ public @interface DynamicEventStrategy {
      * @see IMessageType
      * @see org.gy.framework.mq.model.IMessageType.DefaultMessageType
      */
-    String messageTypeCode() default MessageTypeCode.DEFAULT_NORMAL;
+    String[] messageTypeCode() default {MessageTypeCode.DEFAULT_NORMAL};
 }
