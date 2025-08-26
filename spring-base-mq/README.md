@@ -192,6 +192,7 @@ rocketmq:
 #### 10. 核心组件
 - `DynamicEventStrategyAspect`：动态事件策略切面处理
 - `DynamicEventStrategyRegister`：动态事件策略注册器
+- `EventMessageProducerRegister`：消息生产者服务注册器
 - `RocketMqManager`：RocketMQ管理器
 - `EventMessageServiceManager`：事件消息服务管理器
 - `CommonServiceManager`：通用服务管理器

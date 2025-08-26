@@ -96,14 +96,20 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostP
     @Bean
     @ConfigurationProperties(prefix = ROCKETMQ_PREFIX)
     @ConditionalOnMissingBean(RocketMQPropertiesMap.class)
-    public RocketMQPropertiesMap rocketMQPropertiesMap() {
+    public RocketMQPropertiesMap rocketMqPropertiesMap() {
         return new RocketMQPropertiesMap();
     }
 
     @Bean
+    @ConditionalOnMissingBean(EventMessageProducerRegister.class)
+    public EventMessageProducerRegister eventMessageProducerRegister(RocketMQPropertiesMap rocketMqPropertiesMap) {
+        return new EventMessageProducerRegister(rocketMqPropertiesMap);
+    }
+
+    @Bean
     @ConditionalOnMissingBean(RocketMqManager.class)
-    public RocketMqManager rocketMqManager(RocketMQPropertiesMap rocketMQPropertiesMap) {
-        return new RocketMqManager(rocketMQPropertiesMap);
+    public RocketMqManager rocketMqManager(RocketMQPropertiesMap rocketMqPropertiesMap) {
+        return new RocketMqManager(rocketMqPropertiesMap);
     }
 
 
@@ -128,7 +134,7 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostP
 
     @Override
     public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE - 300;
+        return Ordered.LOWEST_PRECEDENCE - 400;
     }
 
     @Override

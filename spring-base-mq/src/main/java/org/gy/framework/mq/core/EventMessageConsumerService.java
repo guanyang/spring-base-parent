@@ -3,11 +3,13 @@ package org.gy.framework.mq.core;
 
 import org.gy.framework.core.support.CommonServiceAction;
 import org.gy.framework.core.support.CommonServiceManager;
+import org.gy.framework.mq.core.support.EventMessageServiceManager;
 import org.gy.framework.mq.model.EventMessage;
 import org.gy.framework.mq.model.IEventType;
 import org.gy.framework.mq.model.IMessageType;
 
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * @author gy
@@ -51,5 +53,14 @@ public interface EventMessageConsumerService<T, R> extends CommonServiceAction {
      */
     default void init() {
         CommonServiceManager.registerInstance(EventMessageConsumerService.class, this, EventMessageConsumerService::getEventTypeCode);
+    }
+
+    default <REQ, RES> RES doWithContext(REQ req, Function<REQ, RES> function) {
+        EventMessageServiceManager.setCurrentService(this);
+        try {
+            return function.apply(req);
+        } finally {
+            EventMessageServiceManager.clearCurrentService();
+        }
     }
 }

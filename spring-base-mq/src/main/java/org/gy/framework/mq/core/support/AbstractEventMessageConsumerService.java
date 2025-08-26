@@ -8,7 +8,6 @@ import org.gy.framework.mq.model.EventMessage;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Type;
-import java.util.function.Function;
 
 
 /**
@@ -64,12 +63,4 @@ public abstract class AbstractEventMessageConsumerService<T, R> implements Event
         return internalExecuteWithContext(data);
     }
 
-    protected <REQ, RES> RES doWithContext(REQ req, Function<REQ, RES> function) {
-        EventMessageServiceManager.setCurrentService(this);
-        try {
-            return function.apply(req);
-        } finally {
-            EventMessageServiceManager.clearCurrentService();
-        }
-    }
 }

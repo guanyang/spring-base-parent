@@ -1,6 +1,8 @@
 package org.gy.framework.mq.core;
 
 
+import cn.hutool.core.util.StrUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.gy.framework.core.support.CommonServiceAction;
 import org.gy.framework.core.support.CommonServiceManager;
 import org.gy.framework.mq.model.EventMessage;
@@ -97,6 +99,10 @@ public interface EventMessageProducerService extends CommonServiceAction {
      */
     default void init() {
         CommonServiceManager.registerInstance(EventMessageProducerService.class, this, EventMessageProducerService::getMessageTypeCode);
+    }
+
+    default String getServiceName() {
+        return StringUtils.joinWith(StrUtil.UNDERLINE, this.getClass().getSimpleName(), getMessageTypeCode());
     }
 
 }

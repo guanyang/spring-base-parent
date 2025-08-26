@@ -22,14 +22,14 @@ public class RocketMqManager implements CommonBoostrapAction {
 
     private final RocketMQPropertiesMap propertiesMap;
 
-    public RocketMqManager(RocketMQPropertiesMap inventoryPropertiesMap) {
-        Assert.notNull(inventoryPropertiesMap, () -> "RocketMQPropertiesMap must not be null");
-        this.propertiesMap = inventoryPropertiesMap;
+    public RocketMqManager(RocketMQPropertiesMap propertiesMap) {
+        Assert.notNull(propertiesMap, () -> "RocketMQPropertiesMap must not be null");
+        this.propertiesMap = propertiesMap;
     }
 
     public RocketMqProducer getProducer(String messageTypeCode) {
         RocketMqProducer producer = Optional.ofNullable(messageTypeCode).map(producerMap::get).orElse(null);
-        Assert.notNull(producer, () -> "RocketMqProducer must not be null: " + messageTypeCode);
+        Assert.notNull(producer, () -> "RocketMqProducer not registered: " + messageTypeCode);
         return producer;
     }
 

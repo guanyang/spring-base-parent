@@ -13,9 +13,11 @@ import org.gy.framework.mq.config.RocketMQProperties;
 import org.gy.framework.mq.config.RocketMqManager;
 import org.gy.framework.mq.config.RocketMqProducer;
 import org.gy.framework.mq.core.EventLogService;
+import org.gy.framework.mq.core.EventMessageConsumerService;
 import org.gy.framework.mq.core.EventMessageProducerService;
 import org.gy.framework.mq.model.EventLogContext;
 import org.gy.framework.mq.model.EventMessage;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.util.Collection;
@@ -38,6 +40,13 @@ public abstract class AbstractEventMessageProducerService implements EventMessag
     @Override
     public <T> void asyncSend(List<EventMessage<T>> eventSendReqs) {
         sendInternalAsync(getProducer(), eventSendReqs);
+    }
+
+    @Override
+    public <T, R> R directHandle(EventMessage<T> req) {
+        Assert.notNull(req, () -> "EventMessage is required!");
+        EventMessageConsumerService<T, R> service = EventMessageServiceManager.getService(req.getEventTypeCode());
+        return EventLogContext.handleWithLog(req, service::execute, eventLogService::batchSaveEventLog);
     }
 
     protected <T> void sendInternalAsync(RocketMqProducer producer, List<EventMessage<T>> eventMessages) {
@@ -99,7 +108,7 @@ public abstract class AbstractEventMessageProducerService implements EventMessag
         if (eventMessage.getDelayTimeLevel() > 0) {
             msg.setDelayTimeLevel(eventMessage.getDelayTimeLevel());
         }
-        if (StringUtils.isNotBlank(eventMessage.getTag())){
+        if (StringUtils.isNotBlank(eventMessage.getTag())) {
             msg.setTags(eventMessage.getTag());
         }
         return msg;

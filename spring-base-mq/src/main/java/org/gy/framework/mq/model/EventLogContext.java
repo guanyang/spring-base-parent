@@ -38,7 +38,7 @@ public class EventLogContext<REQ extends EventMessage<?>, RES> implements Serial
         return JSON.toJSONString(this);
     }
 
-    public static <T, R> R handleWithLog(EventMessage<T> req, Function<T, R> function, Consumer<List<EventLogContext<EventMessage<?>, Object>>> consumer) {
+    public static <T, R> R handleWithLog(EventMessage<T> req, Function<EventMessage<T>, R> function, Consumer<List<EventLogContext<EventMessage<?>, Object>>> consumer) {
         Objects.requireNonNull(req, "EventMessage is required!");
         Objects.requireNonNull(function, "Function is required!");
 
@@ -46,7 +46,7 @@ public class EventLogContext<REQ extends EventMessage<?>, RES> implements Serial
         ctx.setRequestId(req.getRequestId());
         ctx.setRequest(req);
         try {
-            R response = function.apply(req.getData());
+            R response = function.apply(req);
             ctx.setResponse(response);
             return response;
         } catch (Throwable e) {
