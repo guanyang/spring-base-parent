@@ -32,9 +32,9 @@ public class EventMessageProducerRegister implements CommonBoostrapAction {
         RocketMQPropertiesMap configMap = Optional.ofNullable(propertiesMap).orElseGet(RocketMQPropertiesMap::new);
         Map<String, Object> beanMap = new LinkedHashMap<>();
         //获取已经注册的消息类型，避免重复注册
-        Set<String> registedMessageTypes = getRegistedMessageTypes();
+        Set<String> registryMessageTypes = getRegistryMessageTypes();
         for (Entry<String, RocketMQProperties> entry : configMap.entrySet()) {
-            registerService(entry.getKey(), entry.getValue(), beanMap, registedMessageTypes);
+            registerService(entry.getKey(), entry.getValue(), beanMap, registryMessageTypes);
         }
         log.info("EventMessageProducerRegister init success, registerBean size: {}", beanMap.size());
     }
@@ -49,11 +49,11 @@ public class EventMessageProducerRegister implements CommonBoostrapAction {
         return Ordered.LOWEST_PRECEDENCE - 300;
     }
 
-    private void registerService(String messageTypeCode, RocketMQProperties properties, Map<String, Object> beanMap, Set<String> registedMessageTypes) throws Exception {
+    private void registerService(String messageTypeCode, RocketMQProperties properties, Map<String, Object> beanMap, Set<String> registryMessageTypes) throws Exception {
         Assert.notNull(properties, () -> "RocketMQProperties properties must not be null");
         Assert.hasText(messageTypeCode, () -> "IMessageType code must not be null");
 
-        if (registedMessageTypes.contains(messageTypeCode)) {
+        if (registryMessageTypes.contains(messageTypeCode)) {
             log.info("EventMessageProducerRegister messageTypeCode already registered, ignore register: {}", messageTypeCode);
             return;
         }
@@ -66,7 +66,7 @@ public class EventMessageProducerRegister implements CommonBoostrapAction {
         }
     }
 
-    private Set<String> getRegistedMessageTypes() {
+    private Set<String> getRegistryMessageTypes() {
         Map<String, EventMessageProducerService> registedMap = SpringUtil.getBeansOfType(EventMessageProducerService.class);
         return registedMap.values().stream().map(EventMessageProducerService::getMessageTypeCode).collect(Collectors.toSet());
     }
