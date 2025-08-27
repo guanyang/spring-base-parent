@@ -9,6 +9,7 @@ import org.gy.framework.mq.model.IEventType;
 import org.gy.framework.mq.model.IMessageType;
 import org.springframework.util.Assert;
 
+import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ public class DefaultEventAnnotationMethodProcessor extends AbstractEventAnnotati
     }
 
     @Override
-    protected void eventContextCustomizer(DynamicEventContext<Object, Object> ctx, DynamicEventStrategy annotation) {
+    protected void eventContextCustomizer(DynamicEventContext<Object, Object> ctx, Method method, DynamicEventStrategy annotation) {
         Predicate<Throwable> supportRetry = DynamicEventContext.getRetryPredicate(annotation.supportRetry());
         ctx.setSupportRetry(supportRetry);
 

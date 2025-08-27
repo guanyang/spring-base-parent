@@ -49,12 +49,14 @@ public abstract class AbstractEventAnnotationMethodProcessor<A extends Annotatio
     protected abstract String getEventTypeCode(A annotation);
 
     /**
-     * 自定义事件上下文
+     * 构建事件上下文
      *
-     * @param ctx        事件上下文
+     * @param bean       bean
+     * @param method     方法
      * @param annotation 注解
+     * @return 事件上下文
      */
-    protected abstract void eventContextCustomizer(DynamicEventContext<Object, Object> ctx, A annotation);
+    protected abstract void eventContextCustomizer(DynamicEventContext<Object, Object> ctx, Method method, A annotation);
 
     /**
      * 查找指定bean中带注解的方法，并注册事件Bean
@@ -189,7 +191,7 @@ public abstract class AbstractEventAnnotationMethodProcessor<A extends Annotatio
         ctx.setExecuteFunction(executeFunction);
         ctx.setDataTypeReference(paramTypes[0]);
         // 自定义处理
-        eventContextCustomizer(ctx, annotation);
+        eventContextCustomizer(ctx, method, annotation);
         ctx.contextCheck();
         return ctx;
     }
