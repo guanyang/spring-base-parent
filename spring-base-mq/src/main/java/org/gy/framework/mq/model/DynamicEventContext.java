@@ -7,7 +7,6 @@ import org.springframework.util.Assert;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -39,13 +38,12 @@ public class DynamicEventContext<T, R> implements Serializable {
      */
     private Set<IMessageType> messageTypes;
 
-    public DynamicEventContext(IEventType eventType, Type dataTypeReference, Function<T, R> executeFunction, Predicate<Throwable> supportRetry, Set<IMessageType> messageTypes) {
-        this.eventType = Objects.requireNonNull(eventType, "eventType is required!");
-        this.dataTypeReference = Objects.requireNonNull(dataTypeReference, "dataTypeReference is required!");
-        this.executeFunction = Objects.requireNonNull(executeFunction, "executeFunction is required!");
-        this.supportRetry = Objects.requireNonNull(supportRetry, "supportRetry is required!");
+    public void contextCheck() {
+        Assert.notNull(eventType, () -> "eventType is required!");
+        Assert.notNull(dataTypeReference, () -> "dataTypeReference is required!");
+        Assert.notNull(executeFunction, () -> "executeFunction is required!");
+        Assert.notNull(supportRetry, () -> "supportRetry is required!");
         Assert.notEmpty(messageTypes, () -> "messageTypes is required!");
-        this.messageTypes = messageTypes;
     }
 
     public static Predicate<Throwable> getRetryPredicate(Class<? extends Throwable>[] retryTypes) {

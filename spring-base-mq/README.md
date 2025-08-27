@@ -188,6 +188,7 @@ rocketmq:
 - `EventMessageDispatchService`：自定义消息分发服务
 - `EventMessageConsumerService`：自定义消息消费者服务
 - `EventMessageProducerService`：自定义消息生产者服务
+- `EventAnnotationMethodProcessor`：自定义事件注解方法处理器
 
 #### 10. 核心组件
 - `DynamicEventStrategyAspect`：动态事件策略切面处理

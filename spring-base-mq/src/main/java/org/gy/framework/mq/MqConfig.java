@@ -6,6 +6,7 @@ import org.gy.framework.core.support.*;
 import org.gy.framework.mq.annotation.EnableMQ;
 import org.gy.framework.mq.config.RocketMqManager;
 import org.gy.framework.mq.config.RocketMqManager.RocketMQPropertiesMap;
+import org.gy.framework.mq.core.EventAnnotationMethodProcessor;
 import org.gy.framework.mq.core.EventLogService;
 import org.gy.framework.mq.core.EventMessageDispatchService;
 import org.gy.framework.mq.core.TraceService;
@@ -13,6 +14,7 @@ import org.gy.framework.mq.core.support.*;
 import org.gy.framework.mq.model.IEventType;
 import org.gy.framework.mq.model.IMessageType;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -28,6 +30,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,9 +73,15 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostP
     }
 
     @Bean
+    @ConditionalOnMissingBean(DefaultEventAnnotationMethodProcessor.class)
+    public DefaultEventAnnotationMethodProcessor defaultEventAnnotationMethodProcessor(EventLogService eventLogService) {
+        return new DefaultEventAnnotationMethodProcessor(eventLogService);
+    }
+
+    @Bean
     @ConditionalOnMissingBean(DynamicEventStrategyAspect.class)
-    public DynamicEventStrategyAspect dynamicEventStrategyAspect(EventLogService eventLogService) {
-        return new DynamicEventStrategyAspect(eventLogService);
+    public DynamicEventStrategyAspect dynamicEventStrategyAspect() {
+        return new DynamicEventStrategyAspect();
     }
 
     @Bean
