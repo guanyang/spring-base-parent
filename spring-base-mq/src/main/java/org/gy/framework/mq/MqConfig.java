@@ -2,11 +2,11 @@ package org.gy.framework.mq;
 
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration;
 import org.gy.framework.core.support.*;
 import org.gy.framework.mq.annotation.EnableMQ;
 import org.gy.framework.mq.config.RocketMqManager;
 import org.gy.framework.mq.config.RocketMqManager.RocketMQPropertiesMap;
-import org.gy.framework.mq.core.EventAnnotationMethodProcessor;
 import org.gy.framework.mq.core.EventLogService;
 import org.gy.framework.mq.core.EventMessageDispatchService;
 import org.gy.framework.mq.core.TraceService;
@@ -14,9 +14,9 @@ import org.gy.framework.mq.core.support.*;
 import org.gy.framework.mq.model.IEventType;
 import org.gy.framework.mq.model.IMessageType;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.EnvironmentAware;
@@ -30,12 +30,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Slf4j
 @Configuration
+@EnableAutoConfiguration(exclude = RocketMQAutoConfiguration.class)
 @ComponentScan(basePackageClasses = MqConfig.class)
 public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostProcessor, CommonBoostrapAction {
 
