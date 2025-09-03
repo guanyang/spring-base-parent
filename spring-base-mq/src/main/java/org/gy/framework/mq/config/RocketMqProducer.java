@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.gy.framework.mq.config.support.DefaultMQProducerWrapper;
+import org.gy.framework.mq.config.support.RocketMQProperties;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -80,10 +81,10 @@ public class RocketMqProducer implements InitializingBean, DisposableBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         if (init.compareAndSet(false, true)) {
-            log.info("生产者启动开始: {}", groupName);
+            log.info("RocketMQ生产者启动开始: {}", groupName);
             producer = initProducer(rocketMQProperties);
             producer.start();
-            log.info("生产者启动成功: {}", groupName);
+            log.info("RocketMQ生产者启动成功: {}", groupName);
         }
     }
 
@@ -91,9 +92,9 @@ public class RocketMqProducer implements InitializingBean, DisposableBean {
     public void destroy() throws Exception {
         if (init.compareAndSet(true, false)) {
             if (producer != null) {
-                log.info("生产者服务关闭开始: {}", groupName);
+                log.info("RocketMQ生产者服务关闭开始: {}", groupName);
                 producer.shutdown();
-                log.info("生产者服务关闭成功: {}", groupName);
+                log.info("RocketMQ生产者服务关闭成功: {}", groupName);
             }
         }
     }

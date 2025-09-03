@@ -5,35 +5,49 @@ import com.google.common.collect.Sets;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.listener.MessageListener;
-import org.gy.framework.core.support.CommonBoostrapAction;
 import org.gy.framework.core.support.CommonServiceManager;
+import org.gy.framework.mq.config.support.RocketMQProperties;
 import org.gy.framework.mq.model.IMessageType;
+import org.gy.framework.mq.model.MqType;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
-public class RocketMqManager implements CommonBoostrapAction {
+public class RocketMqManager implements MqManagerAction<RocketMqProducer, RocketMqConsumer> {
 
     private final Map<String, RocketMqProducer> producerMap = Maps.newConcurrentMap();
     private final Map<String, RocketMqConsumer> consumerMap = Maps.newConcurrentMap();
     private final Map<MessageListener, Set<String>> listenerFilterMap = Maps.newConcurrentMap();
 
-    private final RocketMQPropertiesMap propertiesMap;
+    private final MqProperties properties;
 
-    public RocketMqManager(RocketMQPropertiesMap propertiesMap) {
-        Assert.notNull(propertiesMap, () -> "RocketMQPropertiesMap must not be null");
-        this.propertiesMap = propertiesMap;
+    public RocketMqManager(MqProperties properties) {
+        this.properties = properties;
     }
 
+    @Override
     public RocketMqProducer getProducer(String messageTypeCode) {
+        Assert.hasText(messageTypeCode, () -> "RocketMqProducer messageTypeCode is null");
         RocketMqProducer producer = Optional.ofNullable(messageTypeCode).map(producerMap::get).orElse(null);
         Assert.notNull(producer, () -> "RocketMqProducer not registered: " + messageTypeCode);
         return producer;
     }
 
-    public Set<String> getSupportMessageType(MessageListener messageListener) {
+    @Override
+    public RocketMqConsumer getConsumer(String messageTypeCode) {
+        Assert.hasText(messageTypeCode, () -> "RocketMqConsumer messageTypeCode is null");
+        RocketMqConsumer consumer = Optional.ofNullable(messageTypeCode).map(consumerMap::get).orElse(null);
+        Assert.notNull(consumer, () -> "RocketMqConsumer not registered: " + messageTypeCode);
+        return consumer;
+    }
+
+    @Override
+    public Set<String> getSupportMessageType(Object messageListener) {
         return Optional.ofNullable(listenerFilterMap.get(messageListener)).orElseGet(Collections::emptySet);
     }
 
@@ -56,23 +70,31 @@ public class RocketMqManager implements CommonBoostrapAction {
     @Override
     @SneakyThrows
     public void init() {
-        RocketMQPropertiesMap rocketMQPropertiesMap = Optional.ofNullable(propertiesMap).orElseGet(RocketMQPropertiesMap::new);
-        for (Entry<String, RocketMQProperties> entry : rocketMQPropertiesMap.entrySet()) {
+        Map<String, RocketMQProperties> propertiesMap = Optional.ofNullable(properties.getRocketmq()).orElseGet(Collections::emptyMap);
+        for (Entry<String, RocketMQProperties> entry : propertiesMap.entrySet()) {
             register(entry.getKey(), entry.getValue());
         }
-        log.info("RocketMQManager init success, properties keys: {}", rocketMQPropertiesMap.keySet());
+        log.info("RocketMQManager init success, properties keys: {}", propertiesMap.keySet());
     }
 
-    private void register(String code, RocketMQProperties properties) throws Exception {
+    protected void register(String code, RocketMQProperties properties) throws Exception {
         Assert.notNull(properties, () -> "RocketMQProperties properties must not be null");
         Assert.hasText(code, () -> "IMessageType code must not be null");
 
         IMessageType messageType = CommonServiceManager.getServiceOptional(IMessageType.class, code).orElse(null);
         Assert.notNull(messageType, () -> "IMessageType code not registered: " + code);
+        registerProducer(messageType, properties, producerMap);
+        registerConsumer(messageType, properties, consumerMap, listenerFilterMap);
+    }
+
+    protected void registerProducer(IMessageType messageType, RocketMQProperties properties, Map<String, RocketMqProducer> producerMap) throws Exception {
         if (properties.getProducer() != null) {
             RocketMqProducer rocketMqProducer = producerMap.computeIfAbsent(messageType.getCode(), k -> new RocketMqProducer(properties));
             rocketMqProducer.afterPropertiesSet();
         }
+    }
+
+    protected void registerConsumer(IMessageType messageType, RocketMQProperties properties, Map<String, RocketMqConsumer> consumerMap, Map<MessageListener, Set<String>> listenerFilterMap) throws Exception {
         if (properties.getConsumer() != null) {
             RocketMqConsumer rocketMqConsumer = consumerMap.computeIfAbsent(messageType.getCode(), k -> new RocketMqConsumer(properties));
             rocketMqConsumer.afterPropertiesSet();
@@ -81,8 +103,8 @@ public class RocketMqManager implements CommonBoostrapAction {
         }
     }
 
-
-    public static class RocketMQPropertiesMap extends HashMap<String, RocketMQProperties> {
-        private static final long serialVersionUID = 414328690643875826L;
+    @Override
+    public MqType getMqType() {
+        return MqType.ROCKETMQ;
     }
 }

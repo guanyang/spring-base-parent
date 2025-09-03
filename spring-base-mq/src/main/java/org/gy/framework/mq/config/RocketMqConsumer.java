@@ -7,6 +7,7 @@ import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.MessageListener;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel;
+import org.gy.framework.mq.config.support.RocketMQProperties;
 import org.gy.framework.mq.config.support.TraceConsumeMessageHook;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -107,10 +108,10 @@ public class RocketMqConsumer implements InitializingBean, DisposableBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         if (init.compareAndSet(false, true)) {
-            log.info("消费者启动开始: {}", groupName);
+            log.info("RocketMQ消费者启动开始: {}", groupName);
             consumer = initConsumer(rocketMQProperties, messageListener);
             consumer.start();
-            log.info("消费者启动成功: {}", groupName);
+            log.info("RocketMQ消费者启动成功: {}", groupName);
         }
     }
 
@@ -119,9 +120,9 @@ public class RocketMqConsumer implements InitializingBean, DisposableBean {
     public void destroy() throws Exception {
         if (init.compareAndSet(true, false)) {
             if (consumer != null) {
-                log.info("消费者服务关闭开始: {}", groupName);
+                log.info("RocketMQ消费者服务关闭开始: {}", groupName);
                 consumer.shutdown();
-                log.info("消费者服务关闭成功: {}", groupName);
+                log.info("RocketMQ消费者服务关闭成功: {}", groupName);
             }
         }
     }

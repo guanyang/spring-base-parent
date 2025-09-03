@@ -5,6 +5,7 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly;
 import org.apache.rocketmq.common.message.MessageExt;
+import org.gy.framework.mq.model.MqType;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -25,7 +26,7 @@ public class DefaultOrderlyListener extends AbstractMessageListener implements M
             long startTime = System.currentTimeMillis();
             String msgId = msg.getMsgId();
             try {
-                messageHandler(msg);
+                messageHandler(MqType.ROCKETMQ, msg, this);
             } catch (Throwable e) {
                 String msgBody = new String(msg.getBody(), StandardCharsets.UTF_8);
                 log.error("[DefaultOrderlyListener]消费处理异常: msgId={},msgBody={}", msgId, msgBody, e);

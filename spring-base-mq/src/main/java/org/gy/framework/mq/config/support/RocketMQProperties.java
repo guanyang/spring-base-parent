@@ -1,13 +1,14 @@
-package org.gy.framework.mq.config;
+package org.gy.framework.mq.config.support;
 
 import com.alibaba.fastjson2.JSON;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
- * 功能描述：
+ * RocketMQ配置
  *
  * @author gy
  * @version 1.0.0
@@ -21,12 +22,24 @@ public class RocketMQProperties {
     private static final String DEFAULT_MESSAGE_MODEL = MessageModel.CLUSTERING.name();
     private static final String DEFAULT_CONSUME_FROM = ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET.name();
 
+    /**
+     * nameServer地址
+     */
     private String nameServer;
-
+    /**
+     * topic主题
+     */
     private String topic;
-
+    /**
+     * Producer配置
+     */
+    @NestedConfigurationProperty
     private Producer producer;
 
+    /**
+     * Consumer配置
+     */
+    @NestedConfigurationProperty
     private Consumer consumer;
 
     @Data
@@ -37,7 +50,9 @@ public class RocketMQProperties {
          * Group name of producer.
          */
         private String groupName;
-
+        /**
+         * Instance name of producer.
+         */
         private String instanceName = DEFAULT_INSTANCE_NAME;
 
         /**
@@ -88,6 +103,9 @@ public class RocketMQProperties {
          */
         private String groupName;
 
+        /**
+         * Instance name of consumer.
+         */
         private String instanceName = DEFAULT_INSTANCE_NAME;
 
         /**
@@ -128,6 +146,7 @@ public class RocketMQProperties {
 
         /**
          * Message listener bean name
+         * @see org.apache.rocketmq.client.consumer.listener.MessageListener
          */
         private String listenerBeanName;
 

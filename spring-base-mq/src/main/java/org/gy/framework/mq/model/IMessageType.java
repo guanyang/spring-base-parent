@@ -6,8 +6,9 @@ import org.gy.framework.core.annotation.CommonService;
 import org.gy.framework.core.support.CommonServiceAction;
 import org.gy.framework.core.support.CommonServiceManager;
 
-import static org.gy.framework.mq.model.IMessageType.MessageTypeCode.DEFAULT_NORMAL;
-import static org.gy.framework.mq.model.IMessageType.MessageTypeCode.DEFAULT_ORDERLY;
+import static org.gy.framework.mq.model.IMessageType.MessageTypeCode.*;
+import static org.gy.framework.mq.model.MqType.KAFKA;
+import static org.gy.framework.mq.model.MqType.ROCKETMQ;
 
 /**
  * 功能描述：消息类型定义
@@ -26,6 +27,11 @@ public interface IMessageType extends CommonServiceAction {
      */
     String getDesc();
 
+    /**
+     * MQ类型
+     */
+    MqType getMqType();
+
     default void init() {
         CommonServiceManager.registerInstance(IMessageType.class, this, IMessageType::getCode, true);
     }
@@ -36,22 +42,28 @@ public interface IMessageType extends CommonServiceAction {
     @CommonService
     enum DefaultMessageType implements IMessageType {
 
-        NORMAL(DEFAULT_NORMAL, "普通消息"),
+        NORMAL(DEFAULT_NORMAL, "普通消息", ROCKETMQ),
 
-        ORDERLY(DEFAULT_ORDERLY, "顺序消息");
+        ORDERLY(DEFAULT_ORDERLY, "顺序消息", ROCKETMQ),
+
+        KAFKA_DEFAULT(DEFAULT_KAFKA, "kafka消息", KAFKA);
         /**
-         * 标识
+         * 标识，必须唯一
          */
         private final String code;
         /**
          * 描述
          */
         private final String desc;
-
+        /**
+         * MQ类型
+         */
+        private final MqType mqType;
     }
 
     interface MessageTypeCode {
         String DEFAULT_NORMAL = "normal";
         String DEFAULT_ORDERLY = "orderly";
+        String DEFAULT_KAFKA = "defaultConfig";
     }
 }

@@ -5,10 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration;
 import org.gy.framework.core.support.*;
 import org.gy.framework.mq.annotation.EnableMQ;
-import org.gy.framework.mq.config.RocketMqManager;
-import org.gy.framework.mq.config.RocketMqManager.RocketMQPropertiesMap;
+import org.gy.framework.mq.config.MqManager;
+import org.gy.framework.mq.config.MqManagerAction;
+import org.gy.framework.mq.config.MqProperties;
+import org.gy.framework.mq.config.support.DefaultMqManager;
 import org.gy.framework.mq.core.EventLogService;
 import org.gy.framework.mq.core.EventMessageDispatchService;
+import org.gy.framework.mq.core.EventMessageHandler;
 import org.gy.framework.mq.core.TraceService;
 import org.gy.framework.mq.core.support.*;
 import org.gy.framework.mq.model.IEventType;
@@ -18,7 +21,8 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -30,18 +34,18 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Slf4j
 @Configuration
-@EnableAutoConfiguration(exclude = RocketMQAutoConfiguration.class)
+@EnableConfigurationProperties(MqProperties.class)
+@EnableAutoConfiguration(exclude = {RocketMQAutoConfiguration.class, KafkaAutoConfiguration.class})
 @ComponentScan(basePackageClasses = MqConfig.class)
 public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostProcessor, CommonBoostrapAction {
 
     public static final Set<Class<?>> DEFAULT_ASSIGNABLE_CLASSES = Sets.newHashSet(IMessageType.class, IEventType.class);
-
-    public static final String ROCKETMQ_PREFIX = "rocketmq";
 
     private AnnotationAttributes enableAsync;
 
@@ -85,6 +89,12 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostP
     }
 
     @Bean
+    @ConditionalOnMissingBean(EventMessageProducerRegister.class)
+    public EventMessageProducerRegister eventMessageProducerRegister(MqProperties properties) {
+        return new EventMessageProducerRegister(properties);
+    }
+
+    @Bean
     @ConditionalOnMissingBean(DynamicEventStrategyRegister.class)
     public DynamicEventStrategyRegister dynamicEventStrategyRegister() {
         return new DynamicEventStrategyRegister();
@@ -103,24 +113,10 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostP
     }
 
     @Bean
-    @ConfigurationProperties(prefix = ROCKETMQ_PREFIX)
-    @ConditionalOnMissingBean(RocketMQPropertiesMap.class)
-    public RocketMQPropertiesMap rocketMqPropertiesMap() {
-        return new RocketMQPropertiesMap();
+    @ConditionalOnMissingBean(MqManager.class)
+    public MqManager defaultMqManager(List<MqManagerAction<?, ?>> actions, List<EventMessageHandler> messageHandlers) {
+        return new DefaultMqManager(actions, messageHandlers);
     }
-
-    @Bean
-    @ConditionalOnMissingBean(EventMessageProducerRegister.class)
-    public EventMessageProducerRegister eventMessageProducerRegister(RocketMQPropertiesMap rocketMqPropertiesMap) {
-        return new EventMessageProducerRegister(rocketMqPropertiesMap);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(RocketMqManager.class)
-    public RocketMqManager rocketMqManager(RocketMQPropertiesMap rocketMqPropertiesMap) {
-        return new RocketMqManager(rocketMqPropertiesMap);
-    }
-
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {

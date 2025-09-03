@@ -6,11 +6,23 @@
 
 #### 最新maven坐标
 ```xml
-<dependency>
-  <groupId>org.gy.framework</groupId>
-  <artifactId>spring-base-parent</artifactId>
-  <version>1.0.9-SNAPSHOT</version>
-</dependency>
+<!--添加依赖管理-->
+<dependencyManagement>
+  <dependency>
+    <groupId>org.gy.framework</groupId>
+    <artifactId>spring-base-parent</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+    <type>pom</type>
+    <scope>import</scope>
+  </dependency>
+</dependencyManagement>
+<!--添加具体依赖示例-->
+<dependencies>
+  <dependency>
+    <groupId>org.gy.framework</groupId>
+    <artifactId>spring-base-core</artifactId>
+  </dependency>
+</dependencies>
 ```
 
 #### 内容介绍
@@ -29,6 +41,12 @@
 | spring-base-mq         | 消息组件        | [参考文档](spring-base-mq/README.md)         |
 
 #### Change Log
+#### 1.1.0-SNAPSHOT
+- 更新【spring-base-mq】模块代码
+  - `Properties`标准化管理，添加IDE配置提示，提升配置体验
+  - 添加Kafka消息队列支持
+
+
 #### 1.0.9-SNAPSHOT
 添加【spring-base-mq】模块代码，提供统一的消息处理框架，该组件具有以下特点：
 
