@@ -6,7 +6,6 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.gy.framework.mq.model.MqType;
-import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.List;
  * @version 1.0.0
  */
 @Slf4j
-@Component("defaultOrderlyListener")
 public class DefaultOrderlyListener extends AbstractMessageListener implements MessageListenerOrderly {
     @Override
     public ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgList, ConsumeOrderlyContext context) {

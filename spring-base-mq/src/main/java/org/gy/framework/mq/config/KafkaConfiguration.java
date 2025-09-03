@@ -6,6 +6,7 @@ import org.gy.framework.mq.config.MqProperties.GlobalConfig;
 import org.gy.framework.mq.core.EventLogService;
 import org.gy.framework.mq.core.support.DefaultKafkaMessageHandler;
 import org.gy.framework.mq.core.support.EventMessageHandlerParseFactory;
+import org.gy.framework.mq.listener.DefaultKafkaListener;
 import org.gy.framework.mq.model.EventLogContext;
 import org.gy.framework.mq.model.EventMessageHandlerContext;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -73,5 +74,11 @@ public class KafkaConfiguration {
     @ConditionalOnMissingBean(DefaultKafkaMessageHandler.class)
     public DefaultKafkaMessageHandler defaultKafkaMessageHandler(KafkaManager kafkaManager) {
         return new DefaultKafkaMessageHandler(kafkaManager);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(DefaultKafkaListener.class)
+    public DefaultKafkaListener defaultKafkaListener() {
+        return new DefaultKafkaListener();
     }
 }

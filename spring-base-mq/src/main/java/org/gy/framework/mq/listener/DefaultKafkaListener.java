@@ -5,10 +5,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.gy.framework.mq.model.MqType;
 import org.springframework.kafka.listener.AcknowledgingMessageListener;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component("defaultKafkaListener")
 public class DefaultKafkaListener extends AbstractMessageListener implements AcknowledgingMessageListener<String, String> {
     @Override
     public void onMessage(ConsumerRecord<String, String> data, Acknowledgment acknowledgment) {

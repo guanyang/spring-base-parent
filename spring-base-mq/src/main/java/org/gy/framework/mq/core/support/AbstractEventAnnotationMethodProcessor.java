@@ -1,12 +1,12 @@
 package org.gy.framework.mq.core.support;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gy.framework.core.support.CommonServiceManager;
@@ -152,7 +152,7 @@ public abstract class AbstractEventAnnotationMethodProcessor<A extends Annotatio
      */
     protected Map<String, Object> internalRegisterAnnotationMethod(Object bean, String beanName) {
         Map<Method, A> methodMap = findAnnotationMethod(beanName, bean.getClass());
-        if (MapUtils.isEmpty(methodMap)) {
+        if (MapUtil.isEmpty(methodMap)) {
             return Collections.emptyMap();
         }
         Map<String, Object> beanMap = Maps.newLinkedHashMap();

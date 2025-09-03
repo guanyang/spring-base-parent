@@ -2,33 +2,33 @@ package org.gy.framework.mq;
 
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration;
-import org.gy.framework.core.support.*;
+import org.gy.framework.core.support.CommonBoostrapManager;
+import org.gy.framework.core.support.CommonServiceAction;
+import org.gy.framework.core.support.CommonServiceManager;
+import org.gy.framework.core.support.CommonServiceScanAnnotationParser;
 import org.gy.framework.mq.annotation.EnableMQ;
 import org.gy.framework.mq.config.MqManager;
 import org.gy.framework.mq.config.MqManagerAction;
 import org.gy.framework.mq.config.MqProperties;
 import org.gy.framework.mq.config.support.DefaultMqManager;
-import org.gy.framework.mq.core.EventLogService;
-import org.gy.framework.mq.core.EventMessageDispatchService;
-import org.gy.framework.mq.core.EventMessageHandler;
-import org.gy.framework.mq.core.TraceService;
+import org.gy.framework.mq.core.*;
 import org.gy.framework.mq.core.support.*;
 import org.gy.framework.mq.model.IEventType;
 import org.gy.framework.mq.model.IMessageType;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
@@ -38,12 +38,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.gy.framework.mq.MqConfig.KAFKA;
+import static org.gy.framework.mq.MqConfig.ROCKETMQ;
+
 @Slf4j
 @Configuration
 @EnableConfigurationProperties(MqProperties.class)
-@EnableAutoConfiguration(exclude = {RocketMQAutoConfiguration.class, KafkaAutoConfiguration.class})
+@EnableAutoConfiguration(excludeName = {ROCKETMQ, KAFKA})
 @ComponentScan(basePackageClasses = MqConfig.class)
-public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostProcessor, CommonBoostrapAction {
+public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryAware, InitializingBean, DisposableBean {
+    //需要排除的全限定类名，类存在则排除，不存在则忽略
+    public static final String ROCKETMQ = "org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration";
+    public static final String KAFKA = "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration";
 
     public static final Set<Class<?>> DEFAULT_ASSIGNABLE_CLASSES = Sets.newHashSet(IMessageType.class, IEventType.class);
 
@@ -84,8 +90,8 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostP
 
     @Bean
     @ConditionalOnMissingBean(DynamicEventStrategyAspect.class)
-    public DynamicEventStrategyAspect dynamicEventStrategyAspect() {
-        return new DynamicEventStrategyAspect();
+    public DynamicEventStrategyAspect dynamicEventStrategyAspect(Map<String, EventAnnotationMethodProcessor<?>> methodProcessorMap) {
+        return new DynamicEventStrategyAspect(methodProcessorMap);
     }
 
     @Bean
@@ -119,8 +125,10 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostP
     }
 
     @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        if (beanFactory instanceof ConfigurableListableBeanFactory) {
+            this.beanFactory = (ConfigurableListableBeanFactory) beanFactory;
+        }
     }
 
     @Override
@@ -138,17 +146,12 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryPostP
     }
 
     @Override
-    public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE - 400;
-    }
-
-    @Override
     public void destroy() {
         log.info("MqConfig destroy success.");
     }
 
     @Override
-    public void init() {
+    public void afterPropertiesSet() {
         CommonServiceScanAnnotationParser parser = new CommonServiceScanAnnotationParser(this.enableAsync, this.environment, this.beanFactory);
         //默认添加EnableMQ注解所在包和MqConfig所在包扫描
         Map<String, Object> registerBean = parser.parseAndRegister(() -> Sets.newHashSet(ClassUtils.getPackageName(enableMQClassName), ClassUtils.getPackageName(MqConfig.class)));

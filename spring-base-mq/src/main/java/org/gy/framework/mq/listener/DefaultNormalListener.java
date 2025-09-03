@@ -6,7 +6,6 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.gy.framework.mq.model.MqType;
-import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.List;
  * @version 1.0.0
  */
 @Slf4j
-@Component("defaultNormalListener")
 public class DefaultNormalListener extends AbstractMessageListener implements MessageListenerConcurrently {
 
     @Override
