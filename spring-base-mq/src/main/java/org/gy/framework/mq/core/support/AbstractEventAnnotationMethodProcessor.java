@@ -164,7 +164,7 @@ public abstract class AbstractEventAnnotationMethodProcessor<A extends Annotatio
             EventMessageConsumerService<Object, Object> eventService = new DefaultDynamicEventMessageServiceImpl(ctx);
             String eventBeanName = uniqueKey(beanName, method.getName());
             SpringUtil.registerBean(eventBeanName, eventService);
-            beanMap.put(eventBeanName, eventService);
+            beanMap.put(eventBeanName, SpringUtil.getBean(eventBeanName));
         }
         return beanMap;
     }

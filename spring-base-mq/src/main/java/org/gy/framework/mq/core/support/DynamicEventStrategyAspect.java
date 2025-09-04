@@ -37,7 +37,7 @@ public class DynamicEventStrategyAspect implements InitializingBean, DisposableB
             Advisor advisor = new DefaultPointcutAdvisor(pointcut, methodProcessor);
             String beanName = uniqueKey(processorBeanName, BEAN_SUFFIX);
             SpringUtil.registerBean(beanName, advisor);
-            advisorBeanMap.put(beanName, advisor);
+            advisorBeanMap.put(beanName, SpringUtil.getBean(beanName));
         });
         log.info("DynamicEventStrategyAspect init success, registerBean size: {}", advisorBeanMap.size());
     }

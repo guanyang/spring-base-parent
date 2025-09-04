@@ -7,9 +7,7 @@ import org.gy.framework.core.support.CommonServiceAction;
 import org.gy.framework.core.support.CommonServiceManager;
 import org.gy.framework.core.support.CommonServiceScanAnnotationParser;
 import org.gy.framework.mq.annotation.EnableMQ;
-import org.gy.framework.mq.config.MqManager;
-import org.gy.framework.mq.config.MqManagerAction;
-import org.gy.framework.mq.config.MqProperties;
+import org.gy.framework.mq.config.*;
 import org.gy.framework.mq.config.support.DefaultMqManager;
 import org.gy.framework.mq.core.*;
 import org.gy.framework.mq.core.support.*;
@@ -26,39 +24,36 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.gy.framework.mq.MqConfig.KAFKA;
-import static org.gy.framework.mq.MqConfig.ROCKETMQ;
+import static org.gy.framework.mq.MQAutoConfiguration.KAFKA;
+import static org.gy.framework.mq.MQAutoConfiguration.ROCKETMQ;
 
 @Slf4j
 @Configuration
 @EnableConfigurationProperties(MqProperties.class)
 @EnableAutoConfiguration(excludeName = {ROCKETMQ, KAFKA})
-@ComponentScan(basePackageClasses = MqConfig.class)
-public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryAware, InitializingBean, DisposableBean {
+@Import({KafkaConfiguration.class, RocketMQConfiguration.class})
+public class MQAutoConfiguration implements ImportAware, EnvironmentAware, BeanFactoryAware, InitializingBean, DisposableBean {
     //需要排除的全限定类名，类存在则排除，不存在则忽略
     public static final String ROCKETMQ = "org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration";
     public static final String KAFKA = "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration";
 
     public static final Set<Class<?>> DEFAULT_ASSIGNABLE_CLASSES = Sets.newHashSet(IMessageType.class, IEventType.class);
 
-    private AnnotationAttributes enableAsync;
-
-    /**
-     * 获取 EnableMQ 注解所在类名称
-     */
-    private String enableMQClassName;
+    private AnnotationAttributes importAttributes;
+    private AnnotationMetadata importMetadata;
 
     private Environment environment;
 
@@ -138,11 +133,9 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryAware
 
     @Override
     public void setImportMetadata(AnnotationMetadata importMetadata) {
-        this.enableAsync = AnnotationAttributes.fromMap(importMetadata.getAnnotationAttributes(EnableMQ.class.getName()));
-        if (this.enableAsync == null) {
-            throw new IllegalArgumentException("@EnableMQ is not present on importing class " + importMetadata.getClassName());
-        }
-        this.enableMQClassName = importMetadata.getClassName();
+        this.importMetadata = importMetadata;
+        this.importAttributes = AnnotationAttributes.fromMap(importMetadata.getAnnotationAttributes(EnableMQ.class.getName()));
+        Assert.notNull(importAttributes, () -> "@EnableMQ is not present on importing class: " + importMetadata.getClassName());
     }
 
     @Override
@@ -152,9 +145,9 @@ public class MqConfig implements ImportAware, EnvironmentAware, BeanFactoryAware
 
     @Override
     public void afterPropertiesSet() {
-        CommonServiceScanAnnotationParser parser = new CommonServiceScanAnnotationParser(this.enableAsync, this.environment, this.beanFactory);
+        CommonServiceScanAnnotationParser parser = new CommonServiceScanAnnotationParser(this.importAttributes, this.environment, this.beanFactory);
         //默认添加EnableMQ注解所在包和MqConfig所在包扫描
-        Map<String, Object> registerBean = parser.parseAndRegister(() -> Sets.newHashSet(ClassUtils.getPackageName(enableMQClassName), ClassUtils.getPackageName(MqConfig.class)));
+        Map<String, Object> registerBean = parser.parseAndRegister(importMetadata, () -> Sets.newHashSet(ClassUtils.getPackageName(MQAutoConfiguration.class)));
         registerBean.forEach((beanName, bean) -> beanInit(bean));
         log.info("MqConfig init success, registerBean size: {}", registerBean.size());
     }

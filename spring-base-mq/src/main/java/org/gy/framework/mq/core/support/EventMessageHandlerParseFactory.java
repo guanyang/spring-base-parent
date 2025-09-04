@@ -1,7 +1,7 @@
 package org.gy.framework.mq.core.support;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -12,10 +12,7 @@ import org.gy.framework.mq.model.EventMessageHandlerContext;
 import org.gy.framework.mq.model.MqType;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
 
 import static org.gy.framework.mq.model.MqType.KAFKA;
 import static org.gy.framework.mq.model.MqType.ROCKETMQ;

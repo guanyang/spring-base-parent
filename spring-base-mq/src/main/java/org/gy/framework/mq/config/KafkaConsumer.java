@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.gy.framework.mq.config.MqProperties.ConsumerListener;
 import org.gy.framework.mq.config.MqProperties.KafkaProperty;
+import org.gy.framework.mq.config.support.KafkaConsumerContextInterceptor;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.kafka.DefaultKafkaConsumerFactoryCustomizer;
@@ -94,6 +95,7 @@ public class KafkaConsumer implements InitializingBean, DisposableBean {
         DefaultErrorHandler errorHandler = SpringUtil.getBean(DefaultErrorHandler.class);
         Assert.notNull(errorHandler, () -> "DefaultErrorHandler not found");
         factory.setCommonErrorHandler(errorHandler);
+        factory.setRecordInterceptor(new KafkaConsumerContextInterceptor());
         configureListenerFactory(kafkaProperty, factory);
         configureContainer(kafkaProperty, factory.getContainerProperties());
         return factory;

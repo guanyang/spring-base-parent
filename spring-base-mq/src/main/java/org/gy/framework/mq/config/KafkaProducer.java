@@ -4,6 +4,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.mq.config.MqProperties.KafkaProperty;
+import org.gy.framework.mq.config.support.KafkaProducerContextInterceptor;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.kafka.DefaultKafkaProducerFactoryCustomizer;
@@ -55,7 +56,9 @@ public class KafkaProducer implements InitializingBean, DisposableBean {
     }
 
     protected ProducerFactory<Object, Object> kafkaProducerFactory(KafkaProperty kafkaProperty) {
-        DefaultKafkaProducerFactory<Object, Object> factory = new DefaultKafkaProducerFactory<>(kafkaProperty.buildProducerProperties());
+        Map<String, Object> properties = kafkaProperty.buildProducerProperties();
+        KafkaProducerContextInterceptor.addInterceptor(properties, KafkaProducerContextInterceptor.class);
+        DefaultKafkaProducerFactory<Object, Object> factory = new DefaultKafkaProducerFactory<>(properties);
         String transactionIdPrefix = kafkaProperty.getProducer().getTransactionIdPrefix();
         if (transactionIdPrefix != null) {
             factory.setTransactionIdPrefix(transactionIdPrefix);

@@ -7,6 +7,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
+import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
@@ -55,7 +56,11 @@ public class CommonServiceScanAnnotationParser {
     }
 
     public Map<String, Object> parseAndRegister(Supplier<Set<String>> declaringPackages) {
-        String[] basePackages = StringUtils.toStringArray(parse(declaringPackages));
+        return parseAndRegister(null, declaringPackages);
+    }
+
+    public Map<String, Object> parseAndRegister(AnnotationMetadata importMetadata, Supplier<Set<String>> declaringPackages) {
+        String[] basePackages = StringUtils.toStringArray(parse(importMetadata, declaringPackages));
         if (CollectionUtils.isEmpty(assignableClasses)) {
             Set<Class<?>> scanClasses = SpringClassScanner.scanPackage(annotationClass, null, basePackages);
             return SpringClassScanner.register(scanClasses, beanNameMapper, beanFactory);
@@ -69,7 +74,7 @@ public class CommonServiceScanAnnotationParser {
         return beanMap;
     }
 
-    private Set<String> parse(Supplier<Set<String>> declaringPackages) {
+    private Set<String> parse(AnnotationMetadata importMetadata, Supplier<Set<String>> declaringPackages) {
         Set<String> basePackages = new LinkedHashSet<>();
         String[] basePackagesArray = componentScan.getStringArray("basePackages");
         for (String pkg : basePackagesArray) {
@@ -78,6 +83,9 @@ public class CommonServiceScanAnnotationParser {
         }
         for (Class<?> clazz : componentScan.getClassArray("basePackageClasses")) {
             basePackages.add(ClassUtils.getPackageName(clazz));
+        }
+        if (basePackages.isEmpty() && importMetadata != null) {
+            basePackages.add(ClassUtils.getPackageName(importMetadata.getClassName()));
         }
         if (declaringPackages != null) {
             basePackages.addAll(declaringPackages.get());
