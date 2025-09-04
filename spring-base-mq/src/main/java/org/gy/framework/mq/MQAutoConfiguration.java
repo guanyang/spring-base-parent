@@ -37,13 +37,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.gy.framework.mq.MQAutoConfiguration.KAFKA;
-import static org.gy.framework.mq.MQAutoConfiguration.ROCKETMQ;
-
 @Slf4j
 @Configuration
 @EnableConfigurationProperties(MqProperties.class)
-@EnableAutoConfiguration(excludeName = {ROCKETMQ, KAFKA})
 @Import({KafkaConfiguration.class, RocketMQConfiguration.class})
 public class MQAutoConfiguration implements ImportAware, EnvironmentAware, BeanFactoryAware, InitializingBean, DisposableBean {
     //需要排除的全限定类名，类存在则排除，不存在则忽略
@@ -158,5 +154,11 @@ public class MQAutoConfiguration implements ImportAware, EnvironmentAware, BeanF
         if (match && bean instanceof CommonServiceAction) {
             ((CommonServiceAction) bean).init();
         }
+    }
+
+    @Configuration
+    @EnableAutoConfiguration(excludeName = {ROCKETMQ, KAFKA})
+    public static class ExcludeAutoConfiguration {
+
     }
 }
