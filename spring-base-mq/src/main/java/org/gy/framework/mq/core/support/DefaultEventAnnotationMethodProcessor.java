@@ -7,6 +7,7 @@ import org.gy.framework.mq.core.EventLogService;
 import org.gy.framework.mq.model.DynamicEventContext;
 import org.gy.framework.mq.model.IEventType;
 import org.gy.framework.mq.model.IMessageType;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
@@ -18,7 +19,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class DefaultEventAnnotationMethodProcessor extends AbstractEventAnnotationMethodProcessor<DynamicEventStrategy> {
 
-    public DefaultEventAnnotationMethodProcessor(EventLogService eventLogService) {
+    public DefaultEventAnnotationMethodProcessor(ObjectProvider<EventLogService> eventLogService) {
         super(eventLogService);
     }
 

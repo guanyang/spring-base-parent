@@ -25,7 +25,7 @@ import static org.gy.framework.mq.config.MqProperties.KAFKA_PREFIX;
 import static org.gy.framework.mq.model.MqType.KAFKA;
 
 @Slf4j
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(KafkaTemplate.class)
 @ConditionalOnNonEmptyCollection(prefix = KAFKA_PREFIX)
 public class KafkaConfiguration {
@@ -44,7 +44,7 @@ public class KafkaConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(DefaultErrorHandler.class)
-    public DefaultErrorHandler customErrorHandler(MqProperties properties, EventLogService eventLogService) {
+    public DefaultErrorHandler defaultErrorHandler(MqProperties properties, EventLogService eventLogService) {
         GlobalConfig globalConfig = properties.getGlobalConfig();
         ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(globalConfig.getRetryTimes());
         backOff.setInitialInterval(globalConfig.getInitialInterval());
@@ -59,7 +59,7 @@ public class KafkaConfiguration {
             EventLogContext.handleEventLog(Collections.singletonList(context.getEventMessage()), ex, eventLogService::batchSaveEventLog);
         }, backOff);
         // 配置哪些异常不触发重试
-        errorHandler.addNotRetryableExceptions(IllegalArgumentException.class);
+//        errorHandler.addNotRetryableExceptions(IllegalArgumentException.class);
         errorHandler.setCommitRecovered(true);
         return errorHandler;
     }

@@ -130,7 +130,7 @@ public class SpringClassScanner {
             String beanName = uniqueKey(simpleName, ((Enum<?>) constant).name());
             if (!beanFactory.containsBean(beanName)) {
                 beanFactory.registerSingleton(beanName, constant);
-                beanMap.put(beanName, constant);
+                beanMap.put(beanName, beanFactory.getBean(beanName));
             }
         }
     }
@@ -139,8 +139,10 @@ public class SpringClassScanner {
         String beanName = Optional.ofNullable(beanNameMapper).map(mapper -> mapper.apply(clazz)).orElseGet(clazz::getSimpleName);
         if (!beanFactory.containsBean(beanName)) {
             Object instance = clazz.newInstance();
+            beanFactory.autowireBean(instance);
+            beanFactory.initializeBean(instance, beanName);
             beanFactory.registerSingleton(beanName, instance);
-            beanMap.put(beanName, instance);
+            beanMap.put(beanName, beanFactory.getBean(beanName));
         }
     }
 

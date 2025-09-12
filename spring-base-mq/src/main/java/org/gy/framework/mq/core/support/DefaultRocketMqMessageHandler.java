@@ -65,7 +65,7 @@ public class DefaultRocketMqMessageHandler extends AbstractEventMessageHandler {
         try {
             sendInternal(producer, eventMessages, true);
         } catch (Exception e) {
-            EventLogContext.handleEventLog(eventMessages, e, eventLogService::batchSaveEventLog);
+            internalEventLog(eventMessages, e);
         }
     }
 
@@ -130,7 +130,7 @@ public class DefaultRocketMqMessageHandler extends AbstractEventMessageHandler {
 
             @Override
             public void onException(Throwable e) {
-                EventLogContext.handleEventLog(eventMessages, e, eventLogService::batchSaveEventLog);
+                internalEventLog(eventMessages, e);
             }
         };
     }

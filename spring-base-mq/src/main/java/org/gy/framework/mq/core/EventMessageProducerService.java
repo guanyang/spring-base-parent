@@ -97,12 +97,13 @@ public interface EventMessageProducerService extends CommonServiceAction {
     /**
      * 初始化
      */
+    @Override
     default void init() {
         CommonServiceManager.registerInstance(EventMessageProducerService.class, this, EventMessageProducerService::getMessageTypeCode);
     }
 
-    default String getServiceName() {
-        return StringUtils.joinWith(StrUtil.UNDERLINE, this.getClass().getSimpleName(), getMessageTypeCode());
+    static String getServiceName(Class<?> serviceClass, String messageTypeCode) {
+        return StringUtils.joinWith(StrUtil.UNDERLINE, serviceClass.getSimpleName(), messageTypeCode);
     }
 
 }

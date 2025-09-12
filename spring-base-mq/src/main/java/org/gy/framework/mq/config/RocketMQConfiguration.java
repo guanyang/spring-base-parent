@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 import static org.gy.framework.mq.config.MqProperties.ROCKET_PREFIX;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(RocketMQTemplate.class)
 @ConditionalOnNonEmptyCollection(prefix = ROCKET_PREFIX)
 public class RocketMQConfiguration {

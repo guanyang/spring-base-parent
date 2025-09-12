@@ -16,14 +16,14 @@ import java.util.List;
 public abstract class AbstractEventMessageProducerService implements EventMessageProducerService {
 
     @Resource
-    private MqManager manager;
+    protected MqManager mqManager;
 
     @Resource
-    private EventLogService eventLogService;
+    protected EventLogService eventLogService;
 
     @Override
     public <T> void asyncSend(List<EventMessage<T>> eventSendReqs) {
-        manager.publish(getMessageTypeCode(), eventSendReqs);
+        mqManager.publish(getMessageTypeCode(), eventSendReqs);
     }
 
     @Override

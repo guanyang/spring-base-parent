@@ -76,6 +76,11 @@ public class CommonServiceScanAnnotationParser {
 
     private Set<String> parse(AnnotationMetadata importMetadata, Supplier<Set<String>> declaringPackages) {
         Set<String> basePackages = new LinkedHashSet<>();
+        String[] valueArray = componentScan.getStringArray("value");
+        for (String pkg : valueArray) {
+            String[] tokenized = StringUtils.tokenizeToStringArray(this.environment.resolvePlaceholders(pkg), ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
+            Collections.addAll(basePackages, tokenized);
+        }
         String[] basePackagesArray = componentScan.getStringArray("basePackages");
         for (String pkg : basePackagesArray) {
             String[] tokenized = StringUtils.tokenizeToStringArray(this.environment.resolvePlaceholders(pkg), ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);

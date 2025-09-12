@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -31,16 +32,16 @@ public abstract class AbstractEventMessageHandler implements EventMessageHandler
     public static final String DEFAULT_RETRY_KEY = "X-EventMessageHandler-RetryCount";
 
     @Resource
-    protected EventMessageDispatchService eventMessageDispatchService;
-
-    @Autowired(required = false)
-    protected RedissonClient redisson;
-
-    @Resource
     protected MqProperties properties;
 
     @Resource
     protected EventLogService eventLogService;
+
+    @Resource
+    protected EventMessageDispatchService eventMessageDispatchService;
+
+    @Autowired(required = false)
+    protected RedissonClient redisson;
 
     protected abstract EventMessageHandlerContext parse(Object originalMsg, Object messageListener);
 
@@ -109,7 +110,15 @@ public abstract class AbstractEventMessageHandler implements EventMessageHandler
             ctx.setResponse(dispatchResult.getResult());
         }
         // 保存事件日志（异步）
-        EventLogContext.handleEventLog(Collections.singletonList(ctx), eventLogService::batchSaveEventLog);
+        internalEventLog(Collections.singletonList(ctx));
+    }
+
+    protected void internalEventLog(List<EventLogContext<EventMessage<?>, Object>> ctxList) {
+        EventLogContext.handleEventLog(ctxList, eventLogService::batchSaveEventLog);
+    }
+
+    protected <T> void internalEventLog(List<EventMessage<T>> eventMessages, Throwable ex) {
+        EventLogContext.handleEventLog(eventMessages, ex, eventLogService::batchSaveEventLog);
     }
 
     /**

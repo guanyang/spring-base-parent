@@ -72,7 +72,7 @@ public class EventMessageProducerRegister implements CommonBoostrapAction {
         //配置producer才创建producerService
         if (shouldCreateProducer) {
             EventMessageProducerService producerService = new DefaultEventMessageProducerServiceImpl(messageTypeCode);
-            String beanName = producerService.getServiceName();
+            String beanName = EventMessageProducerService.getServiceName(DefaultEventMessageProducerServiceImpl.class, messageTypeCode);
             SpringUtil.registerBean(beanName, producerService);
             beanMap.put(beanName, SpringUtil.getBean(beanName));
         }

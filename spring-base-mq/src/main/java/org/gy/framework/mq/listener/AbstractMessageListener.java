@@ -14,7 +14,7 @@ import javax.annotation.Resource;
 public abstract class AbstractMessageListener {
 
     @Resource
-    private MqManager mqManager;
+    protected MqManager mqManager;
 
     /**
      * 订阅消息

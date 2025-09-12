@@ -17,6 +17,7 @@ import org.gy.framework.mq.model.DynamicEventContext;
 import org.gy.framework.mq.model.EventLogContext;
 import org.gy.framework.mq.model.EventMessage;
 import org.gy.framework.mq.model.IEventType;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.MethodIntrospector.MetadataLookup;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -34,9 +35,9 @@ import java.util.function.Function;
 @Slf4j
 public abstract class AbstractEventAnnotationMethodProcessor<A extends Annotation> implements EventAnnotationMethodProcessor<A> {
 
-    private final EventLogService eventLogService;
+    protected final ObjectProvider<EventLogService> eventLogService;
 
-    public AbstractEventAnnotationMethodProcessor(EventLogService eventLogService) {
+    public AbstractEventAnnotationMethodProcessor(ObjectProvider<EventLogService> eventLogService) {
         this.eventLogService = eventLogService;
     }
 
@@ -94,7 +95,10 @@ public abstract class AbstractEventAnnotationMethodProcessor<A extends Annotatio
     protected Object internalInvoke(MethodInvocation invocation) throws Throwable {
         IEventType eventType = getEventType(invocation, this::getEventTypeCode);
         EventMessage<Object> req = buildEventMessage(eventType, invocation);
-        return EventLogContext.handleWithLog(req, data -> proceed(invocation), eventLogService::batchSaveEventLog);
+        return EventLogContext.handleWithLog(req, data -> proceed(invocation), ctx -> {
+            EventLogService logService = eventLogService.getIfAvailable(DefaultEventLogServiceImpl::new);
+            logService.batchSaveEventLog(ctx);
+        });
     }
 
     /**

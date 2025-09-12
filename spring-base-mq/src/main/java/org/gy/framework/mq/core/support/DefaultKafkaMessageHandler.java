@@ -73,7 +73,7 @@ public class DefaultKafkaMessageHandler extends AbstractEventMessageHandler {
             }
             listenableFuture.addCallback(buildCallback(Collections.singletonList(eventMessage)));
         } catch (Throwable e) {
-            EventLogContext.handleEventLog(Collections.singletonList(eventMessage), e, eventLogService::batchSaveEventLog);
+            internalEventLog(Collections.singletonList(eventMessage), e);
         }
     }
 
@@ -86,7 +86,7 @@ public class DefaultKafkaMessageHandler extends AbstractEventMessageHandler {
 
             @Override
             public void onFailure(Throwable ex) {
-                EventLogContext.handleEventLog(eventMessages, ex, eventLogService::batchSaveEventLog);
+                internalEventLog(eventMessages, ex);
             }
         });
     }
