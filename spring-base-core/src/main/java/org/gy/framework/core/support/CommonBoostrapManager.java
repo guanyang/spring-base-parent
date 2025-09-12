@@ -33,7 +33,9 @@ public class CommonBoostrapManager implements BeanFactoryPostProcessor, SmartIni
     public void destroy() {
         if (init.compareAndSet(true, false)) {
             actionMap.values().stream().sorted(Comparator.comparingInt(CommonBoostrapAction::getOrder).reversed()).forEach(CommonBoostrapAction::destroy);
-            log.info("[CommonBoostrapManager]destroy success, service size: {}", actionMap.size());
+            int size = actionMap.size();
+            actionMap.clear();
+            log.info("[CommonBoostrapManager]destroy success, service size: {}", size);
         }
     }
 

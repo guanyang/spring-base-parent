@@ -96,7 +96,7 @@ public class CommonServiceManager implements BeanFactoryPostProcessor, CommonBoo
 
         Map<Object, CommonServiceAction> serviceInstanceMap = SERVICE_MAP.computeIfAbsent(serviceClass, k -> new ConcurrentLinkedHashMap<>(LockType.StampedLock));
         //禁止注册相同的类型，避免覆盖导致业务错误
-        if (!ignoreDuplicate){
+        if (!ignoreDuplicate) {
             Assert.isFalse(serviceInstanceMap.containsKey(key), "CommonServiceManager service already registered: service={}, key={}", serviceClass.getName(), key);
         }
         serviceInstanceMap.putIfAbsent(key, serviceInstance);
@@ -120,7 +120,9 @@ public class CommonServiceManager implements BeanFactoryPostProcessor, CommonBoo
         SERVICE_MAP.clear();
         if (init.compareAndSet(true, false)) {
             actionMap.values().stream().sorted(Comparator.comparingInt(CommonServiceAction::getOrder).reversed()).forEach(CommonServiceAction::destroy);
-            log.info("[CommonServiceManager]destroy success, service size: {}", actionMap.size());
+            int size = actionMap.size();
+            actionMap.clear();
+            log.info("[CommonServiceManager]destroy success, service size: {}", size);
         }
     }
 

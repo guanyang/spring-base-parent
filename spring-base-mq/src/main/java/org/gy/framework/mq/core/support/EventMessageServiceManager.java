@@ -7,12 +7,10 @@ import org.gy.framework.core.support.CommonServiceManager;
 import org.gy.framework.mq.core.EventMessageConsumerService;
 import org.gy.framework.mq.core.EventMessageProducerService;
 import org.springframework.core.Ordered;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Slf4j
-@Service
 public class EventMessageServiceManager implements Ordered {
 
     private static final ThreadLocal<EventMessageConsumerService<?, ?>> CURRENT_SERVICE = new TransmittableThreadLocal<>();
