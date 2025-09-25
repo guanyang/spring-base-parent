@@ -1,7 +1,7 @@
 package org.gy.framework.csrf.controller;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.gy.framework.csrf.service.CsrfTokenService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

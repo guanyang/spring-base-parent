@@ -1,5 +1,6 @@
 package org.gy.framework.mq.core.support;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.mq.config.MqManager;
 import org.gy.framework.mq.core.EventLogService;
@@ -9,7 +10,6 @@ import org.gy.framework.mq.model.EventLogContext;
 import org.gy.framework.mq.model.EventMessage;
 import org.springframework.util.Assert;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 @Slf4j

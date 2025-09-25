@@ -161,7 +161,6 @@ public class KafkaConsumer implements InitializingBean, DisposableBean {
         map.from(properties::getIdleEventInterval).as(Duration::toMillis).to(container::setIdleEventInterval);
         map.from(properties::getMonitorInterval).as(Duration::getSeconds).as(Number::intValue).to(container::setMonitorInterval);
         map.from(properties::getLogContainerConfig).to(container::setLogContainerConfig);
-        map.from(properties::isOnlyLogRecordMetadata).to(container::setOnlyLogRecordMetadata);
         map.from(properties::isMissingTopicsFatal).to(container::setMissingTopicsFatal);
     }
 

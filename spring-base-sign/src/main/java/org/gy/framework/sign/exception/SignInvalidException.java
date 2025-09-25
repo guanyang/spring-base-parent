@@ -5,6 +5,8 @@ package org.gy.framework.sign.exception;
  */
 public class SignInvalidException extends RuntimeException {
 
+    private static final long serialVersionUID = 2415564789346816518L;
+
     public SignInvalidException() {
         super();
     }

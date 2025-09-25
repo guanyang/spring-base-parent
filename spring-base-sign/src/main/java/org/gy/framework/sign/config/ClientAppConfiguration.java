@@ -1,11 +1,7 @@
 package org.gy.framework.sign.config;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.gy.framework.sign.SignCommon;
 import org.gy.framework.sign.config.ClientAppProperties.AppItem;
@@ -13,6 +9,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author gy
@@ -31,7 +32,7 @@ public class ClientAppConfiguration {
     @PostConstruct
     public void init() {
         appItemMap = clientAppProperties.getApps().stream()
-            .collect(Collectors.toMap(ClientAppProperties.AppItem::getAppId, Function.identity()));
+                .collect(Collectors.toMap(ClientAppProperties.AppItem::getAppId, Function.identity()));
     }
 
     public boolean checkAppId(int appId) {

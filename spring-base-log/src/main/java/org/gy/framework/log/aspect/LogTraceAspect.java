@@ -2,12 +2,8 @@ package org.gy.framework.log.aspect;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -19,6 +15,11 @@ import org.gy.framework.log.annotation.LogTrace;
 import org.gy.framework.log.model.TraceRequest;
 import org.gy.framework.log.util.LogTraceUtil;
 import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * 功能描述：日志输出切面

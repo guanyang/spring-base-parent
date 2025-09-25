@@ -2,24 +2,23 @@ package org.gy.framework.mq.core.support;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson2.JSON;
+import com.google.common.util.concurrent.FutureCallback;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.gy.framework.mq.config.KafkaManager;
 import org.gy.framework.mq.config.KafkaProducer;
 import org.gy.framework.mq.config.MqProperties.KafkaProperty;
 import org.gy.framework.mq.config.support.KafkaSendCallbackWrapper;
-import org.gy.framework.mq.model.EventLogContext;
 import org.gy.framework.mq.model.EventMessage;
 import org.gy.framework.mq.model.EventMessageHandlerContext;
 import org.gy.framework.mq.model.MqType;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.AcknowledgingMessageListener;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 @Slf4j
@@ -64,21 +63,31 @@ public class DefaultKafkaMessageHandler extends AbstractEventMessageHandler {
 
     protected <T> void sendInternal(KafkaTemplate<Object, Object> kafkaTemplate, String topic, EventMessage<T> eventMessage) {
         try {
-            ListenableFuture<SendResult<Object, Object>> listenableFuture;
+            CompletableFuture<SendResult<Object, Object>> listenableFuture;
             String value = JSON.toJSONString(eventMessage);
             if (StringUtils.isNotBlank(eventMessage.getOrderlyKey())) {
                 listenableFuture = kafkaTemplate.send(topic, eventMessage.getOrderlyKey(), value);
             } else {
                 listenableFuture = kafkaTemplate.send(topic, value);
             }
-            listenableFuture.addCallback(buildCallback(Collections.singletonList(eventMessage)));
+            addCallback(listenableFuture, buildCallback(Collections.singletonList(eventMessage)));
         } catch (Throwable e) {
             internalEventLog(Collections.singletonList(eventMessage), e);
         }
     }
 
-    protected <T, K, V> ListenableFutureCallback<SendResult<K, V>> buildCallback(List<EventMessage<T>> eventMessages) {
-        return KafkaSendCallbackWrapper.of(new ListenableFutureCallback<SendResult<K, V>>() {
+    protected <T> void addCallback(CompletableFuture<T> future, FutureCallback<T> callback) {
+        future.whenComplete((result, ex) -> {
+            if (ex == null) {
+                callback.onSuccess(result);
+            } else {
+                callback.onFailure(ex);
+            }
+        });
+    }
+
+    protected <T, K, V> FutureCallback<SendResult<K, V>> buildCallback(List<EventMessage<T>> eventMessages) {
+        return KafkaSendCallbackWrapper.of(new FutureCallback<>() {
             @Override
             public void onSuccess(SendResult<K, V> result) {
                 log.info("[DefaultKafkaMessageHandler]发送成功：recordMetadata={}", result.getRecordMetadata());

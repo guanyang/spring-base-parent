@@ -1,8 +1,9 @@
 package org.gy.framework.util.regex;
 
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.regex.Pattern;
 
 /**
  * 功能描述：

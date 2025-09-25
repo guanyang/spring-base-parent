@@ -1,10 +1,10 @@
 package org.gy.framework.mq.listener;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.mq.config.MqManager;
 import org.gy.framework.mq.model.MqType;
 
-import javax.annotation.Resource;
 
 
 /**

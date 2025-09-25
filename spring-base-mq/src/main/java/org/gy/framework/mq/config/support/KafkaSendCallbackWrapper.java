@@ -1,14 +1,15 @@
 package org.gy.framework.mq.config.support;
 
 import cn.hutool.extra.spring.SpringUtil;
+import com.google.common.util.concurrent.FutureCallback;
 import org.gy.framework.mq.core.TraceService;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.function.Consumer;
 
-public class KafkaSendCallbackWrapper<T> implements ListenableFutureCallback<T> {
+public class KafkaSendCallbackWrapper<T> implements FutureCallback<T> {
 
-    private final ListenableFutureCallback<T> sendCallback;
+    private final FutureCallback<T> sendCallback;
 
     private final TraceService traceService;
 
@@ -16,14 +17,14 @@ public class KafkaSendCallbackWrapper<T> implements ListenableFutureCallback<T> 
 
     private final transient Thread callThread;
 
-    public KafkaSendCallbackWrapper(ListenableFutureCallback<T> sendCallback) {
+    public KafkaSendCallbackWrapper(FutureCallback<T> sendCallback) {
         this.sendCallback = sendCallback;
         this.traceService = SpringUtil.getBean(TraceService.class);
         this.traceId = traceService.getTraceId();
         this.callThread = Thread.currentThread();
     }
 
-    public static <T> ListenableFutureCallback<T> of(ListenableFutureCallback<T> sendCallback) {
+    public static <T> FutureCallback<T> of(FutureCallback<T> sendCallback) {
         if (sendCallback == null) {
             return null;
         }

@@ -1,8 +1,6 @@
 package org.gy.framework.sign.aspect;
 
-import java.lang.reflect.Method;
-import java.util.stream.Stream;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -15,6 +13,9 @@ import org.gy.framework.sign.dto.SignedReq;
 import org.gy.framework.sign.exception.SignInvalidException;
 import org.gy.framework.sign.util.ParamSignUtils;
 import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Method;
+import java.util.stream.Stream;
 
 /**
  * @author gy

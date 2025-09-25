@@ -1,17 +1,6 @@
 package org.gy.framework.xss.aspect;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -23,8 +12,12 @@ import org.gy.framework.xss.annotation.XssCheck;
 import org.gy.framework.xss.exception.XssException;
 import org.gy.framework.xss.util.ClassCheckUtils;
 import org.gy.framework.xss.util.XssTool;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
  * 功能描述：请求对象的String字段自动进行trim、checkXss
@@ -33,7 +26,6 @@ import org.springframework.validation.annotation.Validated;
  */
 @Slf4j
 @Aspect
-@Component
 public class XssCheckAspect {
 
     @Pointcut("@within(org.springframework.web.bind.annotation.RestController) || @within(org.springframework.stereotype.Controller)")
