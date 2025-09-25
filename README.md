@@ -11,7 +11,7 @@
   <dependency>
     <groupId>org.gy.framework</groupId>
     <artifactId>spring-base-parent</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.1-springboot3-SNAPSHOT</version>
     <type>pom</type>
     <scope>import</scope>
   </dependency>
@@ -41,6 +41,10 @@
 | spring-base-mq         | 消息组件        | [参考文档](spring-base-mq/README.md)         |
 
 #### Change Log
+#### 1.1.1-springboot3-SNAPSHOT
+- 升级springboot版本到3.5.5
+- 升级jdk版本到25
+
 #### 1.1.0-SNAPSHOT
 - 更新【spring-base-mq】模块代码
   - `Properties`标准化管理，添加IDE配置提示，提升配置体验

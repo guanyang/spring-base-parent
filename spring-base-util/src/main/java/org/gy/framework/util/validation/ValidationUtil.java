@@ -1,13 +1,14 @@
 package org.gy.framework.util.validation;
 
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.core.exception.CommonErrorCode;
 import org.gy.framework.core.exception.CommonException;
 import org.springframework.util.CollectionUtils;
+
+import java.util.Set;
 
 /**
  * 功能描述：参数验证工具类

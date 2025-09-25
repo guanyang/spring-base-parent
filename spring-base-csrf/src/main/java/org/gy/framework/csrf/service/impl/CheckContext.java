@@ -1,14 +1,15 @@
 package org.gy.framework.csrf.service.impl;
 
-import java.util.List;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.csrf.config.CsrfConfiguration;
 import org.gy.framework.csrf.constant.CheckTypeEnum;
 import org.gy.framework.csrf.service.CheckService;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author gy

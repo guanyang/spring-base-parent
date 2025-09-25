@@ -2,8 +2,7 @@ package org.gy.framework.util.http;
 
 import com.google.common.base.Strings;
 import com.google.common.net.InetAddresses;
-import javax.annotation.Nonnull;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;

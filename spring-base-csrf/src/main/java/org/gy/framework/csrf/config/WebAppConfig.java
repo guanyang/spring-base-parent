@@ -1,6 +1,6 @@
 package org.gy.framework.csrf.config;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.gy.framework.csrf.interceptor.CsrfInterceptor;
 import org.gy.framework.csrf.service.impl.CheckContext;
 import org.springframework.context.annotation.Configuration;

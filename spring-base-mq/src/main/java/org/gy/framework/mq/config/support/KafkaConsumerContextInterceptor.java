@@ -22,7 +22,7 @@ public class KafkaConsumerContextInterceptor implements RecordInterceptor<Object
     }
 
     @Override
-    public ConsumerRecord<Object, Object> intercept(ConsumerRecord<Object, Object> consumerRecord) {
+    public ConsumerRecord<Object, Object> intercept(ConsumerRecord<Object, Object> consumerRecord, Consumer<Object, Object> consumer) {
         String traceKey = traceService.getTraceKey();
         Header header = Optional.ofNullable(consumerRecord.headers().lastHeader(traceKey)).orElse(null);
         if (header != null) {

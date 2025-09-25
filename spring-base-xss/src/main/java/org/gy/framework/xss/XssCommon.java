@@ -1,14 +1,20 @@
 package org.gy.framework.xss;
 
-import org.springframework.context.annotation.ComponentScan;
+import org.gy.framework.xss.aspect.XssCheckAspect;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * @author gy
  */
 @Configuration
-@ComponentScan(basePackageClasses = XssCommon.class)
 public class XssCommon {
 
+    @Bean
+    @ConditionalOnMissingBean(XssCheckAspect.class)
+    public XssCheckAspect xssCheckAspect() {
+        return new XssCheckAspect();
+    }
 
 }
