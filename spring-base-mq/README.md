@@ -18,10 +18,10 @@
 <!--添加依赖管理-->
 <dependencyManagement>
   <dependency>
-    <groupId>org.gy.framework</groupId>
+    <groupId>io.github.guanyang</groupId>
     <artifactId>spring-base-parent</artifactId>
       <!--注意调整到最新版本-->
-    <version>1.1.0-SNAPSHOT</version>
+    <version>2.0.0-springboot3-SNAPSHOT</version>
     <type>pom</type>
     <scope>import</scope>
   </dependency>
@@ -32,7 +32,7 @@
 <dependencies>
     <!--默认集成RocketMQ依赖-->
     <dependency>
-        <groupId>org.gy.framework</groupId>
+        <groupId>io.github.guanyang</groupId>
         <artifactId>spring-base-mq</artifactId>
     </dependency>
 </dependencies>
@@ -41,7 +41,7 @@
 ```xml
 <dependencies>
     <dependency>
-        <groupId>org.gy.framework</groupId>
+        <groupId>io.github.guanyang</groupId>
         <artifactId>spring-base-mq</artifactId>
         <!--排除RocketMQ-->
         <exclusions>

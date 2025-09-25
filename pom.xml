@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.gy.framework</groupId>
+    <groupId>io.github.guanyang</groupId>
     <artifactId>spring-base-parent</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
@@ -20,7 +20,7 @@
     </modules>
     <properties>
         <!--build & plugin-->
-        <revision>1.1.1-springboot3-SNAPSHOT</revision>
+        <revision>2.0.0-springboot3-SNAPSHOT</revision>
         <java.version>25</java.version>
         <java.encoding>UTF-8</java.encoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -232,52 +232,52 @@
 
             <!-- 框架模块 -->
             <dependency>
-                <groupId>org.gy.framework</groupId>
+                <groupId>io.github.guanyang</groupId>
                 <artifactId>spring-base-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.gy.framework</groupId>
+                <groupId>io.github.guanyang</groupId>
                 <artifactId>spring-base-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.gy.framework</groupId>
+                <groupId>io.github.guanyang</groupId>
                 <artifactId>spring-base-csrf</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.gy.framework</groupId>
+                <groupId>io.github.guanyang</groupId>
                 <artifactId>spring-base-sign</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.gy.framework</groupId>
+                <groupId>io.github.guanyang</groupId>
                 <artifactId>spring-base-xss</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.gy.framework</groupId>
+                <groupId>io.github.guanyang</groupId>
                 <artifactId>spring-base-lock</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.gy.framework</groupId>
+                <groupId>io.github.guanyang</groupId>
                 <artifactId>spring-base-log</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.gy.framework</groupId>
+                <groupId>io.github.guanyang</groupId>
                 <artifactId>spring-base-limit</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.gy.framework</groupId>
+                <groupId>io.github.guanyang</groupId>
                 <artifactId>spring-base-idempotent</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.gy.framework</groupId>
+                <groupId>io.github.guanyang</groupId>
                 <artifactId>spring-base-mq</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -315,9 +315,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>${maven-source-plugin.version}</version>
-                <configuration>
-                    <attach>true</attach>
-                </configuration>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -339,10 +336,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <!-- 忽略 Javadoc 错误 -->
-                    <failOnError>false</failOnError>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

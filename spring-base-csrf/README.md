@@ -8,7 +8,7 @@
 
 ```
 <dependency>
-    <groupId>org.gy.framework</groupId>
+    <groupId>io.github.guanyang</groupId>
     <artifactId>spring-base-csrf</artifactId>
     <version>${project.version}</version>
 </dependency>

@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.gy.framework</groupId>
+    <groupId>io.github.guanyang</groupId>
     <artifactId>spring-base-parent</artifactId>
     <version>${revision}</version>
   </parent>
@@ -11,7 +11,7 @@
   <packaging>jar</packaging>
   <dependencies>
     <dependency>
-      <groupId>org.gy.framework</groupId>
+      <groupId>io.github.guanyang</groupId>
       <artifactId>spring-base-core</artifactId>
     </dependency>
     <dependency>

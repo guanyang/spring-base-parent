@@ -3,7 +3,7 @@
 ### 概览
 - 当前组件主要用于应用访问频率限制，添加注解`LimitCheck`即可快速接入使用
 - 默认支持基于`redis`实现的频率访问控制，需要应用配置`StringRedisTemplate`实例
-- 支持SPI方式扩展实现，接口类：`org.gy.framework.limit.core.ILimitCheckService`
+- 支持SPI方式扩展实现，接口类：`core.io.github.guanyang.limit.ILimitCheckService`
 - 限流key支持多种解析器，也可以自定义实现`LimitKeyResolver`即可
   - `ExpressionLimitKeyResolver.class`: 默认解析器，基于Spel表达式实现
   - `GlobalLimitKeyResolver.class`: 全局级别限流Key解析器

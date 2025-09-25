@@ -9,9 +9,9 @@
 <!--添加依赖管理-->
 <dependencyManagement>
   <dependency>
-    <groupId>org.gy.framework</groupId>
+    <groupId>io.github.guanyang</groupId>
     <artifactId>spring-base-parent</artifactId>
-    <version>1.1.1-springboot3-SNAPSHOT</version>
+    <version>2.0.0-springboot3-SNAPSHOT</version>
     <type>pom</type>
     <scope>import</scope>
   </dependency>
@@ -19,7 +19,7 @@
 <!--添加具体依赖示例-->
 <dependencies>
   <dependency>
-    <groupId>org.gy.framework</groupId>
+    <groupId>io.github.guanyang</groupId>
     <artifactId>spring-base-core</artifactId>
   </dependency>
 </dependencies>
@@ -41,6 +41,10 @@
 | spring-base-mq         | 消息组件        | [参考文档](spring-base-mq/README.md)         |
 
 #### Change Log
+#### 2.0.0-springboot3-SNAPSHOT
+- 调整项目groupId为`io.github.guanyang`
+- 调整项目package为`io.github.guanyang`
+
 #### 1.1.1-springboot3-SNAPSHOT
 - 升级springboot版本到3.5.5
 - 升级jdk版本到25

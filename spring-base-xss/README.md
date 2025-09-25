@@ -8,7 +8,7 @@
 - 添加maven依赖
 ```
   <dependency>
-    <groupId>org.gy.framework</groupId>
+    <groupId>io.github.guanyang</groupId>
     <artifactId>spring-base-xss</artifactId>
     <version>${project.version}</version>
   </dependency>

@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=org.gy.framework.sign.config.ClientAppConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=io.github.guanyang.sign.config.ClientAppConfiguration
