@@ -32,9 +32,10 @@ jobs:
       run: |
         echo "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | gpg --batch --import
         gpg --list-secret-keys --keyid-format=long
+      env:
+        GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
 
     - name: Deploy to GitHub Packages
       run: mvn -B clean deploy -DskipTests -Pgithub,release -s $GITHUB_WORKSPACE/settings.xml -U -e
       env:
         GITHUB_TOKEN: ${{ github.token }}
-        GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}

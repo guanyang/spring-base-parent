@@ -11,7 +11,7 @@
   <dependency>
     <groupId>io.github.guanyang</groupId>
     <artifactId>spring-base-parent</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.0.2</version>
     <type>pom</type>
     <scope>import</scope>
   </dependency>
@@ -41,7 +41,7 @@
 | spring-base-mq         | 消息组件        | [参考文档](spring-base-mq/README.md)         |
 
 #### Change Log
-#### 2.0.2-SNAPSHOT
+#### 2.0.2
 - 更新maven配置
 - 更新workflow配置
 
