@@ -50,7 +50,7 @@
     </modules>
     <properties>
         <!--build & plugin-->
-        <revision>2.0.2</revision>
+        <revision>2.0.3-SNAPSHOT</revision>
         <java.version>25</java.version>
         <java.encoding>UTF-8</java.encoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -492,8 +492,8 @@
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>maven-central</publishingServerId>
-                            <autoPublish>true</autoPublish>
-                            <waitUntil>published</waitUntil>
+<!--                            <autoPublish>true</autoPublish>-->
+<!--                            <waitUntil>published</waitUntil>-->
                         </configuration>
                     </plugin>
                 </plugins>
