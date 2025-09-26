@@ -24,12 +24,14 @@ jobs:
         distribution: 'temurin'
         cache: maven
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-        gpg-private-key: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
-        gpg-passphrase: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
 #    - name: Build with Maven
 #      run: mvn -B package -DskipTests -s $GITHUB_WORKSPACE/settings.xml
+    - name: Import GPG key
+      run: |
+        echo "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | gpg --batch --import
+        gpg --list-secret-keys --keyid-format=long
 
     - name: Deploy to GitHub Packages
       run: mvn -B clean deploy -DskipTests -Pgithub,release -s $GITHUB_WORKSPACE/settings.xml
