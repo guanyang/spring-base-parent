@@ -9,8 +9,9 @@
   </parent>
   <artifactId>spring-base-csrf</artifactId>
   <packaging>jar</packaging>
-  <name>${project.artifactId}</name>
+  <name>${project.groupId}:${project.artifactId}</name>
   <description>Spring base csrf module</description>
+  <url>https://github.com/guanyang/spring-base-parent</url>
   <dependencies>
     <dependency>
       <groupId>io.github.guanyang</groupId>
