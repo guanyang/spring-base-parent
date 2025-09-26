@@ -38,7 +38,7 @@ jobs:
     - name: Deploy parent POM
       run: |
           echo "🚀 Deploying parent POM"
-          mvn -B -pl spring-base-parent -am deploy -DskipTests -Pmaven-central,release -s $GITHUB_WORKSPACE/settings.xml -U -e
+          mvn -B -N deploy -DskipTests -Pmaven-central,release -s $GITHUB_WORKSPACE/settings.xml -U -e
     - name: Get all child modules
       id: modules
       run: |
