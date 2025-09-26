@@ -493,6 +493,7 @@
                             <publishingServerId>maven-central</publishingServerId>
                             <deploymentName>${project.artifactId}-${project.version}</deploymentName>
                             <autoPublish>false</autoPublish>
+                            <waitUntil>uploaded</waitUntil>
                         </configuration>
                     </plugin>
                 </plugins>
