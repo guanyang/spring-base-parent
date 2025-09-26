@@ -491,7 +491,7 @@
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>maven-central</publishingServerId>
-                            <deploymentName>${project.artifactId}-${project.version}</deploymentName>
+                            <deploymentName>spring-base-parent-${project.version}</deploymentName>
 <!--                            <centralSnapshotsUrl>https://central.sonatype.com/repository/maven-snapshots/</centralSnapshotsUrl>-->
                             <autoPublish>false</autoPublish>
                             <waitUntil>uploaded</waitUntil>
