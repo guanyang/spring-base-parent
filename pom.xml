@@ -7,7 +7,7 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>Spring base parent project</description>
+    <description>基于springboot的常用组件、工具类封装starter，方便接入使用</description>
     <url>https://github.com/guanyang/spring-base-parent</url>
     <licenses>
         <license>
@@ -29,8 +29,7 @@
     <scm>
         <connection>scm:git:git://github.com/guanyang/spring-base-parent.git</connection>
         <developerConnection>scm:git:ssh://github.com:guanyang/spring-base-parent.git</developerConnection>
-        <url>https://github.com/guanyang/spring-base-parent</url>
-        <tag>HEAD</tag>
+        <url>https://github.com/guanyang/spring-base-parent/tree/master</url>
     </scm>
     <issueManagement>
         <system>Github Issues</system>
@@ -493,7 +492,7 @@
                         <configuration>
                             <publishingServerId>maven-central</publishingServerId>
                             <deploymentName>${project.artifactId}-${project.version}</deploymentName>
-<!--                            <autoPublish>true</autoPublish>-->
+                            <autoPublish>true</autoPublish>
 <!--                            <waitUntil>published</waitUntil>-->
                         </configuration>
                     </plugin>
