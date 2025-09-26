@@ -9,6 +9,8 @@
   </parent>
   <artifactId>spring-base-lock</artifactId>
   <packaging>jar</packaging>
+  <name>${project.artifactId}</name>
+  <description>Spring base lock module</description>
   <dependencies>
     <dependency>
       <groupId>io.github.guanyang</groupId>

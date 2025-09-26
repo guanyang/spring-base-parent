@@ -21,7 +21,7 @@
     <groupId>io.github.guanyang</groupId>
     <artifactId>spring-base-parent</artifactId>
       <!--注意调整到最新版本-->
-    <version>2.0.0-springboot3-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <type>pom</type>
     <scope>import</scope>
   </dependency>

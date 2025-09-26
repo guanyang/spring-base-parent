@@ -9,6 +9,8 @@
   </parent>
   <artifactId>spring-base-limit</artifactId>
   <packaging>jar</packaging>
+  <name>${project.artifactId}</name>
+  <description>Spring base limit module</description>
   <dependencies>
     <dependency>
       <groupId>io.github.guanyang</groupId>

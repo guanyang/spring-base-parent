@@ -11,7 +11,7 @@
   <dependency>
     <groupId>io.github.guanyang</groupId>
     <artifactId>spring-base-parent</artifactId>
-    <version>2.0.0-springboot3-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <type>pom</type>
     <scope>import</scope>
   </dependency>
@@ -41,7 +41,7 @@
 | spring-base-mq         | 消息组件        | [参考文档](spring-base-mq/README.md)         |
 
 #### Change Log
-#### 2.0.0-springboot3-SNAPSHOT
+#### 2.0.0-SNAPSHOT
 - 调整项目groupId为`io.github.guanyang`
 - 调整项目package为`io.github.guanyang`
 

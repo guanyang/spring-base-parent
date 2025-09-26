@@ -9,6 +9,8 @@
   </parent>
   <artifactId>spring-base-util</artifactId>
   <packaging>jar</packaging>
+  <name>${project.artifactId}</name>
+  <description>Spring base util module</description>
   <dependencies>
     <dependency>
       <groupId>io.github.guanyang</groupId>

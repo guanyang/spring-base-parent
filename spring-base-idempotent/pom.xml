@@ -9,6 +9,8 @@
     </parent>
     <artifactId>spring-base-idempotent</artifactId>
     <packaging>jar</packaging>
+    <name>${project.artifactId}</name>
+    <description>Spring base idempotent module</description>
     <dependencies>
         <dependency>
             <groupId>io.github.guanyang</groupId>
