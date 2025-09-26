@@ -50,7 +50,7 @@
     </modules>
     <properties>
         <!--build & plugin-->
-        <revision>2.0.2-gamma-SNAPSHOT</revision>
+        <revision>2.0.2-delta-SNAPSHOT</revision>
         <java.version>25</java.version>
         <java.encoding>UTF-8</java.encoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -406,6 +406,7 @@
             <properties>
                 <gpg.executable>gpg</gpg.executable>
                 <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+                <gpg.skip>false</gpg.skip>
             </properties>
             <build>
                 <plugins>
@@ -455,6 +456,7 @@
                                 <arg>--pinentry-mode</arg>
                                 <arg>loopback</arg>
                             </gpgArguments>
+                            <skip>${gpg.skip}</skip>
                         </configuration>
                         <executions>
                             <execution>
