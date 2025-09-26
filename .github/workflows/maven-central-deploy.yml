@@ -26,7 +26,12 @@ jobs:
         #gpg-private-key: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
         #gpg-passphrase: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         settings-path: ${{ github.workspace }} # location for the settings.xml file
-
+    - name: Import GPG key
+      run: |
+        echo "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | gpg --batch --import
+        gpg --list-secret-keys --keyid-format=long
+      env:
+        GPG_KEY_PASSWORD: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
     - name: Deploy to Maven Central
       run: mvn -B clean deploy -DskipTests -Pmaven-central,release -s $GITHUB_WORKSPACE/settings.xml
       env:
