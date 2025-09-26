@@ -30,24 +30,28 @@ jobs:
       run: |
         echo "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | gpg --batch --import
         gpg --list-secret-keys --keyid-format=long
+
+    - name: Deploy parent POM
+      run: |
+          echo "🚀 Deploying parent POM"
+          mvn -B -N deploy -DskipTests -Dgpg.skip=true -Pmaven-central,release -s $GITHUB_WORKSPACE/settings.xml -U -e
       env:
         GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+    - name: Get all child modules
+      id: modules
+      run: |
+        modules=$(mvn help:evaluate -Dexpression=project.modules -q -DforceStdout | tr -d '[]' | tr ',' ' ')
+        echo "modules=$modules" >> $GITHUB_OUTPUT
 
-#    - name: Deploy parent POM
-#      run: |
-#          echo "🚀 Deploying parent POM"
-#          mvn -B -N deploy -DskipTests -Dgpg.skip=true -Pmaven-central,release -s $GITHUB_WORKSPACE/settings.xml -U -e
-#    - name: Get all child modules
-#      id: modules
-#      run: |
-#        modules=$(mvn help:evaluate -Dexpression=project.modules -q -DforceStdout | tr -d '[]' | tr ',' ' ')
-#        echo "modules=$modules" >> $GITHUB_OUTPUT
-#
-#    - name: Deploy child modules
-#      run: |
-#        for module in ${{ steps.modules.outputs.modules }}; do
-#          echo "🚀 Deploying module: $module"
-#          mvn -B -pl $module -am deploy -DskipTests -Pmaven-central,release -s $GITHUB_WORKSPACE/settings.xml -U -e || exit 1
-#        done
-    - name: Deploy to Maven Central
-      run: mvn -B clean deploy -DskipTests -Pmaven-central,release -s $GITHUB_WORKSPACE/settings.xml -U -e
+    - name: Deploy child modules
+      run: |
+        for module in ${{ steps.modules.outputs.modules }}; do
+          echo "🚀 Deploying module: $module"
+          mvn -B -pl $module -am deploy -DskipTests -Pmaven-central,release -s $GITHUB_WORKSPACE/settings.xml -U -e || exit 1
+        done
+      env:
+        GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+#    - name: Deploy to Maven Central
+#      run: mvn -B clean deploy -DskipTests -Pmaven-central,release -s $GITHUB_WORKSPACE/settings.xml -U -e
+#      env:
+#        GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
