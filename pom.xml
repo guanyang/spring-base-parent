@@ -50,7 +50,7 @@
     </modules>
     <properties>
         <!--build & plugin-->
-        <revision>2.0.2-alpha-SNAPSHOT</revision>
+        <revision>2.0.2-beta-SNAPSHOT</revision>
         <java.version>25</java.version>
         <java.encoding>UTF-8</java.encoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
