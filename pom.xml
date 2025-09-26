@@ -492,6 +492,7 @@
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>maven-central</publishingServerId>
+                            <deploymentName>${project.artifactId}-${project.version}</deploymentName>
 <!--                            <autoPublish>true</autoPublish>-->
 <!--                            <waitUntil>published</waitUntil>-->
                         </configuration>
