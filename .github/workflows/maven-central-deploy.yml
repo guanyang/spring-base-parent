@@ -51,7 +51,14 @@ jobs:
 #        done
 #      env:
 #        GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+    - name: Extract project version
+      id: get_version
+      run: |
+        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -v '^\[' | head -n1 | tr -d '%')
+        echo "project_version=$VERSION" >> $GITHUB_ENV
+        echo "Detected version: $VERSION"
     - name: Deploy to Maven Central
+      if: ${{ !contains(env.project_version, 'SNAPSHOT') }}
       run: mvn -B clean deploy -DskipTests -Pmaven-central,release -s $GITHUB_WORKSPACE/settings.xml -U -e
       env:
         GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
