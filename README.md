@@ -41,6 +41,10 @@
 | spring-base-mq         | 消息组件        | [参考文档](spring-base-mq/README.md)         |
 
 #### Change Log
+#### 2.0.2-SNAPSHOT
+- 更新maven配置
+- 更新workflow配置
+
 #### 2.0.0-SNAPSHOT
 - 调整项目groupId为`io.github.guanyang`
 - 调整项目package为`io.github.guanyang`
