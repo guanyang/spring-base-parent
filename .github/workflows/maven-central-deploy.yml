@@ -19,7 +19,7 @@ jobs:
       with:
         java-version: '25'
         distribution: 'temurin'
-        cache: maven
+#        cache: maven
         server-id: maven-central
         server-username: ${{ secrets.OSSRH_USERNAME }}
         server-password: ${{ secrets.OSSRH_PASSWORD }}
