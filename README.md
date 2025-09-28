@@ -41,6 +41,9 @@
 | spring-base-mq         | 消息组件        | [参考文档](spring-base-mq/README.md)         |
 
 #### Change Log
+#### 2.0.4
+- 添加springboot3 processor配置提示支持
+
 #### 2.0.2
 - 更新maven配置
 - 更新workflow配置
