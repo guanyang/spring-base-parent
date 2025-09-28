@@ -1,21 +1,21 @@
 package io.github.guanyang.mq.annotation.support;
 
 import com.google.common.collect.Sets;
-import lombok.extern.slf4j.Slf4j;
 import io.github.guanyang.core.support.CommonServiceAction;
 import io.github.guanyang.core.support.CommonServiceScanAnnotationParser;
 import io.github.guanyang.mq.MQAutoConfiguration;
 import io.github.guanyang.mq.annotation.EnableMQ;
 import io.github.guanyang.mq.model.IEventType;
 import io.github.guanyang.mq.model.IMessageType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.EnvironmentAware;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.env.Environment;
@@ -30,7 +30,7 @@ import java.util.Set;
  * @author guanyang
  */
 @Slf4j
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 public class MQComponentScanRegistrar implements ImportAware, EnvironmentAware, BeanFactoryAware, InitializingBean, DisposableBean {
 
     public static final Set<Class<?>> DEFAULT_ASSIGNABLE_CLASSES = Sets.newHashSet(IMessageType.class, IEventType.class);

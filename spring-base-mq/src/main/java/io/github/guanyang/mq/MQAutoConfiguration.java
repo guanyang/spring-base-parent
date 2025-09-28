@@ -11,17 +11,20 @@ import io.github.guanyang.mq.core.TraceService;
 import io.github.guanyang.mq.core.support.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import java.util.List;
 
+/**
+ * @author guanyang
+ */
 @Slf4j
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @EnableConfigurationProperties(MqProperties.class)
 @Import({KafkaConfiguration.class, RocketMQConfiguration.class})
 public class MQAutoConfiguration {
@@ -89,7 +92,7 @@ public class MQAutoConfiguration {
         return new DefaultMqManager(actions, messageHandlers);
     }
 
-    @Configuration(proxyBeanMethods = false)
+    @AutoConfiguration
     @EnableAutoConfiguration(excludeName = {ROCKETMQ, KAFKA})
     public static class ExcludeAutoConfiguration {
 
