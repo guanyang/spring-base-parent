@@ -5,13 +5,14 @@
 - 常用组件、工具类封装，方便代码复用
 
 #### 最新maven坐标
+- [Maven central repository坐标](https://central.sonatype.com/artifact/io.github.guanyang/spring-base-parent)
 ```xml
 <!--添加依赖管理-->
 <dependencyManagement>
   <dependency>
     <groupId>io.github.guanyang</groupId>
     <artifactId>spring-base-parent</artifactId>
-    <version>2.0.2</version>
+    <version>2.0.4</version>
     <type>pom</type>
     <scope>import</scope>
   </dependency>
