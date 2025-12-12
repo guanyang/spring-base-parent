@@ -12,7 +12,7 @@
   <dependency>
     <groupId>io.github.guanyang</groupId>
     <artifactId>spring-base-parent</artifactId>
-    <version>2.0.4</version>
+    <version>2.0.5</version>
     <type>pom</type>
     <scope>import</scope>
   </dependency>
@@ -42,6 +42,11 @@
 | spring-base-mq         | 消息组件        | [参考文档](spring-base-mq/README.md)         |
 
 #### Change Log
+#### 2.0.5
+- 优化【spring-base-lock】模块代码，减少资源占用
+- 优化【spring-base-idempotent】模块代码，切换底层锁实现
+- 优化【spring-base-xss】模块代码性能，去掉反射校验，采用json反序列化器实现
+
 #### 2.0.4
 - 添加springboot3 processor配置提示支持
 

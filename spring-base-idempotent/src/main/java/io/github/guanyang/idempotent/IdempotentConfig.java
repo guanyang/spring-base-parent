@@ -6,6 +6,7 @@ import io.github.guanyang.idempotent.core.IdempotentKeyResolver;
 import io.github.guanyang.idempotent.core.IdempotentService;
 import io.github.guanyang.idempotent.core.support.DefaultIdempotentServiceImpl;
 import io.github.guanyang.lock.aop.support.CustomCachedExpressionEvaluator;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -17,7 +18,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
 
@@ -37,11 +37,16 @@ public class IdempotentConfig implements ImportAware, ApplicationContextAware {
 
     @Bean
     @ConditionalOnMissingBean(IdempotentService.class)
-    public IdempotentService idempotentService(List<IdempotentKeyResolver> keyResolvers) {
-        //自定义redisTemplate名称，方便切面注入指定bean，解决应用中存在多个redisTemplate的问题
-        String redisTemplateName = enableAsync.getString("redisTemplateName");
-        StringRedisTemplate stringRedisTemplate = context.getBean(redisTemplateName, StringRedisTemplate.class);
-        return new DefaultIdempotentServiceImpl(keyResolvers, stringRedisTemplate);
+    public IdempotentService idempotentService(List<IdempotentKeyResolver> keyResolvers, CustomCachedExpressionEvaluator evaluator) {
+//        //自定义redisTemplate名称，方便切面注入指定bean，解决应用中存在多个redisTemplate的问题
+//        String redisTemplateName = enableAsync.getString("redisTemplateName");
+//        StringRedisTemplate stringRedisTemplate = context.getBean(redisTemplateName, StringRedisTemplate.class);
+//        return new DefaultIdempotentServiceImpl(keyResolvers, stringRedisTemplate, evaluator);
+
+        //自定义redissonClient名称，方便切面注入指定bean，解决应用中存在多个redissonClient的问题
+        String redissonClientName = enableAsync.getString("redissonClientName");
+        RedissonClient client = context.getBean(redissonClientName, RedissonClient.class);
+        return new DefaultIdempotentServiceImpl(keyResolvers, client, evaluator);
     }
 
     @Bean

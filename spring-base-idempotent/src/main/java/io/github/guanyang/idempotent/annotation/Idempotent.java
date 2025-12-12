@@ -25,6 +25,11 @@ public @interface Idempotent {
     int timeout() default 1;
 
     /**
+     * 幂等的超时时间表达式，支持SpEL或${spring.xxx}，优先级高于timeout
+     */
+    String timeoutExpression() default "";
+
+    /**
      * 时间单位，默认为 SECONDS 秒
      */
     TimeUnit timeUnit() default TimeUnit.SECONDS;

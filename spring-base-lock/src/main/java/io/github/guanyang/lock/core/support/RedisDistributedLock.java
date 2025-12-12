@@ -1,8 +1,8 @@
 package io.github.guanyang.lock.core.support;
 
-import lombok.extern.slf4j.Slf4j;
 import io.github.guanyang.lock.core.AbstractDistributedLock;
 import io.github.guanyang.lock.core.DistributedLock;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
@@ -20,7 +20,7 @@ import java.util.concurrent.*;
 public class RedisDistributedLock extends AbstractDistributedLock implements DistributedLock {
 
     private static final Long SUCCESS = 1L;
-    private static final int DEFAULT_SCHEDULE_THREAD_COUNT = Math.max(Runtime.getRuntime().availableProcessors(), 4);
+    private static final int DEFAULT_SCHEDULE_THREAD_COUNT = Math.min(Runtime.getRuntime().availableProcessors(), 4);
 
     // lua脚本加锁
     private static final String LOCK_SCRIPT_STRING = "if redis.call('setNx',KEYS[1],ARGV[1]) == 1 then return redis.call('pexpire',KEYS[1],ARGV[2]) else return 0 end";
@@ -32,8 +32,7 @@ public class RedisDistributedLock extends AbstractDistributedLock implements Dis
     private static final String RENEW_SCRIPT_STRING = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('pexpire', KEYS[1], ARGV[2]) else return 0 end";
     private static final RedisScript<Long> RENEW_SCRIPT = new DefaultRedisScript<>(RENEW_SCRIPT_STRING, Long.class);
 
-    //续期任务调度
-    private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(DEFAULT_SCHEDULE_THREAD_COUNT);
+    //续期任务调度，大量数据时慎用，会占用过多内存
     private static final ConcurrentHashMap<String, ScheduledFuture<?>> RENEWAL_TASKS = new ConcurrentHashMap<>();
 
     /**
@@ -41,7 +40,7 @@ public class RedisDistributedLock extends AbstractDistributedLock implements Dis
      */
     private final StringRedisTemplate redisTemplate;
 
-    //考虑到续期各种异常因素影响，默认不开启
+    //考虑到续期各种异常因素影响，默认不开启，大量数据时慎用，会占用过多内存
     private final boolean renewal;
 
     public RedisDistributedLock(StringRedisTemplate redisTemplate, String lockKey, long expireMillis) {
@@ -103,7 +102,7 @@ public class RedisDistributedLock extends AbstractDistributedLock implements Dis
         }
         // 续期间隔设置为过期时间的 1/3
         long renewInterval = expireMillis / 3;
-        ScheduledFuture<?> future = SCHEDULER.scheduleAtFixedRate(() -> {
+        ScheduledFuture<?> future = getScheduler().scheduleAtFixedRate(() -> {
             boolean result = innerRenewal(lockKey, requestId, expireMillis);
             log.debug("[RedisDistributedLock]renewal result:lockKey={},requestId={},expireMillis={},renewInterval={},result={}.", lockKey, requestId, expireMillis, renewInterval, result);
             if (!result) {
@@ -124,6 +123,14 @@ public class RedisDistributedLock extends AbstractDistributedLock implements Dis
         if (future != null) {
             future.cancel(true);
         }
+    }
+
+    private static ScheduledExecutorService getScheduler() {
+        return SchedulerHolder.INSTANCE;
+    }
+
+    private static class SchedulerHolder {
+        private static final ScheduledExecutorService INSTANCE = Executors.newScheduledThreadPool(DEFAULT_SCHEDULE_THREAD_COUNT);
     }
 
 

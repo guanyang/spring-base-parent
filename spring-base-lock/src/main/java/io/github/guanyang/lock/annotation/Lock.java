@@ -4,8 +4,8 @@ import io.github.guanyang.lock.core.LockExecutorResolver;
 import io.github.guanyang.lock.core.LockKeyResolver;
 import io.github.guanyang.lock.core.support.ExpressionLockKeyResolver;
 import io.github.guanyang.lock.core.support.FunctionLockKeyResolver;
-import io.github.guanyang.lock.core.support.RedissonLockExecutorResolver;
 import io.github.guanyang.lock.core.support.RedisLockExecutorResolver;
+import io.github.guanyang.lock.core.support.RedissonLockExecutorResolver;
 
 import java.lang.annotation.*;
 
@@ -75,7 +75,7 @@ public @interface Lock {
     long sleepTimeMillis() default 50;
 
     /**
-     * 是否自动续期，默认否，支持的LockExecutorResolver：
+     * 是否自动续期，默认否，大量数据时慎用，会占用过多内存，支持的LockExecutorResolver：
      * <li>RedisLockExecutorResolver</li>
      */
     boolean renewal() default false;
